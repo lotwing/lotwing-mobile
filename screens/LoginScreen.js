@@ -4,6 +4,8 @@ import {
   View,
 } from 'react-native';
 
+import LoginButton from '../components/Login';
+
 export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -12,23 +14,27 @@ export default class LoginScreen extends React.Component {
 
   render() {
   	return (
-      <View>
+      <View style={{
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'stretch',
+      }}>
+
         <TextInput
           style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
           onChangeText={(text) => this.setState({text})}
-          value={this.state.text1}
-        />
-      </View>
-
-      <View>
+          value={this.state.text1} />
+      
         <TextInput
           style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
           onChangeText={(text) => this.setState({text})}
-          value={this.state.text2}
-        />
+          value={this.state.text2} />
+
+        <LoginButton />
+          
       </View>
 
-      <Button> Login </Button>
 
   	);
   }

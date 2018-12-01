@@ -5,7 +5,8 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
-// import LotScreen from '../screens/LotScreen';
+import LoginScreen from '../screens/LoginScreen';
+import LotScreen from '../screens/LotScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const HomeStack = createStackNavigator({
@@ -54,21 +55,36 @@ SettingsStack.navigationOptions = {
   ),
 };
 
-// const LotStack = createStackNavigator({
-//   Lot: LotScreen,
-// });
+const LotStack = createStackNavigator({
+  Lot: LotScreen,
+});
 
-// LotStack.navigationOptions = {
-//   tabBarLabel: 'Lot',
-//   tabBarIcon: ({ focused }) => (
-//     <TabBarIcon
-//       focused={focused}
-//       name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
-//     />
-//   ),
-// };
+LotStack.navigationOptions = {
+  tabBarLabel: 'Lot',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
+    />
+  ),
+};
+
+const LoginStack = createStackNavigator({
+  Login: LoginScreen,
+});
+
+LoginStack.navigationOptions = {
+  tabBarLabel: 'Login',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
+    />
+  ),
+};
 
 export default createBottomTabNavigator({
+  LoginStack,
   LotStack,
   HomeStack,
   LinksStack,

@@ -1,13 +1,10 @@
 import React from 'react';
 import {
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
+
+import LotView from '../components/LotView';
 
 export default class LotScreen extends React.Component {
   static navigationOptions = {
@@ -16,9 +13,9 @@ export default class LotScreen extends React.Component {
 
   render() {
   	return (
-  		<View>
+  		<LotView>
   			<Text> Map View </Text>
-  		</View>
+  		</LotView>
   	);
   }
 }
