@@ -35,7 +35,7 @@ export default class LoginButton extends React.Component {
 			.then((response) => response.json())
       		.then((responseJson) => {
 				if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
-					GlobalVariables.ACCESS_TOKEN = responseJson.access_token;
+					GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
 				}
 			});
     }
