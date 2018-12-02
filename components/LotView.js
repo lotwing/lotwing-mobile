@@ -13,17 +13,23 @@ export default class LotView extends React.Component {
 	}
 
 	_loadLotView() {
-		return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_LOT , {
+		console.log(GlobalVariables.LOTWING_ACCESS_TOKEN);
+		debugger
+
+		return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT , {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Authorization': 'Bearer '+ GlobalVariables.ACCESS_TOKEN,
+					'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
 			  	},
 			})
 			.then((response) => response.json())
       		.then((responseJson) => {
 				console.log(responseJson);
+				
 				GlobalVariables.LOTS = responseJson['parking_lots'];
+				GlobalVariables.PARKING_SPACES = responseJson['parking_spaces'];
+				GlobalVariables.BUILDINGS = responseJson['buildings'];
 			});
 	}
 
