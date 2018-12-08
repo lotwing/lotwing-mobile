@@ -1,7 +1,14 @@
 import React from 'react';
+
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
+import GlobalVariables from './constants/GlobalVariables';
+
 import AppNavigator from './navigation/AppNavigator';
+import Mapbox from '@mapbox/react-native-mapbox-gl';
+
+
+Mapbox.setAccessToken(GlobalVariables.MAPBOX_ACCESSTOKEN);
 
 export default class App extends React.Component {
   state = {
