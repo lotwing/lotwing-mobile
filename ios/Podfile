@@ -2,13 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '10.0'
 
 target 'lotwing-mobile' do
-  pod 'ExpoKit',
-    :git => "http://github.com/expo/expo.git",
-    :tag => "ios/2.9.0",
-    :subspecs => [
-      "Core"
-    ],
-    :inhibit_warnings => true
+
   pod 'EXAdsAdMob',
     :path => "../node_modules/expo-ads-admob/ios"
   pod 'EXBarCodeScanner',
@@ -111,6 +105,14 @@ target 'lotwing-mobile' do
     :inhibit_warnings => true
   pod 'glog',
     :podspec => "../node_modules/react-native/third-party-podspecs/glog.podspec",
+    :inhibit_warnings => true
+
+  pod 'ExpoKit',
+    :git => "http://github.com/expo/expo.git",
+    :tag => "ios/2.9.0",
+    :subspecs => [
+      "Core"
+    ],
     :inhibit_warnings => true
 
 
