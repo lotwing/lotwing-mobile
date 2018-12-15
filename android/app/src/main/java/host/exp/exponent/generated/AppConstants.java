@@ -14,7 +14,9 @@ public class AppConstants {
   public static final String VERSION_NAME = "2.9.2";
   public static String INITIAL_URL = "exp://exp.host/@addboa/lotwing-mobile";
   public static final boolean IS_DETACHED = true;
-  public static final String SHELL_APP_SCHEME = "expe38b4ddffac840dcb8dda4a7eb480a6b";
+  public static final String SHELL_APP_SCHEME = "http";
+  // expe38b4ddffac840dcb8dda4a7eb480a6b
+  
   public static final String RELEASE_CHANNEL = "default";
   public static boolean SHOW_LOADING_VIEW_IN_SHELL_APP = false;
   public static boolean ARE_REMOTE_UPDATES_ENABLED = true;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import GlobalVariables from './constants/GlobalVariables';
 

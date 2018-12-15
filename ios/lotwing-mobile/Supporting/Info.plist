@@ -23,7 +23,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>expe38b4ddffac840dcb8dda4a7eb480a6b</string>
+				<string>exp</string>
 			</array>
 		</dict>
 		<dict>
@@ -69,7 +69,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow lotwing-mobile to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow lotwing-mobile to access your device's accelerometer</string>
+	<string>Allow lotwing-mobile to access your device&apos;s accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give lotwing-mobile permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -87,8 +87,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>

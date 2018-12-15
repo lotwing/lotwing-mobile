@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
+import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 export default class LotScreen extends React.Component {
   static navigationOptions = {
