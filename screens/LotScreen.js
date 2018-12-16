@@ -6,6 +6,8 @@ import {
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
+
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 export default class LotScreen extends React.Component {
@@ -25,6 +27,7 @@ class LotView extends React.Component {
   
   constructor(props) {
       super(props);
+      this._loadLotView();
   }
 
   _loadLotView() {
@@ -37,12 +40,17 @@ class LotView extends React.Component {
       })
       .then((response) => response.json())
           .then((responseJson) => {
-        console.log(responseJson);
-        
-        GlobalVariables.LOTS = responseJson['parking_lots'];
-        GlobalVariables.PARKING_SPACES = responseJson['parking_spaces'];
-        GlobalVariables.BUILDINGS = responseJson['buildings'];
-      });
+            console.log(responseJson);
+            
+            GlobalVariables.LOTS = responseJson['parking_lots'];
+            GlobalVariables.PARKING_SPACES = responseJson['parking_spaces'];
+            GlobalVariables.BUILDINGS = responseJson['buildings'];
+
+            lot_coords = GlobalVariables.LOTS[0]["geo_info"]["geometry"]["coordinates"][0];
+            GlobalVariables.CENTER_COORDINATE = lot_coords[Math.round(lot_coords.length/2) -1];
+          });
+
+
   }
 
   render() {
@@ -52,8 +60,11 @@ class LotView extends React.Component {
         <Mapbox.MapView
             styleURL={Mapbox.StyleURL.Street}
             zoomLevel={15}
-            centerCoordinate={[11.256, 43.770]}
+            centerCoordinate={GlobalVariables.CENTER_COORDINATE}
             style={styles.container}>
+            // <Mapbox.ShapeSource
+            // >
+            // </Mapbox.ShapeSource>
         </Mapbox.MapView>
       </View>
     )
@@ -63,8 +74,9 @@ class LotView extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center", 
-    justifyContent: "center",
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'stretch',
   }
 });
 
