@@ -32,6 +32,10 @@ class LotView extends React.Component {
   
   constructor(props) {
       super(props);
+      this.state = {
+        centerCoordinate:[0, 0],
+      }
+
       this._loadLotView();
   }
 
@@ -51,10 +55,8 @@ class LotView extends React.Component {
 
             // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
             lot_coords = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]["coordinates"][0];
-            GlobalVariables.CENTER_COORDINATE = lot_coords[Math.round(lot_coords.length/2) -1];
-
-            //TODO(adwoa): Set the bearing of the map so it is centered over the current lot
-
+           
+            lotview.setState({centerCoordinate: lot_coords[Math.round(lot_coords.length/2) -1]});
             lotview.add_shapes_to_map(GlobalVariables.LOT_DATA);
           });
   }
@@ -109,11 +111,11 @@ class LotView extends React.Component {
         <Text>Lot View</Text>
 
         <Mapbox.MapView
-            centerCoordinate={GlobalVariables.CENTER_COORDINATE}
+            centerCoordinate={this.state.centerCoordinate}
             showUserLocation={true}
             styleURL={Mapbox.StyleURL.Street}
             style={styles.container}
-            zoomLevel={3}>
+            zoomLevel={15}>
             <Mapbox.ShapeSource
               shape={GlobalVariables.LOT}>
             </Mapbox.ShapeSource>
