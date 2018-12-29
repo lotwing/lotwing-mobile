@@ -95,25 +95,30 @@ class LotView extends React.Component {
   }
 
   getLot() {
-    console.log('LOT SHAPES: ', this.state.lotShapes);
+    console.log('Running getLot..');
     if (this.state.lotShapes) {
+      console.log('- - getLot returning data');
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
-    return null
+    return GlobalVariables.EMPTY_GEOJSON
   }
 
   getBuildings() {
+    console.log('Running getBuildings..');
     if (this.state.lotShapes){
+      console.log('- - getBuildings returning data');
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
-    return null
+    return GlobalVariables.EMPTY_GEOJSON
   }
 
   getSpaces() {
+    console.log('Running getSpaces..');
     if (this.state.lotShapes) {
+      console.log('- - getSpaces returning data');
       return this.state.lotShapes['parking_spaces'][0]["geo_info"]
     }
-    return null
+    return GlobalVariables.EMPTY_GEOJSON
   }
 
   render() {
@@ -158,10 +163,26 @@ class LotView extends React.Component {
 
             <Mapbox.ShapeSource
               id='parking_lot'
-              shape={example_response["parking_lots"][0]["geo_info"]}>
+              shape={this.getLot()}>
               <Mapbox.FillLayer
                 id='fill_parking_lot'
                 style={layerStyles.parking_lot} />
+            </Mapbox.ShapeSource>
+
+            <Mapbox.ShapeSource
+              id ='buildings'
+              shape={this.getBuildings()}>
+              <Mapbox.FillLayer
+                id ='fill_buildings_lot'
+                style={layerStyles.buildings} />
+            </Mapbox.ShapeSource>
+
+            <Mapbox.ShapeSource
+              id ='parking_spaces'
+              shape={this.getSpaces()}>
+              <Mapbox.FillLayer
+                id ='fill_parking_spaces'
+                style={layerStyles.parking_spaces} />
             </Mapbox.ShapeSource>
 
         </Mapbox.MapView>
@@ -183,7 +204,6 @@ const styles = StyleSheet.create({
 
 const example_response = {"parking_lots":[{"id":109,"geo_info":{"id":"b3f2c4bd094417f1a75649788188d4ae","type":"Feature","properties":{},"geometry":{"coordinates":[[[-122.00795251095994,37.35328491285209],[-122.0072706293752,37.35329121557868],[-122.0072706293752,37.353206128777984],[-122.00613283859465,37.35322503695677],[-122.00610905202916,37.352352104020525],[-122.00752831718377,37.352367861027034],[-122.00753624604097,37.35284056955827],[-122.007956475387,37.35283426679378],[-122.00795251095994,37.35328491285209]]],"type":"Polygon"}},"created_at":"2018-10-04T02:24:03.861Z","updated_at":"2018-10-04T02:24:03.861Z","shape_type":"parking_lot","dealership_id":2,"most_recently_tagged_at":null}],"buildings":[{"id":110,"geo_info":{"id":"943cc84a4c073a74a0061c2b9c48f467","type":"Feature","properties":{},"geometry":{"coordinates":[[[-122.00697906373179,37.35295655170566],[-122.00697906373179,37.35266969577961],[-122.0065666479091,37.352674818216826],[-122.0065666479091,37.35255870956236],[-122.00623156005213,37.35255870956236],[-122.00623156005213,37.35295313676387],[-122.00697906373179,37.35295655170566]]],"type":"Polygon"}},"created_at":"2018-10-04T02:26:14.894Z","updated_at":"2018-10-04T02:26:14.894Z","shape_type":"building","dealership_id":2,"most_recently_tagged_at":null}],"parking_spaces":[]};
 
-
 // const lot_draw_props = {
 //   id: this.props.id,
 //   url: this.props.url,
@@ -200,27 +220,3 @@ const example_response = {"parking_lots":[{"id":109,"geo_info":{"id":"b3f2c4bd09
 //   ...this._getImages(),
 //   onPress: undefined,
 // };
-
-// <Mapbox.ShapeSource
-//   id='parking_lot'
-//   shape={this.getLot(this.state.lotShapes)}>
-//   <Mapbox.FillLayer
-//     id='fill_parking_lot'
-//     style={layerStyles.parking_lot} />
-// </Mapbox.ShapeSource>
-
-// <Mapbox.ShapeSource
-//   id ='buildings'
-//   shape={this.getBuildings(this.state.lotShapes)}>
-//   <Mapbox.FillLayer
-//     id ='fill_buildings_lot'
-//     style={layerStyles.buildings} />
-// </Mapbox.ShapeSource>
-
-// <Mapbox.ShapeSource
-//   id ='parking_spaces'
-//   shape={this.getSpaces(this.state.lotShapes)}>
-//   <Mapbox.FillLayer
-//     id ='fill_parking_spaces'
-//     style={layerStyles.parking_spaces} />
-// </Mapbox.ShapeSource>
