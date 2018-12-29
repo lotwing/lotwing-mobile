@@ -12,13 +12,13 @@ import Route from '../constants/Routes';
 export default class LoginScreen extends React.Component {
   
   static navigationOptions = {
-    title: 'LotWing Login',
+    title: 'Lotwing Login',
   };
 
   constructor(props) {
     super(props);
 
-    this.state = { text1: 'Email Address', text2: 'Password'};
+    this.state = { email: 'Email Address', pwd: 'Password'};
   }
 
   render() {
@@ -31,20 +31,25 @@ export default class LoginScreen extends React.Component {
       }}>
 
         <TextInput
+          autoCapitalize='none'
           style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(text) => this.setState({text})}
-          value={this.state.text1} />
+          onChangeText={(email) => this.setState({email})}
+          keyboardType='email-address'
+          placeholder={this.state.email} />
       
         <TextInput
           style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(text) => this.setState({text})}
-          value={this.state.text2} />
+          onChangeText={(pwd) => this.setState({pwd})}
+          secureTextEntry={true}
+          placeholder={this.state.pwd} />
 
-        <LoginButton callback={this.navigationCallback} navigation={this.props.navigation}/>
+        <LoginButton 
+          email={this.state.email}
+          pwd={this.state.pwd}
+          callback={this.navigationCallback} 
+          navigation={this.props.navigation}/>
           
       </View>
-
-
     );
   }
 
@@ -59,12 +64,12 @@ class LoginButton extends React.Component {
     // var email_in = 'aneigher@gmail.com'; // TODO(adwoa): retrieve text input from display
     // var pwd_in = 'front-3011-dev'; // TODO(adwoa): retrieve text input from display
 
-    var email_in = 'adwoa@movementdash.com'; // TODO(adwoa): retrieve text input from display
-    var pwd_in = 'lot-mobile-view'; // TODO(adwoa): retrieve text input from display
+    // var email_in = 'adwoa@movementdash.com'; // TODO(adwoa): retrieve text input from display
+    // var pwd_in = 'lot-mobile-view'; // TODO(adwoa): retrieve text input from display
 
     let login_formdata = new FormData();
-    login_formdata.append('email', email_in);
-    login_formdata.append('password', pwd_in);
+    login_formdata.append('email', this.props.email);
+    login_formdata.append('password', this.props.pwd);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.LOGIN , {
         method: 'POST',
