@@ -18,7 +18,7 @@ export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { email: 'Email Address', pwd: 'Password'};
+    this.state = { email: 'Email Address', pwd: 'Password', debug_email: 'adwoa@movementdash.com', debug_pwd: 'lot-mobile-view'};
   }
 
   render() {
@@ -48,6 +48,12 @@ export default class LoginScreen extends React.Component {
           pwd={this.state.pwd}
           callback={this.navigationCallback} 
           navigation={this.props.navigation}/>
+
+        <LoginButton 
+          email={this.state.debug_email}
+          pwd={this.state.debug_pwd}
+          callback={this.navigationCallback} 
+          navigation={this.props.navigation}/>
           
       </View>
     );
@@ -61,12 +67,6 @@ class LoginButton extends React.Component {
   }
 
   _attemptLogin() {
-    // var email_in = 'aneigher@gmail.com'; // TODO(adwoa): retrieve text input from display
-    // var pwd_in = 'front-3011-dev'; // TODO(adwoa): retrieve text input from display
-
-    // var email_in = 'adwoa@movementdash.com'; // TODO(adwoa): retrieve text input from display
-    // var pwd_in = 'lot-mobile-view'; // TODO(adwoa): retrieve text input from display
-
     let login_formdata = new FormData();
     login_formdata.append('email', this.props.email);
     login_formdata.append('password', this.props.pwd);
