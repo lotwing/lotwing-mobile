@@ -38,6 +38,7 @@ class LotView extends React.Component {
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+      this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
   _loadLotView() {
@@ -64,6 +65,11 @@ class LotView extends React.Component {
               lotShapes: GlobalVariables.LOT_DATA,
             });
           });
+  }
+
+  onSourceLayerPress(e) {
+    const feature = e.nativeEvent.payload;
+    console.log('You pressed a layer here is your feature', feature); // eslint-disable-line
   }
 
   // Function from the Lotwing Web Application
@@ -130,25 +136,6 @@ class LotView extends React.Component {
     
     const parking_space_shapes = [];
 
-    // TRY 1: Each Parking space has it's own ShapeSource -- this is not rendering BUT would be better for handling clicks/individual interactions
-    // if (all_parking_space_shapes["id"] != "empty_geojson") {
-    //   console.log('     PARKING SPACES  are  LOADED');
-
-    //   all_parking_space_shapes.forEach((parking_shape, index) => {
-    //     parking_space_shapes.push(
-    //       <Mapbox.ShapeSource
-    //         id={parking_shape["id"]}
-    //         key={'parking_spaces' + index}
-    //         shape={parking_shape}>
-    //         <Mapbox.FillLayer
-    //           id ='parking_space_fill'
-    //           key={'parking_spaces_fill' + index}
-    //           style={layerStyles.parking_spaces} />
-    //       </Mapbox.ShapeSource>
-    //     ) 
-    //   });
-    // }
-
     // TRY 2: All Parking spaces rendered using a Multipolygon
     if (all_parking_space_coordinates) {
       parking_space_geojson["geometry"]["coordinates"] = all_parking_space_coordinates;
@@ -158,6 +145,7 @@ class LotView extends React.Component {
         <Mapbox.ShapeSource
         id={parking_space_geojson["id"]}
         key={'parking_spaces'}
+        onPress={this.onSourceLayerPress}
         shape={parking_space_geojson}>
         <Mapbox.FillLayer
           id ='parking_space_fill'
