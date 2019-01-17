@@ -125,6 +125,86 @@ class LotView extends React.Component {
     return null
   }
 
+  _createNewPolygon(coordinates, id) {
+    const empty_polygon_geojson = {
+      "id": id,
+      "type": "Feature",
+      "geometry": {
+          "type": "Polygon",
+          "coordinates": [coordinates]
+        }
+    };
+    return empty_polygon_geojson
+  }
+
+  _createFeatureCollection(features) {
+    // const empty_feature_collection_geojson = {
+    //   "id": "parking_spaces",
+    //   "type": "fill",
+    //   "data": {
+    //     "type": "FeatureCollection",
+    //     "features": [features]
+    //   }
+    // };
+    features = features.slice(0,2);
+    const fc = {
+      "type": "FeatureCollection",
+      "features": [
+          {
+              "type": "Feature",
+              "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                      -80.835564,
+                      35.399172
+                  ]
+              }
+          },
+      ]
+    };
+
+    const padang = {
+      "type": "FeatureCollection",
+      "features": [p]
+    };
+
+    const p = {
+        "type": "Polygon",
+        "coordinates": [
+          [
+              [
+                  100,
+                  0
+              ],
+              [
+                  101,
+                  0
+              ],
+              [
+                  101,
+                  1
+              ],
+              [
+                  100,
+                  1
+              ],
+              [
+                  100,
+                  0
+              ]
+          ]
+      ]
+    };
+
+    const empty_feature_collection_geojson = {
+        "id": "parking_spaces",
+        "type": "FeatureCollection",
+        "features": [p]
+    };
+
+    return fc
+  }
+
   renderParkingSpaces() {
     const all_parking_space_coordinates = this.getAllParkingSpaceCoordinates();
     
@@ -165,6 +245,25 @@ class LotView extends React.Component {
           style={layerStyles.parking_spaces} />
       </Mapbox.ShapeSource>
       )
+  
+
+    // TRY 3: Feature Collection
+    // if (all_parking_space_coordinates) {
+    //   let polygons = all_parking_space_coordinates.map((ps_coordinates, count) => this._createNewPolygon(ps_coordinates, count));
+    //   let featureCollection = this._createFeatureCollection(polygons);
+    //   console.log('     returning FeatureCollection\n\n', featureCollection);
+
+    //   return (
+    //     <Mapbox.ShapeSource
+    //     id={parking_space_geojson["id"]}
+    //     key={'parking_spaces'}
+    //     shape={featureCollection}>
+    //     <Mapbox.FillLayer
+    //       id ='parking_space_fill'
+    //       key={'parking_spaces_fill'}
+    //       style={layerStyles.parking_spaces} />
+    //   </Mapbox.ShapeSource>
+    //   )
     
     } else {
       console.log('     PARKING SPACES  not  LOADED');
@@ -258,3 +357,5 @@ const parking_space_geojson = {
     "type": "MultiPolygon"
   }
 };
+
+const debug_location = [37.353285, -122.0079];
