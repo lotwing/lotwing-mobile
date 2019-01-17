@@ -41,6 +41,11 @@ class LotView extends React.Component {
       this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
+  /**
+   * Loads all of the data associated with a lot and updates 
+   * the associated state variables, triggering a reload of
+   * the lotview.
+   */
   _loadLotView() {
     var lotview = this;
 
@@ -67,6 +72,10 @@ class LotView extends React.Component {
           });
   }
 
+  /**
+   * Launches the tag handler for the object that was pressed.
+   * @param e : object returned from the system's onPress handler
+   */
   onSourceLayerPress(e) {
     const feature = e.nativeEvent.payload;
     console.log('You pressed a layer here is your feature', feature); // eslint-disable-line
@@ -224,31 +233,29 @@ const styles = StyleSheet.create({
 
 const layerStyles = Mapbox.StyleSheet.create({
   buildings: {
-    fillColor: 'red',
+    fillColor: '#FF9933',
+    fillOpacity: 0.75,
+  },
+  empty_parking_spaces: {
+    fillColor: '#FFFFFF',
+    fillOpacity: 0.75,
+  },
+  new_vehicle_occupied_spaces: {
+    fillColor: '#006699',
     fillOpacity: 0.75,
   },
   parking_lot: {
-    fillColor: Mapbox.StyleSheet.source(
-      [
-        [0, '#F2F12D'],
-        [100, '#EED322'],
-        [1000, '#E6B71E'],
-        [5000, '#DA9C20'],
-        [10000, '#CA8323'],
-        [50000, '#B86B25'],
-        [100000, '#A25626'],
-        [500000, '#8B4225'],
-        [1000000, '#723122'],
-      ],
-      'population',
-      Mapbox.InterpolationMode.Exponential,
-    ),
-   fillOpacity: 0.75,
+    fillColor: '#CCCCCC',
+   fillOpacity: 1,
   },
   parking_spaces: {
-    fillColor: 'orange',
+    fillColor: '#FFFFFF',
     fillOpacity: 0.75,
-  }
+  },
+  used_vehicle_occupied_spaces: {
+    fillColor: '#66CC00',
+    fillOpacity: 0.75,
+  },
 });
 
 const parking_space_geojson = {
