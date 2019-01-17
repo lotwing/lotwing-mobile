@@ -66,10 +66,47 @@ class LotView extends React.Component {
            
             console.log('\n\nPOPULATING LOADED DATA: ');
             lotview.setState({
-              centerCoordinate: lot_coords[Math.round(lot_coords.length/2) -1],
+              centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
             });
           });
+  }
+
+  _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {
+    let center_coordinate = [];
+
+    if (CENTER_TYPE == "SIMPLE_AVE") {
+      // simple average x and average y of all of the lots coordinates
+      let ave_latitude = 0;
+      let ave_longitude = 0;
+      let num_coordinates = coord.length;
+
+      let center = coord.forEach((point) => {
+        ave_latitude += point[0];
+        ave_longitude += point[1];
+      });
+
+      center_coordinate = [ave_latitude/num_coordinates, ave_longitude/num_coordinates];
+
+    } else if (CENTER_TYPE == "MAX_MIN") {
+      // average of the max and min x and y points in the lot
+      let max_min_array = [[coord[0][0], coord[0][0]], [coord[0][1], coord[0][1]]]; // [[x_min, x_max], [y_min, y_max]]
+
+      coord.forEach((point) => {
+        [px, py] = point;
+  
+        if (max_min_array[0][0] > px) max_min_array[0][0] = px;
+        if (max_min_array[0][1] < px) max_min_array[0][1] = px;
+        
+        if (max_min_array[1][0] > py) max_min_array[1][0] = py;
+        if (max_min_array[1][1] < py) max_min_array[1][1] = py;
+      });
+
+      center_coordinate = [max_min_array[0].reduce((a, b) => {return a + b})/2, 
+        max_min_array[1].reduce((a, b) => {return a + b})/2];
+    }
+
+    return center_coordinate
   }
 
   /**
@@ -79,29 +116,6 @@ class LotView extends React.Component {
   onSourceLayerPress(e) {
     const feature = e.nativeEvent.payload;
     console.log('You pressed a layer here is your feature', feature); // eslint-disable-line
-  }
-
-  // Function from the Lotwing Web Application
-  map_shape_type_to_color(shape_type) {
-    var hash  = {
-      "new_vehicle_occupied_spaces": "#006699",
-      "used_vehicle_occupied_spaces": "#66CC00",
-      'empty_parking_spaces': '#FFFFFF',
-      'parking_spaces': '#FFFFFF',
-      "parking_lots": '#CCCCCC',
-      "buildings": '#FF9933',
-    }
-
-    return hash[shape_type]
-  }
-
-  // Function from the Lotwing Web Application
-  map_shape_type_to_opacity(shape_type){
-    if (shape_type == 'parking_lots'){
-      return 0.4
-    }else{
-      return 1
-    }
   }
 
   getLot() {
@@ -194,7 +208,7 @@ class LotView extends React.Component {
         showUserLocation={true}
         style={styles.container}
         styleURL={Mapbox.StyleURL.Street}
-        zoomLevel={16}>
+        zoomLevel={17}>
 
           <Mapbox.ShapeSource
             id='parking_lot'
@@ -231,7 +245,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const layerStyles = Mapbox.StyleSheet.create({
+const layerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
   buildings: {
     fillColor: '#FF9933',
     fillOpacity: 0.75,
