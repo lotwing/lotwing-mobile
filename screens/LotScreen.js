@@ -207,63 +207,25 @@ class LotView extends React.Component {
 
   renderParkingSpaces() {
     const all_parking_space_coordinates = this.getAllParkingSpaceCoordinates();
-    
     const parking_space_shapes = [];
 
-    // TRY 1: Each Parking space has it's own ShapeSource -- this is not rendering BUT would be better for handling clicks/individual interactions
-    // if (all_parking_space_shapes["id"] != "empty_geojson") {
-    //   console.log('     PARKING SPACES  are  LOADED');
-
-    //   all_parking_space_shapes.forEach((parking_shape, index) => {
-    //     parking_space_shapes.push(
-    //       <Mapbox.ShapeSource
-    //         id={parking_shape["id"]}
-    //         key={'parking_spaces' + index}
-    //         shape={parking_shape}>
-    //         <Mapbox.FillLayer
-    //           id ='parking_space_fill'
-    //           key={'parking_spaces_fill' + index}
-    //           style={layerStyles.parking_spaces} />
-    //       </Mapbox.ShapeSource>
-    //     ) 
-    //   });
-    // }
-
-    // TRY 2: All Parking spaces rendered using a Multipolygon
+    // TRY 3: Feature Collection
     if (all_parking_space_coordinates) {
-      parking_space_geojson["geometry"]["coordinates"] = all_parking_space_coordinates;
+      let polygons = all_parking_space_coordinates.map((ps_coordinates, count) => this._createNewPolygon(ps_coordinates, count));
+      let featureCollection = this._createFeatureCollection(polygons);
+      console.log('     returning FeatureCollection\n\n', featureCollection);
 
-      console.log('     returning MultiPolygon')
       return (
         <Mapbox.ShapeSource
         id={parking_space_geojson["id"]}
         key={'parking_spaces'}
-        shape={parking_space_geojson}>
+        shape={featureCollection}>
         <Mapbox.FillLayer
           id ='parking_space_fill'
           key={'parking_spaces_fill'}
           style={layerStyles.parking_spaces} />
       </Mapbox.ShapeSource>
       )
-  
-
-    // TRY 3: Feature Collection
-    // if (all_parking_space_coordinates) {
-    //   let polygons = all_parking_space_coordinates.map((ps_coordinates, count) => this._createNewPolygon(ps_coordinates, count));
-    //   let featureCollection = this._createFeatureCollection(polygons);
-    //   console.log('     returning FeatureCollection\n\n', featureCollection);
-
-    //   return (
-    //     <Mapbox.ShapeSource
-    //     id={parking_space_geojson["id"]}
-    //     key={'parking_spaces'}
-    //     shape={featureCollection}>
-    //     <Mapbox.FillLayer
-    //       id ='parking_space_fill'
-    //       key={'parking_spaces_fill'}
-    //       style={layerStyles.parking_spaces} />
-    //   </Mapbox.ShapeSource>
-    //   )
     
     } else {
       console.log('     PARKING SPACES  not  LOADED');
