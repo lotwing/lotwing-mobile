@@ -233,8 +233,7 @@ class LotView extends React.Component {
     return (
       <View style={styles.container}>
         <Modal
-            style={styles.modalWrapper}
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={this.state.modalVisible}
             onShow={() => {
@@ -247,8 +246,11 @@ class LotView extends React.Component {
             onRequestClose={() => {
               console.log('\nMODAL DISMISSED ANDROID\n');
               this.setModalVisible(false);
-            }}
-            onPress={() => {
+            }}>
+
+            <TouchableWithoutFeedback 
+              style={styles.modalWrapper}
+              onPress={() => {
                 console.log('TOUCHING --OUTER-- VIEW');
                 this.setModalVisible(false);
             }}>
@@ -260,6 +262,7 @@ class LotView extends React.Component {
                 <Text>This is the view! </Text>
                 <Picker
                   selectedValue={this.state.language}
+                  style={{ height: 50, width: 100 }}
                   onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
                   <Picker.Item label="Java" value="java" />
                   <Picker.Item label="JavaScript" value="js" />
@@ -267,6 +270,7 @@ class LotView extends React.Component {
 
               </View>
 
+            </TouchableWithoutFeedback>
         </Modal>
 
         <Mapbox.MapView
@@ -314,14 +318,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flexDirection: 'row',
-    backgroundColor: 'red',
     justifyContent: 'center',
     alignItems: 'stretch',
   }, 
   tagModalInner: {
     flex: 1,
     width: '50%',
-    height: '50%',
+    height: '40%',
     flexDirection: 'column',
     backgroundColor: '#2FADED',
     justifyContent: 'center',
