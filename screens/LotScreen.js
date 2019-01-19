@@ -1,7 +1,13 @@
 import React from 'react';
 import {
   View,
+  Modal,
+  Text,
+  Picker,
+  Platform,
   StyleSheet,
+  ActionSheetIOS,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
@@ -35,6 +41,7 @@ class LotView extends React.Component {
         centerCoordinate:[0, 0],
         lotShapes: null,
         errorLoading: false,
+        modalVisible: false,
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -64,7 +71,7 @@ class LotView extends React.Component {
             lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
             lot_coords = lot_geometry["coordinates"][0];
            
-            console.log('\n\nPOPULATING LOADED DATA: ');
+            // console.log('\n\nPOPULATING LOADED DATA: ');
             lotview.setState({
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
@@ -115,40 +122,63 @@ class LotView extends React.Component {
    */
   onSourceLayerPress(e) {
     const feature = e.nativeEvent.payload;
-    console.log('You pressed a layer here is your feature', feature); // eslint-disable-line
+    // console.log('\n\nYou pressed a layer here is your feature', feature['id']);
+    // console.log('Changing visibility from: ', this.state.modalVisible);
+    this.setModalVisible(!this.state.modalVisible);
+
+    // Handle Tag Actions
+
+
+    if (Platform.OS === 'ios') {
+      // console.log('PF: ', Platform.OS, '\n\n');
+      // ActionSheetIOS.showActionSheetWithOptions({
+      //   options: ['Cancel', 'Remove'],
+      //   destructiveButtonIndex: 1,
+      //   cancelButtonIndex: 0,
+      // },
+      // (buttonIndex) => {
+      //   if (buttonIndex === 1) { /* destructive action */ }
+      // });
+    } else {
+      // console.log('PF: ', Platform.OS);
+    }
+  }
+
+  setModalVisible(visibility) {
+    this.setState({modalVisible: visibility});
   }
 
   getLot() {
-    console.log('Running getLot...');
+    // console.log('Running getLot...');
     if (this.state.lotShapes) {
-      console.log('     getLot returning data');
+      // console.log('     getLot returning data');
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getBuildings() {
-    console.log('Running getBuildings...');
+    // console.log('Running getBuildings...');
     if (this.state.lotShapes){
-      console.log('     getBuildings returning data');
+      // console.log('     getBuildings returning data');
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getAllParkingSpaceShapes() {
-    console.log('Running getAllParkingSpaceShapes..');
+    // console.log('Running getAllParkingSpaceShapes..');
     if (this.state.lotShapes) {
-      console.log('     getAllParkingSpaceShapes returning data');
+      // console.log('     getAllParkingSpaceShapes returning data');
       return this.state.lotShapes['parking_spaces'].map((space) => space["geo_info"])
     }
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getAllParkingSpaceCoordinates() {
-    console.log('Running getAllParkingSpaceCoordinates..');
+    // console.log('Running getAllParkingSpaceCoordinates..');
     if (this.state.lotShapes) {
-      console.log('     getAllParkingSpaceCoordinates returning data');
+      // console.log('     getAllParkingSpaceCoordinates returning data');
       return this.state.lotShapes['parking_spaces'].map((space) => space["geo_info"]["geometry"]["coordinates"])
     }
     return null
@@ -190,32 +220,68 @@ class LotView extends React.Component {
           <Mapbox.FillLayer
             id ='parking_space_fill'
             key={'parking_spaces_fill'}
-            style={layerStyles.parking_spaces} />
+            style={lotLayerStyles.parking_spaces} />
        </Mapbox.ShapeSource>
       )
     }
 
-    console.log('     PARKING SPACES  not  LOADED');
+    // console.log('     PARKING SPACES  not  LOADED');
     return parking_space_shapes
   }
 
   render() {
     return (
       <View style={styles.container}>
+        <Modal
+            style={styles.modalWrapper}
+            animationType="slide"
+            transparent={true}
+            visible={this.state.modalVisible}
+            onShow={() => {
+              // console.log('\nMODAL SHOWING\n');
+            }}
+            onDismiss={()=> {
+              console.log('\nMODAL DISMISSED\n');
+              this.setModalVisible(false);
+            }}
+            onRequestClose={() => {
+              console.log('\nMODAL DISMISSED ANDROID\n');
+              this.setModalVisible(false);
+            }}
+            onPress={() => {
+                console.log('TOUCHING --OUTER-- VIEW');
+                this.setModalVisible(false);
+            }}>
+            
+              <View 
+                style={styles.tagModalInner}
+                onPress={() => {console.log('TOUCHING --INNER-- VIEW')}}>
+
+                <Text>This is the view! </Text>
+                <Picker
+                  selectedValue={this.state.language}
+                  onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
+                  <Picker.Item label="Java" value="java" />
+                  <Picker.Item label="JavaScript" value="js" />
+                </Picker>
+
+              </View>
+
+        </Modal>
 
         <Mapbox.MapView
-        centerCoordinate={this.state.centerCoordinate}
-        showUserLocation={true}
-        style={styles.container}
-        styleURL={Mapbox.StyleURL.Street}
-        zoomLevel={17}>
+          centerCoordinate={this.state.centerCoordinate}
+          showUserLocation={true}
+          style={styles.container}
+          styleURL={Mapbox.StyleURL.Street}
+          zoomLevel={17}>
 
           <Mapbox.ShapeSource
             id='parking_lot'
             shape={this.getLot()}>
             <Mapbox.FillLayer
               id='fill_parking_lot'
-              style={layerStyles.parking_lot} />
+              style={lotLayerStyles.parking_lot} />
           </Mapbox.ShapeSource>
 
           <Mapbox.ShapeSource
@@ -223,7 +289,7 @@ class LotView extends React.Component {
             shape={this.getBuildings()}>
             <Mapbox.FillLayer
               id ='fill_buildings_lot'
-              style={layerStyles.buildings} />
+              style={lotLayerStyles.buildings} />
           </Mapbox.ShapeSource>
 
           {this.renderParkingSpaces()}
@@ -243,9 +309,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
   },
+  modalWrapper: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    flexDirection: 'row',
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+  }, 
+  tagModalInner: {
+    flex: 1,
+    width: '50%',
+    height: '50%',
+    flexDirection: 'column',
+    backgroundColor: '#2FADED',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
-const layerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
+const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
   buildings: {
     fillColor: '#FF9933',
     fillOpacity: 0.75,
