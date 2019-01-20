@@ -243,21 +243,24 @@ class LotView extends React.Component {
             style={lotLayerStyles.new_vehicle_occupied_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.newVehicleSpaces}
-            type='new_vehicle'/>
+            type='new_vehicle'>
+          </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
-            style={lotLayerStyles.used_vehicle_occupied_spaces}
+            style={lotLayerStyles.new_vehicle_occupied_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.usedVehicleSpaces}
-            type='used_vehicle'/>
+            type='used_vehicle'>
+          </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
             style={lotLayerStyles.empty_parking_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
-            type='empty'/>
+            type='empty'>
+          </VehicleSpaceLayer>
 
         </Mapbox.MapView>
 

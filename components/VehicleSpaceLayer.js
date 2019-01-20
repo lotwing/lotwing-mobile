@@ -94,9 +94,9 @@ export default class VehicleSpaceLayer extends React.Component {
   onSourceLayerPress(e) {
     const space_id = parseInt(e.nativeEvent.payload['id']);
 
-    console.log('\n\nPressed Feature ID: ', space_id);
+    console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
 
-    if (this.props.type == 'new_vehicle' || 'used_vehicle') {
+    if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
       // Handle Tag Actions
       console.log('POPULATED Space Pressed');
       let vehicle_data = this.state.spaceVehicleMap[space_id];
@@ -111,15 +111,12 @@ export default class VehicleSpaceLayer extends React.Component {
   }
 
   getAllParkingSpaceCoordinatesObject() {
-    console.log('ALL ', this.props.type);
     if (this.props.spaces.length > 0) {
-      console.log(this.props.spaces);
       let coordinatesObject = {};
       
       this.props.spaces.forEach((id) => {
         coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
       });
-
       return coordinatesObject
     }
     return null
@@ -134,11 +131,12 @@ export default class VehicleSpaceLayer extends React.Component {
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
       
       let featureCollection = this._createFeatureCollection(polygons);
-      console.log(this.props.type, '| SPACES LOADED - -  with style: \n', this.props.style);
+      console.log(this.props.type, '| SPACES LOADED ');
+      console.log('Number of Features: ', polygons.length);
 
       return (
         <Mapbox.ShapeSource
-          id={this.state.parking_space_geojson["id"]}
+          id={this.props.type}
           key={this.props.type}
           onPress={this.onSourceLayerPress}
           shape={featureCollection}>
