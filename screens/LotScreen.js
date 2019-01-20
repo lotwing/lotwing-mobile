@@ -42,9 +42,11 @@ class LotView extends React.Component {
         lotShapes: null,
         errorLoading: false,
         modalVisible: false,
+        spaceState: {},
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+      this._loadParkingSpaceMetadata();
       this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
@@ -75,6 +77,32 @@ class LotView extends React.Component {
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
             });
+          });
+  }
+
+  _loadParkingSpaceMetadata() {
+    var lotview = this;
+
+    return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA , {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+          },
+      })
+      .then((response) => response.json())
+          .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
+            console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
+            let spaceStateObject = {};
+
+            spaceState["new_vehicle_occupied_spaces"] = responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]);
+            spaceState["used_vehicle_occupied_spaces"] = responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]);
+            spaceState["empty_parking_spaces"] = responseJson["empty_parking_spaces"].map((space) => space["id"]);
+            
+            lotview.setState({
+              spaceState: spaceStateObject, // dictionary mapping space type to array of parking spaces of that type
+            });
+
           });
   }
 
