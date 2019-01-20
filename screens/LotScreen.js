@@ -122,13 +122,16 @@ class LotView extends React.Component {
    */
   onSourceLayerPress(e) {
     const feature = e.nativeEvent.payload;
-    // console.log('\n\nYou pressed a layer here is your feature', feature['id']);
-    // console.log('Changing visibility from: ', this.state.modalVisible);
+
+    console.log('\n\nYou pressed a layer here is your feature', feature, '\nID: ', feature['id']);
+    console.log('Changing visibility from: ', this.state.modalVisible);
     this.setModalVisible(!this.state.modalVisible);
 
+    if (feature) {
+      
+    }
+
     // Handle Tag Actions
-
-
     if (Platform.OS === 'ios') {
       // console.log('PF: ', Platform.OS, '\n\n');
       // ActionSheetIOS.showActionSheetWithOptions({
@@ -175,11 +178,17 @@ class LotView extends React.Component {
     return GlobalVariables.EMPTY_GEOJSON
   }
 
-  getAllParkingSpaceCoordinates() {
-    // console.log('Running getAllParkingSpaceCoordinates..');
+  getAllParkingSpaceCoordinatesObject() {
+    // console.log('Running getAllParkingSpaceCoordinatesObject..');
     if (this.state.lotShapes) {
-      // console.log('     getAllParkingSpaceCoordinates returning data');
-      return this.state.lotShapes['parking_spaces'].map((space) => space["geo_info"]["geometry"]["coordinates"])
+      // console.log('     getAllParkingSpaceCoordinatesObject returning data');
+      let coordinatesObject = {};
+      
+      this.state.lotShapes['parking_spaces'].forEach((space) => {
+        coordinatesObject[space["id"]] = space["geo_info"]["geometry"]["coordinates"];
+      });
+
+      return coordinatesObject
     }
     return null
   }
@@ -204,11 +213,13 @@ class LotView extends React.Component {
   }
 
   renderParkingSpaces() {
-    const all_parking_space_coordinates = this.getAllParkingSpaceCoordinates();
+    const ps_coord_obj = this.getAllParkingSpaceCoordinatesObject();
     const parking_space_shapes = [];
 
-    if (all_parking_space_coordinates) {
-      let polygons = all_parking_space_coordinates.map((ps_coordinates, count) => this._createNewPolygon(ps_coordinates, count));
+    if (ps_coord_obj) {
+      let polygons = Object.keys(ps_coord_obj)
+        .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
+      
       let featureCollection = this._createFeatureCollection(polygons);
 
       return (
@@ -253,7 +264,7 @@ class LotView extends React.Component {
               onPress={() => {
                 console.log('TOUCHING --OUTER-- VIEW');
                 this.setModalVisible(false);
-            }}>
+              }}>
             
               <View 
                 style={styles.tagModalInner}
@@ -318,15 +329,18 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flexDirection: 'row',
+    backgroundColor: 'red',
+    borderWidth: 2,
+    borderColor: 'blue',
     justifyContent: 'center',
     alignItems: 'stretch',
   }, 
   tagModalInner: {
     flex: 1,
     width: '50%',
-    height: '40%',
+    height: '100%',
     flexDirection: 'column',
-    backgroundColor: '#2FADED',
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
   }
