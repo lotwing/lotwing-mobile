@@ -12,6 +12,7 @@ import {
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
+import VehicleSpaceLayer from '../components/VehicleSpaceLayer'
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
@@ -49,7 +50,6 @@ class LotView extends React.Component {
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
-      this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
   /**
@@ -84,7 +84,7 @@ class LotView extends React.Component {
   }
 
   _loadParkingSpaceMetadata() {
-    var lotview = this;
+    var vehicleSpaceLayer = this;
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA , {
         method: 'GET',
@@ -97,7 +97,7 @@ class LotView extends React.Component {
           .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
             console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            lotview.setState({
+            vehicleSpaceLayer.setState({
               newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
               usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
               emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
@@ -106,44 +106,8 @@ class LotView extends React.Component {
             console.log('NEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
             console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
 
-          })
-          .then(() => {
-            lotview._loadLotVehicleData();
           });
-  }
-
-  _loadLotVehicleData() {
-    var lotview = this;
-    let spaceVehicleMapObject = {};
-
-    let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
-    let vehiclePromises = [];
-    let newVehicleURLs = lotview.state.newVehicleSpaces.map((space_id) => url_base + space_id);
-    let usedVehicleURLs = lotview.state.usedVehicleSpaces.map((space_id) => url_base + space_id);
-
-    vehiclePromises = vehiclePromises.concat(newVehicleURLs, usedVehicleURLs);
-
-    return Promise.all(vehiclePromises.map((url) => {
-      return fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
-        })
-      .then((response) => response.json())
-    }))
-    .then((vehicleResponses) => {
-      vehicleResponses.forEach((vehicle) => {
-        let parking_space_id = vehicle["shape"]["id"];
-        spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
-      });
-
-      lotview.setState({
-        spaceVehicleMap: spaceVehicleMapObject,
-      });
-    })
-  }
+  }  
 
   _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {
     let center_coordinate = [];
@@ -182,27 +146,6 @@ class LotView extends React.Component {
     return center_coordinate
   }
 
-  /**
-   * Launches the tag handler for the object that was pressed.
-   * @param e : object returned from the system's onPress handler
-   */
-  onSourceLayerPress(e) {
-    const space_id = parseInt(e.nativeEvent.payload['id']);
-
-    console.log('\n\nPressed Feature ID: ', space_id);
-
-    if (this.state.newVehicleSpaces.includes(space_id) || this.state.usedVehicleSpaces.includes(space_id)) {
-      // Handle Tag Actions
-      console.log('POPULATED Space Pressed');
-      console.log('Changing visibility from: ', this.state.modalVisible);
-      this.setModalVisible(!this.state.modalVisible);
-      
-    } else {
-      console.log('EMPTY Space Pressed');
-    }
-
-  }
-
   setModalVisible(visibility) {
     this.setState({modalVisible: visibility});
   }
@@ -219,67 +162,6 @@ class LotView extends React.Component {
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
     return GlobalVariables.EMPTY_GEOJSON
-  }
-
-  getAllParkingSpaceCoordinatesObject() {
-    if (this.state.lotShapes) {
-      let coordinatesObject = {};
-      
-      this.state.lotShapes['parking_spaces'].forEach((space) => {
-        coordinatesObject[space["id"]] = space["geo_info"]["geometry"]["coordinates"];
-      });
-
-      return coordinatesObject
-    }
-    return null
-  }
-
-  _createNewPolygon(coordinates, id) {
-    const empty_polygon_geojson = {
-      "id": id,
-      "type": "Feature",
-      "geometry": {
-          "type": "Polygon",
-          "coordinates": coordinates
-        }
-    };
-    return empty_polygon_geojson
-  }
-
-  _createFeatureCollection(list_of_features) {
-    return ({
-      "type": "FeatureCollection",
-      "features": list_of_features
-    })
-  }
-
-  renderParkingSpaces() {
-    const ps_coord_obj = this.getAllParkingSpaceCoordinatesObject();
-    const parking_space_shapes = [];
-
-    if (ps_coord_obj) {
-      let polygons = Object.keys(ps_coord_obj)
-        .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
-      
-      let featureCollection = this._createFeatureCollection(polygons);
-
-      console.log('     PARKING SPACES LOADED - - ');
-      return (
-        <Mapbox.ShapeSource
-          id={parking_space_geojson["id"]}
-          key={'parking_spaces'}
-          onPress={this.onSourceLayerPress}
-          shape={featureCollection}>
-          <Mapbox.FillLayer
-            id ='parking_space_fill'
-            key={'parking_spaces_fill'}
-            style={lotLayerStyles.parking_spaces} />
-       </Mapbox.ShapeSource>
-      )
-    }
-
-    console.log('     PARKING SPACES  -not-  LOADED');
-    return parking_space_shapes
   }
 
   render() {
@@ -348,7 +230,26 @@ class LotView extends React.Component {
               style={lotLayerStyles.buildings} />
           </Mapbox.ShapeSource>
 
-          {this.renderParkingSpaces()}
+          <VehicleSpaceLayer
+            ids={this.state.newVehicleSpaces}
+            style={lotLayerStyles.new_vehicle_occupied_spaces}
+            lotShapes={this.state.lotShapes}
+            spaces={this.state.newVehicleSpaces}
+            type='new_vehicle'/>
+
+          <VehicleSpaceLayer
+            ids={this.state.usedVehicleSpaces}
+            style={lotLayerStyles.used_vehicle_occupied_spaces}
+            lotShapes={this.state.lotShapes}
+            spaces={this.state.usedVehicleSpaces}
+            type='used_vehicle'/>
+
+          <VehicleSpaceLayer
+            ids={this.state.emptySpaces}
+            style={lotLayerStyles.empty_parking_spaces}
+            lotShapes={this.state.lotShapes}
+            spaces={this.state.emptySpaces}
+            type='empty'/>
 
         </Mapbox.MapView>
 
@@ -413,15 +314,5 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
     fillOpacity: 0.75,
   },
 });
-
-const parking_space_geojson = {
-  "id": "parking_spaces",
-  "type": "Feature",
-  "properties": {},
-  "geometry": {
-    "coordinates": [],
-    "type": "MultiPolygon"
-  }
-};
 
 const debug_location = [37.353285, -122.0079];
