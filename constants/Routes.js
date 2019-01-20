@@ -1,13 +1,14 @@
 export default {
-	// GET
-
+	// GET REQUESTS 
+	// - - - - - - - - - - - - - - - - 
 	FULL_LOT: '/api/shapes',
 	PARKING_LOT: '/api/shapes/parking_lots',
 	LOGIN: '/api/auth/login',
 	VEHICLE: '/api/vehicle/',
+	PARKING_SPACE_METADATA: '/api/shapes/parking_spaces',
 
-	// POST
-
+	// POST REQUESTS
+	// - - - - - - - - - - - - - - - - 
 	// This endpoint expects the following parameters
 	// * vehicle_id (which vehicle is this)
 	// * shape_id (which parking space is this)
