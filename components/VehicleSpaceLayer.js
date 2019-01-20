@@ -111,11 +111,13 @@ export default class VehicleSpaceLayer extends React.Component {
   }
 
   getAllParkingSpaceCoordinatesObject() {
-    if (this.props.lotShapes) {
+    console.log('ALL ', this.props.type);
+    if (this.props.spaces.length > 0) {
+      console.log(this.props.spaces);
       let coordinatesObject = {};
       
-      this.props.lotShapes['parking_spaces'].forEach((space) => {
-        coordinatesObject[space["id"]] = space["geo_info"]["geometry"]["coordinates"];
+      this.props.spaces.forEach((id) => {
+        coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
       });
 
       return coordinatesObject

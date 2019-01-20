@@ -46,6 +46,7 @@ class LotView extends React.Component {
         newVehicleSpaces: [],
         usedVehicleSpaces: [],
         emptySpaces: [],
+        parkingShapes: {},
         spaceVehicleMap: {},
       }
 
@@ -72,12 +73,19 @@ class LotView extends React.Component {
             GlobalVariables.LOT_DATA = responseJson;
 
             // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
-            lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
-            lot_coords = lot_geometry["coordinates"][0];
+            let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
+            let lot_coords = lot_geometry["coordinates"][0];
+
+            let lotParkingSpaceMap = {};
+            GlobalVariables.LOT_DATA['parking_spaces'].forEach((space) => {
+              lotParkingSpaceMap[space["id"]] = space;
+            });
+
            
             lotview.setState({
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
+              parkingShapes: lotParkingSpaceMap,
             });
           })
           .then(() => lotview._loadParkingSpaceMetadata());
@@ -233,21 +241,21 @@ class LotView extends React.Component {
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
             style={lotLayerStyles.new_vehicle_occupied_spaces}
-            lotShapes={this.state.lotShapes}
+            parkingShapes={this.state.parkingShapes}
             spaces={this.state.newVehicleSpaces}
             type='new_vehicle'/>
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
             style={lotLayerStyles.used_vehicle_occupied_spaces}
-            lotShapes={this.state.lotShapes}
+            parkingShapes={this.state.parkingShapes}
             spaces={this.state.usedVehicleSpaces}
             type='used_vehicle'/>
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
             style={lotLayerStyles.empty_parking_spaces}
-            lotShapes={this.state.lotShapes}
+            parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
             type='empty'/>
 
