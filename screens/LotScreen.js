@@ -71,7 +71,6 @@ class LotView extends React.Component {
             lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
             lot_coords = lot_geometry["coordinates"][0];
            
-            // console.log('\n\nPOPULATING LOADED DATA: ');
             lotview.setState({
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
@@ -123,7 +122,7 @@ class LotView extends React.Component {
   onSourceLayerPress(e) {
     const feature = e.nativeEvent.payload;
 
-    console.log('\n\nYou pressed a layer here is your feature', feature, '\nID: ', feature['id']);
+    console.log('\n\nYou pressed a layer here is your feature \nID: ', feature['id']);
     console.log('Changing visibility from: ', this.state.modalVisible);
     this.setModalVisible(!this.state.modalVisible);
 
@@ -152,36 +151,28 @@ class LotView extends React.Component {
   }
 
   getLot() {
-    // console.log('Running getLot...');
     if (this.state.lotShapes) {
-      // console.log('     getLot returning data');
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getBuildings() {
-    // console.log('Running getBuildings...');
     if (this.state.lotShapes){
-      // console.log('     getBuildings returning data');
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getAllParkingSpaceShapes() {
-    // console.log('Running getAllParkingSpaceShapes..');
     if (this.state.lotShapes) {
-      // console.log('     getAllParkingSpaceShapes returning data');
       return this.state.lotShapes['parking_spaces'].map((space) => space["geo_info"])
     }
     return GlobalVariables.EMPTY_GEOJSON
   }
 
   getAllParkingSpaceCoordinatesObject() {
-    // console.log('Running getAllParkingSpaceCoordinatesObject..');
     if (this.state.lotShapes) {
-      // console.log('     getAllParkingSpaceCoordinatesObject returning data');
       let coordinatesObject = {};
       
       this.state.lotShapes['parking_spaces'].forEach((space) => {
@@ -222,6 +213,7 @@ class LotView extends React.Component {
       
       let featureCollection = this._createFeatureCollection(polygons);
 
+      console.log('     PARKING SPACES LOADED - - ');
       return (
         <Mapbox.ShapeSource
           id={parking_space_geojson["id"]}
@@ -236,7 +228,7 @@ class LotView extends React.Component {
       )
     }
 
-    // console.log('     PARKING SPACES  not  LOADED');
+    console.log('     PARKING SPACES  -not-  LOADED');
     return parking_space_shapes
   }
 
@@ -248,7 +240,6 @@ class LotView extends React.Component {
             transparent={true}
             visible={this.state.modalVisible}
             onShow={() => {
-              // console.log('\nMODAL SHOWING\n');
             }}
             onDismiss={()=> {
               console.log('\nMODAL DISMISSED\n');
