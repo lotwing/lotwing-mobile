@@ -42,7 +42,9 @@ class LotView extends React.Component {
         lotShapes: null,
         errorLoading: false,
         modalVisible: false,
-        spaceState: {},
+        newVehicleSpaces: [],
+        usedVehicleSpaces: [],
+        emptySpaces: [],
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -92,16 +94,16 @@ class LotView extends React.Component {
       })
       .then((response) => response.json())
           .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
-            console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
-            let spaceStateObject = {};
+            console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            spaceState["new_vehicle_occupied_spaces"] = responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]);
-            spaceState["used_vehicle_occupied_spaces"] = responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]);
-            spaceState["empty_parking_spaces"] = responseJson["empty_parking_spaces"].map((space) => space["id"]);
-            
             lotview.setState({
-              spaceState: spaceStateObject, // dictionary mapping space type to array of parking spaces of that type
+              newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
+              usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
+              emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
             });
+
+            console.log('NEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
+            console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
 
           });
   }
@@ -148,30 +150,20 @@ class LotView extends React.Component {
    * @param e : object returned from the system's onPress handler
    */
   onSourceLayerPress(e) {
-    const feature = e.nativeEvent.payload;
+    const space_id = parseInt(e.nativeEvent.payload['id']);
 
-    console.log('\n\nYou pressed a layer here is your feature \nID: ', feature['id']);
-    console.log('Changing visibility from: ', this.state.modalVisible);
-    this.setModalVisible(!this.state.modalVisible);
+    console.log('\n\nPressed Feature ID: ', space_id);
 
-    if (feature) {
+    if (this.state.newVehicleSpaces.includes(space_id) || this.state.usedVehicleSpaces.includes(space_id)) {
+      // Handle Tag Actions
+      console.log('POPULATED Space Pressed');
+      console.log('Changing visibility from: ', this.state.modalVisible);
+      this.setModalVisible(!this.state.modalVisible);
       
+    } else {
+      console.log('EMPTY Space Pressed');
     }
 
-    // Handle Tag Actions
-    if (Platform.OS === 'ios') {
-      // console.log('PF: ', Platform.OS, '\n\n');
-      // ActionSheetIOS.showActionSheetWithOptions({
-      //   options: ['Cancel', 'Remove'],
-      //   destructiveButtonIndex: 1,
-      //   cancelButtonIndex: 0,
-      // },
-      // (buttonIndex) => {
-      //   if (buttonIndex === 1) { /* destructive action */ }
-      // });
-    } else {
-      // console.log('PF: ', Platform.OS);
-    }
   }
 
   setModalVisible(visibility) {
@@ -189,13 +181,6 @@ class LotView extends React.Component {
     if (this.state.lotShapes){
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
-    return GlobalVariables.EMPTY_GEOJSON
-  }
-
-  getAllParkingSpaceShapes() {
-    if (this.state.lotShapes) {
-      return this.state.lotShapes['parking_spaces'].map((space) => space["geo_info"])
-    }
     return GlobalVariables.EMPTY_GEOJSON
   }
 
