@@ -45,10 +45,10 @@ class LotView extends React.Component {
         newVehicleSpaces: [],
         usedVehicleSpaces: [],
         emptySpaces: [],
+        spaceVehicleMap: {},
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
-      this._loadParkingSpaceMetadata();
       this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
@@ -79,7 +79,8 @@ class LotView extends React.Component {
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
             });
-          });
+          })
+          .then(() => lotview._loadParkingSpaceMetadata());
   }
 
   _loadParkingSpaceMetadata() {
@@ -105,7 +106,43 @@ class LotView extends React.Component {
             console.log('NEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
             console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
 
+          })
+          .then(() => {
+            lotview._loadLotVehicleData();
           });
+  }
+
+  _loadLotVehicleData() {
+    var lotview = this;
+    let spaceVehicleMapObject = {};
+
+    let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
+    let vehiclePromises = [];
+    let newVehicleURLs = lotview.state.newVehicleSpaces.map((space_id) => url_base + space_id);
+    let usedVehicleURLs = lotview.state.usedVehicleSpaces.map((space_id) => url_base + space_id);
+
+    vehiclePromises = vehiclePromises.concat(newVehicleURLs, usedVehicleURLs);
+
+    return Promise.all(vehiclePromises.map((url) => {
+      return fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+          },
+        })
+      .then((response) => response.json())
+    }))
+    .then((vehicleResponses) => {
+      vehicleResponses.forEach((vehicle) => {
+        let parking_space_id = vehicle["shape"]["id"];
+        spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
+      });
+
+      lotview.setState({
+        spaceVehicleMap: spaceVehicleMapObject,
+      });
+    })
   }
 
   _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {

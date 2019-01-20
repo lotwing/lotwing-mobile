@@ -2,10 +2,12 @@ export default {
 	// GET REQUESTS 
 	// - - - - - - - - - - - - - - - - 
 	FULL_LOT: '/api/shapes',
+	VEHICLE_BY_SPACE: '/api/shapes/',
 	PARKING_LOT: '/api/shapes/parking_lots',
+	PARKING_SPACE_METADATA: '/api/shapes/parking_spaces',
+	
 	LOGIN: '/api/auth/login',
 	VEHICLE: '/api/vehicle/',
-	PARKING_SPACE_METADATA: '/api/shapes/parking_spaces',
 
 	// POST REQUESTS
 	// - - - - - - - - - - - - - - - - 
