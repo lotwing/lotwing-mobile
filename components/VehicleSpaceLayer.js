@@ -36,7 +36,6 @@ export default class VehicleSpaceLayer extends React.Component {
       }
 
       this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
-      this._loadLotVehicleData();
   }
 
   _loadLotVehicleData() {
@@ -54,14 +53,18 @@ export default class VehicleSpaceLayer extends React.Component {
           'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
           },
         })
-      .then((response) => response.json())
+      .then((response) => {
+        return response.json();
+      })
     }))
     .then((vehicleResponses) => {
+      // console.log(' - - - - - - VEHICLE RESPONSES: ', vehicleResponses);
       vehicleResponses.forEach((vehicle) => {
         let parking_space_id = vehicle["shape"]["id"];
         spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
       });
 
+      console.log('+ + _loadLotVehicleData: Filling Space Vehicle Data: ');
       vehicleSpaceLayer.setState({
         spaceVehicleMap: spaceVehicleMapObject,
       });
@@ -92,17 +95,15 @@ export default class VehicleSpaceLayer extends React.Component {
    * @param e : object returned from the system's onPress handler
    */
   onSourceLayerPress(e) {
-    const space_id = parseInt(e.nativeEvent.payload['id']);
+    const space_id = e.nativeEvent.payload['id'];
 
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
 
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
-      // Handle Tag Actions
-      console.log('POPULATED Space Pressed');
+      console.log('POPULATED Space Pressed \n\n Type of Space ID: ', typeof space_id);
       let vehicle_data = this.state.spaceVehicleMap[space_id];
 
-      // console.log('Changing visibility from: ', this.state.modalVisible);
-      // this.setModalVisible(!this.state.modalVisible);
+      this.props.showAndPopulateModal([space_id, vehicle_data]);
       
     } else {
       console.log('EMPTY Space Pressed');
@@ -133,6 +134,8 @@ export default class VehicleSpaceLayer extends React.Component {
       let featureCollection = this._createFeatureCollection(polygons);
       console.log(this.props.type, '| SPACES LOADED ');
       console.log('Number of Features: ', polygons.length);
+
+      this._loadLotVehicleData();
 
       return (
         <Mapbox.ShapeSource

@@ -48,6 +48,10 @@ class LotView extends React.Component {
         emptySpaces: [],
         parkingShapes: {},
         spaceVehicleMap: {},
+        spaceId: 0,
+        year: 0,
+        make: 'Nissan',
+        model: 'Versa',
       }
 
       this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -158,6 +162,19 @@ class LotView extends React.Component {
     this.setState({modalVisible: visibility});
   }
 
+  showAndPopulateModal(data) {
+    let [space_id, vehicleData] = data;
+
+    let year = vehicleData['year'];
+    let make = vehicleData['make'];
+    let model = vehicleData['model'];
+
+    console.log('Space ID: ', space_id);
+    // console.log('vehicleData: ', vehicleData);
+    console.log('Y M M: ', year, make, model);
+    // this.setState({modalVisible: true});
+  }
+
   getLot() {
     if (this.state.lotShapes) {
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
@@ -173,6 +190,7 @@ class LotView extends React.Component {
   }
 
   render() {
+    console.log('+ + + Render Lot Screen');
     return (
       <View style={styles.container}>
         <Modal
@@ -239,27 +257,29 @@ class LotView extends React.Component {
           </Mapbox.ShapeSource>
 
           <VehicleSpaceLayer
-            ids={this.state.newVehicleSpaces}
-            style={lotLayerStyles.new_vehicle_occupied_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.newVehicleSpaces}
-            type='new_vehicle'>
-          </VehicleSpaceLayer>
-
-          <VehicleSpaceLayer
-            ids={this.state.usedVehicleSpaces}
-            style={lotLayerStyles.new_vehicle_occupied_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.usedVehicleSpaces}
-            type='used_vehicle'>
-          </VehicleSpaceLayer>
-
-          <VehicleSpaceLayer
             ids={this.state.emptySpaces}
             style={lotLayerStyles.empty_parking_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
             type='empty'>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.newVehicleSpaces}
+            style={lotLayerStyles.new_vehicle_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.newVehicleSpaces}
+            showAndPopulateModal={this.showAndPopulateModal}
+            type='new_vehicle'>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.usedVehicleSpaces}
+            style={lotLayerStyles.used_vehicle_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.usedVehicleSpaces}
+            showAndPopulateModal={this.showAndPopulateModal}
+            type='used_vehicle'>
           </VehicleSpaceLayer>
 
         </Mapbox.MapView>
