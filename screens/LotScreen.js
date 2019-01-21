@@ -164,7 +164,16 @@ class LotView extends React.Component {
     this.setState({modalVisible: visibility});
   }
 
-  showAndPopulateModal(data) {
+  setModalValues(space_id, year, make, model) {
+    this.setState({
+      year: year,
+      make: make,
+      model: model,
+      spaceId: space_id,
+    });
+  }
+
+  showAndPopulateModal = (data) => {
     let [space_id, vehicleData] = data;
 
     let year = vehicleData['year'];
@@ -174,7 +183,8 @@ class LotView extends React.Component {
     console.log('Space ID: ', space_id);
     // console.log('vehicleData: ', vehicleData);
     console.log('Y M M: ', year, make, model);
-    // this.setState({modalVisible: true});
+    this.setModalValues(space_id, year, make, model);
+    this.setModalVisible(true);
   }
 
   getLot() {
@@ -223,18 +233,9 @@ class LotView extends React.Component {
                 style={styles.tagModalInner}
                 onPress={() => {console.log('TOUCHING --INNER-- VIEW')}}>
 
-                <Text>This is the view! </Text>
-                <Picker
-                  selectedValue={this.state.language}
-                  style={{ height: 50, width: 100 }}
-                  onValueChange={(itemValue, itemIndex) => {
-                    console.log('- - - resetting state: language change');
-                    this.setState({language: itemValue});
-                  }}>
-                  <Picker.Item label="Java" value="java" />
-                  <Picker.Item label="JavaScript" value="js" />
-                </Picker>
-
+                <Text>{this.state.clickedSpaceID}</Text>
+                <Text>{this.state.make} {this.state.model}</Text>
+                <Text>{this.state.year}</Text>
               </View>
 
             </TouchableWithoutFeedback>
