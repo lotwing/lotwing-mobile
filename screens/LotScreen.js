@@ -85,7 +85,7 @@ class LotView extends React.Component {
               lotParkingSpaceMap[space["id"]] = space;
             });
 
-           
+           console.log('- - - resetting state: _loadLotView');
             lotview.setState({
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
@@ -96,7 +96,7 @@ class LotView extends React.Component {
   }
 
   _loadParkingSpaceMetadata() {
-    var vehicleSpaceLayer = this;
+    var lotview = this;
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA , {
         method: 'GET',
@@ -109,7 +109,8 @@ class LotView extends React.Component {
           .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
             console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            vehicleSpaceLayer.setState({
+            console.log('- - - resetting state: _loadParkingSpaceMetadata');
+            lotview.setState({
               newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
               usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
               emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
@@ -159,6 +160,7 @@ class LotView extends React.Component {
   }
 
   setModalVisible(visibility) {
+    console.log('- - - resetting state: setModalVisible');
     this.setState({modalVisible: visibility});
   }
 
@@ -176,6 +178,7 @@ class LotView extends React.Component {
   }
 
   getLot() {
+    console.log('- - - resetting state: getLot');
     if (this.state.lotShapes) {
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
@@ -183,6 +186,7 @@ class LotView extends React.Component {
   }
 
   getBuildings() {
+    console.log('- - - resetting state: getBuildings');
     if (this.state.lotShapes){
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  
@@ -223,7 +227,10 @@ class LotView extends React.Component {
                 <Picker
                   selectedValue={this.state.language}
                   style={{ height: 50, width: 100 }}
-                  onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
+                  onValueChange={(itemValue, itemIndex) => {
+                    console.log('- - - resetting state: language change');
+                    this.setState({language: itemValue});
+                  }}>
                   <Picker.Item label="Java" value="java" />
                   <Picker.Item label="JavaScript" value="js" />
                 </Picker>
