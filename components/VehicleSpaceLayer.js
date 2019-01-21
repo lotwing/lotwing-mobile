@@ -40,35 +40,38 @@ export default class VehicleSpaceLayer extends React.Component {
 
   _loadLotVehicleData() {
     var vehicleSpaceLayer = this;
-    let spaceVehicleMapObject = {};
 
-    let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
-    let vehiclePromises = vehicleSpaceLayer.props.spaces.map((space_id) => url_base + space_id);
+    if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length == 0) { // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
+      let spaceVehicleMapObject = {};
 
-    return Promise.all(vehiclePromises.map((url) => {
-      return fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
+      let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
+      let vehiclePromises = vehicleSpaceLayer.props.spaces.map((space_id) => url_base + space_id);
+
+      return Promise.all(vehiclePromises.map((url) => {
+        return fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+            },
+          })
+        .then((response) => {
+          return response.json();
         })
-      .then((response) => {
-        return response.json();
-      })
-    }))
-    .then((vehicleResponses) => {
-      // console.log(' - - - - - - VEHICLE RESPONSES: ', vehicleResponses);
-      vehicleResponses.forEach((vehicle) => {
-        let parking_space_id = vehicle["shape"]["id"];
-        spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
-      });
+      }))
+      .then((vehicleResponses) => {
+        // console.log(' - - - - - - VEHICLE RESPONSES: ', vehicleResponses);
+        vehicleResponses.forEach((vehicle) => {
+          let parking_space_id = vehicle["shape"]["id"];
+          spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
+        });
 
-      console.log('+ + _loadLotVehicleData: Filling Space Vehicle Data: ');
-      vehicleSpaceLayer.setState({
-        spaceVehicleMap: spaceVehicleMapObject,
-      });
-    })
+        console.log('+ + _loadLotVehicleData: Filling Space Vehicle Data: ');
+        vehicleSpaceLayer.setState({
+          spaceVehicleMap: spaceVehicleMapObject,
+        });
+      })
+    }
   }
 
   _createNewPolygon(coordinates, id) {
@@ -104,7 +107,7 @@ export default class VehicleSpaceLayer extends React.Component {
       let vehicle_data = this.state.spaceVehicleMap[space_id];
 
       this.props.showAndPopulateModal([space_id, vehicle_data]);
-      
+
     } else {
       console.log('EMPTY Space Pressed');
     }
@@ -125,17 +128,17 @@ export default class VehicleSpaceLayer extends React.Component {
 
   renderParkingSpaces() {
     const ps_coord_obj = this.getAllParkingSpaceCoordinatesObject();
-    const parking_space_shapes = [];
 
     if (ps_coord_obj) {
+      console.log('+ + Calling renderParkingSpace');
+      this._loadLotVehicleData();
+
       let polygons = Object.keys(ps_coord_obj)
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
       
       let featureCollection = this._createFeatureCollection(polygons);
       console.log(this.props.type, '| SPACES LOADED ');
       console.log('Number of Features: ', polygons.length);
-
-      this._loadLotVehicleData();
 
       return (
         <Mapbox.ShapeSource
@@ -152,10 +155,10 @@ export default class VehicleSpaceLayer extends React.Component {
     }
 
     console.log('     PARKING SPACES  -not-  LOADED');
-    return parking_space_shapes
+    return []
   }
 
   render() {
-  	return this.renderParkingSpaces();
+  	return (this.renderParkingSpaces());
   }
 }
