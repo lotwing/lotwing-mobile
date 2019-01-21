@@ -49,6 +49,7 @@ class LotView extends React.Component {
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
+        vehicleId: 0,
         year: 0,
         make: 'Nissan',
         model: 'Versa',
@@ -164,27 +165,31 @@ class LotView extends React.Component {
     this.setState({modalVisible: visibility});
   }
 
-  setModalValues(space_id, year, make, model) {
+  setModalValues(vehicle_id, year, make, model) {
     this.setState({
       year: year,
       make: make,
       model: model,
-      spaceId: space_id,
+      vehicleId: vehicle_id,
     });
   }
 
   showAndPopulateModal = (data) => {
     let [space_id, vehicleData] = data;
 
-    let year = vehicleData['year'];
-    let make = vehicleData['make'];
-    let model = vehicleData['model'];
+    if (vehicleData) {
+      let vehicle_id = vehicleData['id'];
+      let year = vehicleData['year'];
+      let make = vehicleData['make'];
+      let model = vehicleData['model'];
 
-    console.log('Space ID: ', space_id);
-    // console.log('vehicleData: ', vehicleData);
-    console.log('Y M M: ', year, make, model);
-    this.setModalValues(space_id, year, make, model);
-    this.setModalVisible(true);
+      console.log('Space ID: ', space_id);
+      console.log('Vehicle ID: ', vehicle_id);
+      
+      console.log('Y M M: ', year, make, model);
+      this.setModalValues(vehicle_id, year, make, model);
+      this.setModalVisible(true);
+    }
   }
 
   getLot() {
@@ -233,7 +238,7 @@ class LotView extends React.Component {
                 style={styles.tagModalInner}
                 onPress={() => {console.log('TOUCHING --INNER-- VIEW')}}>
 
-                <Text>{this.state.clickedSpaceID}</Text>
+                <Text>{this.state.vehicleId}</Text>
                 <Text>{this.state.make} {this.state.model}</Text>
                 <Text>{this.state.year}</Text>
               </View>
