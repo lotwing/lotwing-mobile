@@ -101,7 +101,6 @@ export default class VehicleSpaceLayer extends React.Component {
     const space_id = e.nativeEvent.payload['id'];
 
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
-
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
       console.log('POPULATED Space Pressed \n\n Type of Space ID: ', typeof space_id);
       let vehicle_data = this.state.spaceVehicleMap[space_id];

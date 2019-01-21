@@ -3,16 +3,15 @@ import {
   View,
   Modal,
   Text,
-  Picker,
   Platform,
   StyleSheet,
-  ActionSheetIOS,
   TouchableWithoutFeedback,
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer'
+import TagModalView from '../components/TagModalView'
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
@@ -234,16 +233,15 @@ class LotView extends React.Component {
                 this.setModalVisible(false);
               }}>
             
-              <View 
-                style={styles.tagModalInner}
-                onPress={() => {console.log('TOUCHING --INNER-- VIEW')}}>
-
-                <Text>{this.state.vehicleId}</Text>
-                <Text>{this.state.make} {this.state.model}</Text>
-                <Text>{this.state.year}</Text>
-              </View>
-
+              <TagModalView
+                vehicleId={this.state.vehicleId}
+                year={this.state.year}
+                make={this.state.make}
+                model={this.state.model}
+                style={styles.tagModalInner} />
+            
             </TouchableWithoutFeedback>
+
         </Modal>
 
         <Mapbox.MapView
