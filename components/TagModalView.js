@@ -32,13 +32,13 @@ export default class TagModalView extends React.Component {
 
         <Button
           title='Test Drive'
-          onPress={() => console.log('Test drive')}/>
+          onPress={() => console.log('\nTest drive')}/>
         <Button
           title='Fuel Vehicle'
-          onPress={() => console.log('Test drive')}/>
+          onPress={() => console.log('\nFuel Vehicle')}/>
         <Button
           title='Update Tag'
-          onPress={() => console.log('Test drive')}/> 
+          onPress={() => console.log('\nUpdate Tag')}/>
       </View>
   	);
     // Probably only needed on empty spaces
