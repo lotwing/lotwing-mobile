@@ -85,7 +85,7 @@ class LotView extends React.Component {
               lotParkingSpaceMap[space["id"]] = space;
             });
 
-           console.log('- - - resetting state: _loadLotView');
+           console.log('     resetting state: _loadLotView');
             lotview.setState({
               centerCoordinate: lotview._calculateCenter(lot_coords),
               lotShapes: GlobalVariables.LOT_DATA,
@@ -109,14 +109,14 @@ class LotView extends React.Component {
           .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
             console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            console.log('- - - resetting state: _loadParkingSpaceMetadata');
+            console.log('     resetting state: _loadParkingSpaceMetadata');
             lotview.setState({
               newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
               usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
               emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
             });
 
-            console.log('NEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
+            console.log('\n\nNEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
             console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
 
           });
@@ -160,7 +160,7 @@ class LotView extends React.Component {
   }
 
   setModalVisible(visibility) {
-    console.log('- - - resetting state: setModalVisible');
+    console.log('     resetting state: setModalVisible');
     this.setState({modalVisible: visibility});
   }
 
@@ -182,17 +182,13 @@ class LotView extends React.Component {
       let make = vehicleData['make'];
       let model = vehicleData['model'];
 
-      console.log('Space ID: ', space_id);
-      console.log('Vehicle ID: ', vehicle_id);
-      
-      console.log('Y M M: ', year, make, model);
       this.setModalValues(vehicle_id, year, make, model);
       this.setModalVisible(true);
     }
   }
 
   getLot() {
-    console.log('- - - resetting state: getLot');
+    console.log('     resetting state: getLot');
     if (this.state.lotShapes) {
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
@@ -200,7 +196,7 @@ class LotView extends React.Component {
   }
 
   getBuildings() {
-    console.log('- - - resetting state: getBuildings');
+    console.log('     resetting state: getBuildings');
     if (this.state.lotShapes){
       return this.state.lotShapes['buildings'][0]["geo_info"]
     }  

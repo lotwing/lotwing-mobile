@@ -60,13 +60,12 @@ export default class VehicleSpaceLayer extends React.Component {
         })
       }))
       .then((vehicleResponses) => {
-        // console.log(' - - - - - - VEHICLE RESPONSES: ', vehicleResponses);
+        console.log('\nRETURNED VEHICLE DATA: ', vehicleResponses.length, ' vehicles');
         vehicleResponses.forEach((vehicle) => {
           let parking_space_id = vehicle["shape"]["id"];
           spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
         });
 
-        console.log('+ + _loadLotVehicleData: Filling Space Vehicle Data: ');
         vehicleSpaceLayer.setState({
           spaceVehicleMap: spaceVehicleMapObject,
         });
@@ -102,13 +101,11 @@ export default class VehicleSpaceLayer extends React.Component {
 
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
-      console.log('POPULATED Space Pressed \n\n Type of Space ID: ', typeof space_id);
       let vehicle_data = this.state.spaceVehicleMap[space_id];
 
       this.props.showAndPopulateModal([space_id, vehicle_data]);
 
     } else {
-      console.log('EMPTY Space Pressed');
     }
 
   }
@@ -129,15 +126,12 @@ export default class VehicleSpaceLayer extends React.Component {
     const ps_coord_obj = this.getAllParkingSpaceCoordinatesObject();
 
     if (ps_coord_obj) {
-      console.log('+ + Calling renderParkingSpace');
       this._loadLotVehicleData();
 
       let polygons = Object.keys(ps_coord_obj)
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
       
       let featureCollection = this._createFeatureCollection(polygons);
-      console.log(this.props.type, '| SPACES LOADED ');
-      console.log('Number of Features: ', polygons.length);
 
       return (
         <Mapbox.ShapeSource
@@ -153,7 +147,6 @@ export default class VehicleSpaceLayer extends React.Component {
       )
     }
 
-    console.log('     PARKING SPACES  -not-  LOADED');
     return []
   }
 
