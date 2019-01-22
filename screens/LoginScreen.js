@@ -18,7 +18,14 @@ export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { email: 'Email Address', pwd: 'Password', debug_email: 'adwoa@movementdash.com', debug_pwd: 'lot-mobile-view'};
+    this.state = { 
+      email: 'Email Address', 
+      pwd: 'Password', 
+      buttonText: 'Login',
+      debug_email: 'adwoa@movementdash.com', 
+      debug_pwd: 'lot-mobile-view',
+      debug_buttonText: 'Autologin',
+    };
   }
 
   render() {
@@ -46,14 +53,22 @@ export default class LoginScreen extends React.Component {
         <LoginButton 
           email={this.state.email}
           pwd={this.state.pwd}
+          buttonText={this.state.buttonText}
           callback={this.navigationCallback} 
-          navigation={this.props.navigation}/>
+          navigation={this.props.navigation}
+          style={{
+            color:"#841584",}}/>
 
         <LoginButton 
           email={this.state.debug_email}
           pwd={this.state.debug_pwd}
+          buttonText={this.state.debug_buttonText}
           callback={this.navigationCallback} 
-          navigation={this.props.navigation}/>
+          navigation={this.props.navigation}
+          style={{
+            borderRadius: 3, 
+            backgroundColor: 'blue', 
+            textSize: '10pt',}}/>
           
       </View>
     );
@@ -93,11 +108,9 @@ class LoginButton extends React.Component {
     render() {
       return (
         <Button
-          title="Login"
-              onPress={() => this._attemptLogin()}
-              color="#841584"> 
-              Login 
-          </Button>
+          title={this.props.buttonText}
+          onPress={() => this._attemptLogin()}
+          style={this.props.style}/>
       );
     }
 
