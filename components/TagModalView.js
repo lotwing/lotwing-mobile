@@ -2,6 +2,7 @@ import React from 'react';
 import {
   View,
   Text,
+  Button,
   Platform,
   StyleSheet,
   ActionSheetIOS,
@@ -28,7 +29,18 @@ export default class TagModalView extends React.Component {
         <Text>{this.props.vehicleId}</Text>
         <Text>{this.props.make} {this.props.model}</Text>
         <Text>{this.props.year}</Text>
+
+        <Button
+          title='Test Drive'
+          onPress={() => console.log('Test drive')}/>
+        <Button
+          title='Fuel Vehicle'
+          onPress={() => console.log('Test drive')}/>
+        <Button
+          title='Update Tag'
+          onPress={() => console.log('Test drive')}/> 
       </View>
   	);
+    // Probably only needed on empty spaces
   }
 }
