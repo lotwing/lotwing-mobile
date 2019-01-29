@@ -234,7 +234,8 @@ class LotView extends React.Component {
                 year={this.state.year}
                 make={this.state.make}
                 model={this.state.model}
-                style={styles.tagModalInner} />
+                style={styles.tagModalInnerView}
+                modalStyling={styles.tagModalStyles} />
             
             </TouchableWithoutFeedback>
 
@@ -299,13 +300,12 @@ class LotView extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 10,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'stretch',
   },
   modalWrapper: {
-    flex: 1,
     width: '100%',
     height: '100%',
     flexDirection: 'row',
@@ -315,15 +315,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
   }, 
-  tagModalInner: {
-    flex: 1,
-    width: '50%',
-    height: '100%',
-    flexDirection: 'column',
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
 });
 
 const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
