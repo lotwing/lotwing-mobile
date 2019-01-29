@@ -221,24 +221,15 @@ class LotView extends React.Component {
               console.log('\nMODAL DISMISSED ANDROID\n');
               this.setModalVisible(false);
             }}>
-
-            <TouchableWithoutFeedback 
-              style={styles.modalWrapper}
-              onPress={() => {
-                console.log('TOUCHING --OUTER-- VIEW');
-                this.setModalVisible(false);
-              }}>
+   
+          <TagModalView
+            vehicleId={this.state.vehicleId}
+            year={this.state.year}
+            make={this.state.make}
+            model={this.state.model}
+            style={styles.tagModalInnerView}
+            modalStyling={styles.tagModalStyles} />
             
-              <TagModalView
-                vehicleId={this.state.vehicleId}
-                year={this.state.year}
-                make={this.state.make}
-                model={this.state.model}
-                style={styles.tagModalInnerView}
-                modalStyling={styles.tagModalStyles} />
-            
-            </TouchableWithoutFeedback>
-
         </Modal>
 
         <Mapbox.MapView
@@ -306,13 +297,12 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
   },
   modalWrapper: {
+    flex: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
     width: '100%',
     height: '100%',
-    flexDirection: 'row',
-    backgroundColor: 'red',
-    borderWidth: 2,
     borderColor: 'blue',
-    justifyContent: 'center',
     alignItems: 'stretch',
   }, 
 });
