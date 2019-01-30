@@ -47,7 +47,7 @@ export default class TagModalView extends React.Component {
           
         <View
           style={styles.tagModalStallBar}>
-          <Text style={styles.header}>Stall {this.props.vehicleId}</Text>
+          <Text style={styles.stallHeader}>Stall {this.props.vehicleId}</Text>
         </View>
 
         <View
@@ -57,10 +57,6 @@ export default class TagModalView extends React.Component {
             {this.props.year} {this.props.make} {this.props.model}</Text>
           <Text style={styles.subtitle}>
             {this.props.vehicleId}</Text>
-
-          <View>
-            <Text>navigation/MainTabNavigator.js</Text>
-          </View>
 
           <Button
             title='Test Drive'
@@ -91,6 +87,11 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     color: '#B5B5B5',
   },
+  stallHeader: {
+    fontSize: 19,
+    fontWeight: '100',
+    color: '#E6E4E0',
+  },
   tagModalOverlay: {
     height: '100%',
     flexDirection: 'column',
@@ -105,14 +106,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#828282',
     justifyContent: 'flex-end',
     alignItems: 'stretch',
+    borderWidth: 10,
+    borderColor: '#828282',
   },
   tagModalStallBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-end',
+    width: '100%',
+    height: 49,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderTopColor: 'white',
     borderBottomColor: 'white',
+    borderRightWidth: 10,
+    borderRightColor: '#828282',
     backgroundColor: '#828282',
   }
 });
