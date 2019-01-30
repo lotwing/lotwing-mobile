@@ -20,44 +20,62 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
  * parking_lots, buildings, parking_spaces
  */
 export default class TagModalView extends React.Component {
-  
+  constructor(props) {
+    super(props);
+
+    this.dismissModal = this.dismissModal.bind(this);
+  }
+
+  dismissModal() {
+    this.props.setModalVisibility(false);
+  }
+
   render() {
   	return (
-  		<TouchableWithoutFeedback 
-        style={styles.tagModalOverlay}
-        onPress={() => {
-          console.log('TOUCHING --OUTER-- VIEW');
-        }}>
-        <View>
+      <View
+        style={styles.tagModalOverlay}>
+
+        <TouchableWithoutFeedback 
+          onPress={() => {
+            console.log('TOUCHING --OUTER-- VIEW');
+            this.dismissModal();
+          }}>
           <View
-            style={styles.tagModalStallBar}>
-            <Text style={styles.header}>Stall {this.props.vehicleId}</Text>
+            style={styles.tagModalBlankSpace}>
           </View>
-
-          <View
-            style={styles.tagModalInnerView}>
-            <Text style={styles.header}>
-              {this.props.year} {this.props.make} {this.props.model}</Text>
-            <Text style={styles.subtitle}>
-              {this.props.vehicleId}</Text>
-
-            <View>
-              <Text>navigation/MainTabNavigator.js</Text>
-            </View>
-
-            <Button
-              title='Test Drive'
-              onPress={() => console.log('\nTest drive')}/>
-            <Button
-              title='Fuel Vehicle'
-              onPress={() => console.log('\nFuel Vehicle')}/>
-            <Button
-              title='Update Tag'
-              onPress={() => console.log('\nUpdate Tag')}/>
-
-          </View>
+        </TouchableWithoutFeedback>
+          
+        <View
+          style={styles.tagModalStallBar}>
+          <Text style={styles.header}>Stall {this.props.vehicleId}</Text>
         </View>
-      </TouchableWithoutFeedback>
+
+        <View
+          style={styles.tagModalInnerView}>
+
+          <Text style={styles.header}>
+            {this.props.year} {this.props.make} {this.props.model}</Text>
+          <Text style={styles.subtitle}>
+            {this.props.vehicleId}</Text>
+
+          <View>
+            <Text>navigation/MainTabNavigator.js</Text>
+          </View>
+
+          <Button
+            title='Test Drive'
+            onPress={() => console.log('\nTest drive')}/>
+          <Button
+            title='Fuel Vehicle'
+            onPress={() => console.log('\nFuel Vehicle')}/>
+          <Button
+            title='Update Tag'
+            onPress={() => console.log('\nUpdate Tag')}/>
+
+        </View>
+
+      </View>
+      
   	);
   }
 }
@@ -78,7 +96,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'stretch',
-    backgroundColor: 'red',
+  },
+  tagModalBlankSpace: {
+    height: '70%',
   },
   tagModalInnerView: {
     flexDirection: 'column',

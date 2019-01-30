@@ -159,9 +159,13 @@ class LotView extends React.Component {
     return center_coordinate
   }
 
-  setModalVisible(visibility) {
-    console.log('     resetting state: setModalVisible');
+  setModalVisibility(visibility) {
+    console.log('     resetting state: setModalVisibility');
     this.setState({modalVisible: visibility});
+  }
+
+  setVisibility = (value) => {
+    this.setModalVisibility(value);
   }
 
   setModalValues(vehicle_id, year, make, model) {
@@ -183,7 +187,7 @@ class LotView extends React.Component {
       let model = vehicleData['model'];
 
       this.setModalValues(vehicle_id, year, make, model);
-      this.setModalVisible(true);
+      this.setModalVisibility(true);
     }
   }
 
@@ -208,19 +212,9 @@ class LotView extends React.Component {
     return (
       <View style={styles.container}>
         <Modal
-            animationType="fade"
-            transparent={true}
-            visible={this.state.modalVisible}
-            onShow={() => {
-            }}
-            onDismiss={()=> {
-              console.log('\nMODAL DISMISSED\n');
-              this.setModalVisible(false);
-            }}
-            onRequestClose={() => {
-              console.log('\nMODAL DISMISSED ANDROID\n');
-              this.setModalVisible(false);
-            }}>
+          animationType='slide'
+          transparent={true}
+          visible={this.state.modalVisible}>
    
           <TagModalView
             vehicleId={this.state.vehicleId}
@@ -228,7 +222,8 @@ class LotView extends React.Component {
             make={this.state.make}
             model={this.state.model}
             style={styles.tagModalInnerView}
-            modalStyling={styles.tagModalStyles} />
+            modalStyling={styles.tagModalStyles}
+            setModalVisibility={this.setVisibility} />
             
         </Modal>
 
@@ -260,6 +255,7 @@ class LotView extends React.Component {
             style={lotLayerStyles.empty_parking_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
+            setModalVisibility={this.setModalVisibility}
             type='empty'>
           </VehicleSpaceLayer>
 
@@ -302,7 +298,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: '100%',
     height: '100%',
-    borderColor: 'blue',
     alignItems: 'stretch',
   }, 
 });
