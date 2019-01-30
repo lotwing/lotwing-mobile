@@ -85,12 +85,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     fontWeight: '200',
-    color: '#B5B5B5',
+    color: '#E6E4E0',
   },
   stallHeader: {
     fontSize: 19,
     fontWeight: '100',
     color: '#E6E4E0',
+    borderTopWidth: 5,
   },
   tagModalOverlay: {
     height: '100%',
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#828282',
     justifyContent: 'flex-end',
     alignItems: 'stretch',
-    borderWidth: 10,
+    borderWidth: 14,
     borderColor: '#828282',
   },
   tagModalStallBar: {
