@@ -6,6 +6,7 @@ import {
   Platform,
   StyleSheet,
   ActionSheetIOS,
+  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 
@@ -28,6 +29,14 @@ export default class TagModalView extends React.Component {
 
   dismissModal() {
     this.props.setModalVisibility(false);
+  }
+
+  changeParkingSpace() {
+    console.log('changeParkingSpace called');
+  }
+
+  confirmSpaceData() {
+    console.log('confirmSpaceData called');
   }
 
   render() {
@@ -70,6 +79,27 @@ export default class TagModalView extends React.Component {
             <Button
               title='Update Tag'
               onPress={() => console.log('\nUpdate Tag')}/>
+
+          </View>
+
+          <View
+            style={styles.spaceUpdateContainer}>
+
+            <TouchableOpacity
+              style={buttonStyles.activeSecondaryModalButton}
+              onPress={this.changeParkingSpace}>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
+                CHANGE
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={buttonStyles.activePrimaryModalButton}
+              onPress={this.confirmSpaceData}>
+              <Text style={buttonStyles.activePrimaryTextColor}>
+                CONFIRM
+              </Text>
+            </TouchableOpacity>
 
           </View>
 
@@ -136,5 +166,37 @@ const styles = StyleSheet.create({
     borderWidth: 20,
     borderTopWidth: 15,
     borderColor: '#828282',
+  }, 
+  spaceUpdateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  }
+});
+
+
+const buttonStyles = StyleSheet.create({
+  activePrimaryModalButton: {
+    padding: 10,
+    marginLeft: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  activeSecondaryModalButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderColor: 'white',
+    borderWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#828282',
+  },
+  activePrimaryTextColor: {
+    fontSize: 11,
+    color: '#828282',
+  },
+  activeSecondaryTextColor: {
+    fontSize: 11,
+    color: '#FFFFFF',
   }
 });
