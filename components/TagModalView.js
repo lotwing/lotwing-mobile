@@ -51,22 +51,27 @@ export default class TagModalView extends React.Component {
         </View>
 
         <View
-          style={styles.tagModalInnerView}>
+          style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
             {this.props.year} {this.props.make} {this.props.model}</Text>
           <Text style={styles.subtitle}>
             {this.props.vehicleId}</Text>
 
-          <Button
-            title='Test Drive'
-            onPress={() => console.log('\nTest drive')}/>
-          <Button
-            title='Fuel Vehicle'
-            onPress={() => console.log('\nFuel Vehicle')}/>
-          <Button
-            title='Update Tag'
-            onPress={() => console.log('\nUpdate Tag')}/>
+          <View
+            style={styles.tagButtonContainer}>
+
+            <Button
+              title='Test Drive'
+              onPress={() => console.log('\nTest drive')}/>
+            <Button
+              title='Fuel Vehicle'
+              onPress={() => console.log('\nFuel Vehicle')}/>
+            <Button
+              title='Update Tag'
+              onPress={() => console.log('\nUpdate Tag')}/>
+
+          </View>
 
         </View>
 
@@ -102,14 +107,6 @@ const styles = StyleSheet.create({
   tagModalBlankSpace: {
     height: '70%',
   },
-  tagModalInnerView: {
-    flexDirection: 'column',
-    backgroundColor: '#828282',
-    justifyContent: 'flex-end',
-    alignItems: 'stretch',
-    borderWidth: 14,
-    borderColor: '#828282',
-  },
   tagModalStallBar: {
     flexDirection: 'column',
     justifyContent: 'space-evenly',
@@ -123,5 +120,21 @@ const styles = StyleSheet.create({
     borderRightWidth: 10,
     borderRightColor: '#828282',
     backgroundColor: '#828282',
+  },
+  tagModalMainBody: {
+    flexDirection: 'column',
+    backgroundColor: '#828282',
+    justifyContent: 'flex-end',
+    alignItems: 'stretch',
+    borderWidth: 14,
+    borderColor: '#828282',
+  },
+  tagButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    borderWidth: 20,
+    borderTopWidth: 15,
+    borderColor: '#828282',
   }
 });
