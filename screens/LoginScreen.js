@@ -1,19 +1,21 @@
 import React from 'react';
 import {
-  TextInput,
-  View,
   Button,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
+import buttonStyles from '../constants/ButtonStyles';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
 
 export default class LoginScreen extends React.Component {
-  
-  static navigationOptions = {
-    title: 'Lotwing Login',
-  };
 
   constructor(props) {
     super(props);
@@ -30,25 +32,31 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      <View style={{
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'stretch',
-      }}>
+      <View style={styles.loginBackground}>
+        
+        <Image
+          source={
+            __DEV__
+              ? require('../assets/images/lotwing-logo-white.png')
+              : require('../assets/images/lotwing-logo-white.png')
+          }
+          style={styles.logoSizing}/>
+        
+        <View style={styles.inputContainer}>
+          <TextInput
+            autoCapitalize='none'
+            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
+            onChangeText={(email) => this.setState({email})}
+            keyboardType='email-address'
+            placeholder={this.state.email} />
+        
+          <TextInput
+            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
+            onChangeText={(pwd) => this.setState({pwd})}
+            secureTextEntry={true}
+            placeholder={this.state.pwd} />
 
-        <TextInput
-          autoCapitalize='none'
-          style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(email) => this.setState({email})}
-          keyboardType='email-address'
-          placeholder={this.state.email} />
-      
-        <TextInput
-          style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
-          onChangeText={(pwd) => this.setState({pwd})}
-          secureTextEntry={true}
-          placeholder={this.state.pwd} />
+        </View>
 
         <LoginButton 
           email={this.state.email}
@@ -56,20 +64,17 @@ export default class LoginScreen extends React.Component {
           buttonText={this.state.buttonText}
           callback={this.navigationCallback} 
           navigation={this.props.navigation}
-          style={{
-            color:"#841584",}}/>
+          style={[buttonStyles.activePrimaryModalButton, {marginLeft: 0, marginBottom: 20, width: '25%'}]}
+          textColor={buttonStyles.activePrimaryTextColor}/>
 
         <LoginButton 
-          email={this.state.debug_email}
-          pwd={this.state.debug_pwd}
-          buttonText={this.state.debug_buttonText}
-          callback={this.navigationCallback} 
-          navigation={this.props.navigation}
-          style={{
-            borderRadius: 3, 
-            backgroundColor: 'blue', 
-            textSize: '10pt',}}/>
-          
+            email={this.state.debug_email}
+            pwd={this.state.debug_pwd}
+            buttonText={this.state.debug_buttonText}
+            callback={this.navigationCallback} 
+            navigation={this.props.navigation}
+            textColor={buttonStyles.activeSecondaryTextColor}/>
+
       </View>
     );
   }
@@ -107,11 +112,36 @@ class LoginButton extends React.Component {
 
     render() {
       return (
-        <Button
-          title={this.props.buttonText}
-          onPress={() => this._attemptLogin()}
-          style={this.props.style}/>
+        <TouchableOpacity
+          style={this.props.style}
+          onPress={() => this._attemptLogin()}>
+          <Text style={this.props.textColor}>
+            {this.props.buttonText}
+          </Text>
+        </TouchableOpacity>
       );
     }
 
 }
+
+
+const styles = StyleSheet.create({
+  loginBackground: {
+    flex: 10,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: '#BE1E2D',
+  },
+  logoSizing: {
+    width: 235,
+    resizeMode: 'contain',
+  },
+  inputContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    width: '50%',
+  },
+});
+
