@@ -45,13 +45,13 @@ export default class LoginScreen extends React.Component {
         <View style={styles.inputContainer}>
           <TextInput
             autoCapitalize='none'
-            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
+            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white',}}
             onChangeText={(email) => this.setState({email})}
             keyboardType='email-address'
             placeholder={this.state.email} />
         
           <TextInput
-            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1}}
+            style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white',}}
             onChangeText={(pwd) => this.setState({pwd})}
             secureTextEntry={true}
             placeholder={this.state.pwd} />
@@ -64,7 +64,7 @@ export default class LoginScreen extends React.Component {
           buttonText={this.state.buttonText}
           callback={this.navigationCallback} 
           navigation={this.props.navigation}
-          style={[buttonStyles.activePrimaryModalButton, {marginLeft: 0, marginBottom: 20, width: '25%'}]}
+          style={[buttonStyles.activePrimaryModalButton, {marginLeft: 0, marginTop: 50, marginBottom: 20, width: '25%'}]}
           textColor={buttonStyles.activePrimaryTextColor}/>
 
         <LoginButton 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    color: '#BE1E2D',
+    backgroundColor: '#BE1E2D',
   },
   logoSizing: {
     width: 235,
