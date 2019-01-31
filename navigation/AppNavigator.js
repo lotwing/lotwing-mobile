@@ -1,17 +1,34 @@
 import React from 'react';
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator, createAppContainer} from 'react-navigation';
 
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
+import AuthLoadingScreen from '../screens/AuthLoadingScreen';
+
 
 
 export default ScreenStack = createStackNavigator({
 	Login: LoginScreen,
-  	Lot: LotScreen,
+	Lot: LotScreen,
   },
   {
-	initialRouteName: 'Login',
+  	initialRouteName: 'Login',
 });
+
+
+// const AppStack = createStackNavigator({ Lot: LotScreen });
+// const AuthStack = createStackNavigator({ Login: LoginScreen });
+
+// export default createAppContainer(createSwitchNavigator(
+// 	{
+// 		AuthLoading: AuthLoadingScreen,
+// 		App: AppStack,
+//   		Auth: AuthStack
+//   	},
+//   	{
+// 		initialRouteName: 'AuthLoading',
+// 	}
+//));
 
 
 // export default createSwitchNavigator({
