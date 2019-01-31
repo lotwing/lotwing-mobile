@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  AsyncStorage,
   Button,
   Image,
   StyleSheet,
@@ -102,6 +103,8 @@ class LoginButton extends React.Component {
           .then((responseJson) => {
             if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
               GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
+              await AsyncStorage.setItem('userToken', responseJson.access_token);
+
               this.props.navigation.navigate('Lot');
             } else {
               // TODO(adwoa): display error message
