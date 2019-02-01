@@ -1,10 +1,12 @@
 import React from 'react';
 import {
+  AsyncStorage,
   View,
   Modal,
   Text,
   Platform,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 
@@ -26,9 +28,14 @@ export default class LotScreen extends React.Component {
     title: 'The Lot',
   };
 
+  constructor(props) {
+    super(props);
+  }
+
   render() {
   	return (
-  		<LotView />
+  		<LotView
+        navigation={this.props.navigation} />
   	);
   }
 }
@@ -37,6 +44,7 @@ class LotView extends React.Component {
   
   constructor(props) {
       super(props);
+
       this.state = {
         centerCoordinate:[0, 0],
         lotShapes: null,
@@ -54,7 +62,14 @@ class LotView extends React.Component {
         model: 'Versa',
       }
 
-      this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+      let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+      loadPromise.then((result) => {
+        console.log('PROMISE RESOLVED: ', result, result.name);
+        if (result.name == 'Error') {
+          console.log('Routing back to login page!', this.props);
+          this.props.navigation.navigate('Auth');
+        }
+      });
   }
 
   /**
@@ -74,6 +89,12 @@ class LotView extends React.Component {
       })
       .then((response) => response.json())
           .then((responseJson) => {
+            console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
+            if (responseJson.message == "Signature has expired") {
+              console.log('Throwing Error');
+              throw Error('Unauthorized user');
+            }
+
             GlobalVariables.LOT_DATA = responseJson;
 
             // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
@@ -92,7 +113,11 @@ class LotView extends React.Component {
               parkingShapes: lotParkingSpaceMap,
             });
           })
-          .then(() => lotview._loadParkingSpaceMetadata());
+          .then(() => lotview._loadParkingSpaceMetadata())
+          .catch(err => {
+            console.log('CAUHT ERR, attempting logout: ', err, err.name);
+            return err
+          });
   }
 
   _loadParkingSpaceMetadata() {
@@ -159,6 +184,27 @@ class LotView extends React.Component {
     return center_coordinate
   }
 
+  unauthorizedError() {
+    let err = new Error();
+    err.name = 'UnAuthError';
+
+    console.log('ERR: ', err);
+    return err
+  }
+
+  _signOut(instance, opt_msg) {
+    console.log('\n\n SIGNING OUT!\n', this, opt_msg, '\n\n');
+    AsyncStorage.clear();
+    this.props.navigation.navigate('Auth');
+    // this._pushToAuthPage(instance);
+  }
+
+  _pushToAuthPage(instance) {
+    console.log(instance.props);
+    this.props.navigation.navigate('Auth');
+  }
+
+
   setModalVisibility(visibility) {
     console.log('     resetting state: setModalVisibility');
     this.setState({modalVisible: visibility});
@@ -224,7 +270,6 @@ class LotView extends React.Component {
             style={styles.tagModalInnerView}
             modalStyling={styles.tagModalStyles}
             setModalVisibility={this.setVisibility} />
-            
         </Modal>
 
         <Mapbox.MapView
