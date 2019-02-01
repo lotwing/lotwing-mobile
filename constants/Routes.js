@@ -7,6 +7,7 @@ export default {
 	PARKING_SPACE_METADATA: '/api/shapes/parking_spaces',
 	
 	LOGIN: '/api/auth/login',
+	AUTH_CHECK: '/api/auth/test',
 	VEHICLE: '/api/vehicle/',
 
 	// POST REQUESTS
