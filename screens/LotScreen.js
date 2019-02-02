@@ -64,8 +64,8 @@ class LotView extends React.Component {
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
       loadPromise.then((result) => {
-        console.log('PROMISE RESOLVED: ', result, result.name);
-        if (result.name == 'Error') {
+        console.log('PROMISE RESOLVED: ', result);
+        if (result && result.name == 'Error') {
           console.log('Routing back to login page!', this.props);
           this.props.navigation.navigate('Auth');
         }

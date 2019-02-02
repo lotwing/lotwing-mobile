@@ -13,17 +13,25 @@ import Route from '../constants/Routes';
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);
-    this._bootstrapAsync();
+    let authResponse = this._bootstrapAsync();
+    authResponse.then((responseJson) => {
+      if (responseJson.message == 'Correct Authentication') {
+          console.log('Navigate to App');
+          this.props.navigation.navigate('App');
+        } else {
+          console.log('Navigate to Auth');
+          this.props.navigation.navigate('Auth');
+        }
+    });
   }
 
   // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem('userToken');
+    GlobalVariables.LOTWING_ACCESS_TOKEN = userToken;
 
     if (userToken) {
-
       console.log('\n\nASYNC User Token: ', userToken);
-
       return fetch(GlobalVariables.BASE_ROUTE + Route.AUTH_CHECK , {
         method: 'GET',
         headers: {
@@ -32,24 +40,18 @@ export default class AuthLoadingScreen extends React.Component {
           },
       })
       .then((response) => {
-        // console.log('AUTH CHECK RESPONSE:', response);
-        return this.props.navigation.navigate('Auth'); // TODO(adwoa): update this when auth check api call works
-        //return response.json()
+        return response.json()
       })
-          // .then((responseJson) => {
-          //   // This will switch to the App or Auth screen and this loading
-          //   // screen will be unmounted and thrown away.
-          //   if (responseJson.message == 'Correct Authentication') {
-          //     this.props.navigation.navigate('App');
-          //   } else {
-          //     this.props.navigation.navigate('Auth');
-          //   }
-          // })
+      .then((responseJson) => {
+        // This will switch to the App or Auth screen and this loading
+        // screen will be unmounted and thrown away.
+        console.log('AUTH CHECK RESPONSE:', responseJson);
+        return responseJson
+      })
+    } else {
+      console.log('NO USER TOKEN IN ASYNC STORAGE');
+      this.props.navigation.navigate('Auth');
     }
-
-    console.log('NO USER TOKEN IN ASYNC STORAGE');
-    this.props.navigation.navigate('Auth');
-
   };
 
   // Render any loading content that you like here
