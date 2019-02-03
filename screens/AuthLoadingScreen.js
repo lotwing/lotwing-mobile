@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   AsyncStorage,
+  Image,
   StatusBar,
   StyleSheet,
   View,
@@ -15,13 +16,13 @@ export default class AuthLoadingScreen extends React.Component {
     super(props);
     let authResponse = this._bootstrapAsync();
     authResponse.then((responseJson) => {
-      if (responseJson.message == 'Correct Authentication') {
-          console.log('Navigate to App');
-          this.props.navigation.navigate('App');
-        } else {
-          console.log('Navigate to Auth');
-          this.props.navigation.navigate('Auth');
-        }
+      if (responseJson && responseJson.message == 'Correct Authentication') {
+        console.log('Navigate to App');
+        this.props.navigation.navigate('App');
+      } else {
+        console.log('Navigate to Auth');
+        this.props.navigation.navigate('Auth');
+      }
     });
   }
 
@@ -58,8 +59,11 @@ export default class AuthLoadingScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
+        <Image
+          source={
+            require('../assets/images/splash.png')
+          }
+          style={styles.container}/>
       </View>
     );
   }
