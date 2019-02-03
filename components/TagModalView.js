@@ -55,58 +55,61 @@ export default class TagModalView extends React.Component {
             style={styles.tagModalBlankSpace}>
           </View>
         </TouchableWithoutFeedback>
+
+        <View style={styles.modalBottomContainer}>
           
-        <View
-          style={styles.tagModalStallBar}>
-          <Text style={styles.stallHeader}>Stall {this.props.vehicleId}</Text>
-        </View>
-
-        <View
-          style={styles.tagModalMainBody}>
-
-          <Text style={styles.header}>
-            {this.props.year} {this.props.make} {this.props.model}</Text>
-          <Text style={styles.subtitle}>
-            {this.props.vehicleId}</Text>
-
           <View
-            style={styles.tagButtonContainer}>
-
-            <Button
-              title='Test Drive'
-              onPress={() => console.log('\nTest drive')}/>
-            <Button
-              title='Fuel Vehicle'
-              onPress={() => console.log('\nFuel Vehicle')}/>
-            <Button
-              title='Update Tag'
-              onPress={() => console.log('\nUpdate Tag')}/>
-
+            style={styles.tagModalStallBar}>
+            <Text style={styles.stallHeader}>Stall {this.props.vehicleId}</Text>
           </View>
 
           <View
-            style={styles.spaceUpdateContainer}>
+            style={styles.tagModalMainBody}>
 
-            <TouchableOpacity
-              style={buttonStyles.activeSecondaryModalButton}
-              onPress={this.changeParkingSpace}>
-              <Text style={buttonStyles.activeSecondaryTextColor}>
-                CHANGE
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={buttonStyles.activePrimaryModalButton}
-              onPress={this.confirmSpaceData}>
-              <Text style={buttonStyles.activePrimaryTextColor}>
-                CONFIRM
-              </Text>
-            </TouchableOpacity>
+            <Text style={styles.header}>
+              {this.props.year} {this.props.make} {this.props.model}</Text>
+            <Text style={styles.subtitle}>
+              {this.props.vehicleId}</Text>
+
+            <View
+              style={styles.tagButtonContainer}>
+
+              <Button
+                title='Test Drive'
+                onPress={() => console.log('\nTest drive')}/>
+              <Button
+                title='Fuel Vehicle'
+                onPress={() => console.log('\nFuel Vehicle')}/>
+              <Button
+                title='Update Tag'
+                onPress={() => console.log('\nUpdate Tag')}/>
+
+            </View>
+
+            <View
+              style={styles.spaceUpdateContainer}>
+
+              <TouchableOpacity
+                style={buttonStyles.activeSecondaryModalButton}
+                onPress={this.changeParkingSpace}>
+                <Text style={buttonStyles.activeSecondaryTextColor}>
+                  CHANGE
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={buttonStyles.activePrimaryModalButton}
+                onPress={this.confirmSpaceData}>
+                <Text style={buttonStyles.activePrimaryTextColor}>
+                  CONFIRM
+                </Text>
+              </TouchableOpacity>
+
+            </View>
 
           </View>
 
         </View>
-
       </View>
       
   	);
@@ -138,6 +141,14 @@ const styles = StyleSheet.create({
   },
   tagModalBlankSpace: {
     height: '70%',
+  },
+  modalBottomContainer: {
+    elevation: 1,
+    shadowColor: '#00000050',
+    shadowOpacity: 50,
+    shadowRadius: 10,
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
   tagModalStallBar: {
     flexDirection: 'column',
