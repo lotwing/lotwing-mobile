@@ -21,6 +21,7 @@ export default class AuthLoadingScreen extends React.Component {
         this.props.navigation.navigate('App');
       } else {
         console.log('Navigate to Auth');
+        AsyncStorage.clear();
         this.props.navigation.navigate('Auth');
       }
     });
@@ -59,6 +60,9 @@ export default class AuthLoadingScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <StatusBar
+          barStyle='light-content'
+          backgroundColor='#BE1E2D'/>
         <Image
           source={
             require('../assets/images/splash.png')

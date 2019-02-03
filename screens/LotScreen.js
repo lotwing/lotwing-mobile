@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   AsyncStorage,
-  View,
   Modal,
-  Text,
   Platform,
+  StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
@@ -23,12 +24,6 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
  * parking_lots, buildings, parking_spaces
  */
 export default class LotScreen extends React.Component {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#BE1E2D',
-    },
-    headerTintColor: '#fff',
-  };
 
   constructor(props) {
     super(props);
@@ -259,6 +254,9 @@ class LotView extends React.Component {
     console.log('+ + + Render Lot Screen');
     return (
       <View style={styles.container}>
+        <StatusBar
+          barStyle='light-content'
+          backgroundColor='#BE1E2D'/>
         <Modal
           animationType='slide'
           transparent={true}

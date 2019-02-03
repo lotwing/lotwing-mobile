@@ -4,12 +4,39 @@ import {
 	createSwitchNavigator, 
 } from 'react-navigation';
 
+import {
+  Image,
+} from 'react-native';
+
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
+class NavigationMenu extends React.Component {
+  render() {
+    return (
+      <Image
+        source={
+          require('../assets/images/menu-wing.png')
+        }
+        style={{width: 43, height: 25, marginLeft: 20}}/>
+    )
+  }
+}
 
-const AppStack = createStackNavigator({ Lot: LotScreen });
+const AppStack = createStackNavigator(
+{ 
+	Lot: LotScreen,
+},
+{
+	navigationOptions: {
+		headerStyle: {
+			backgroundColor: '#BE1E2D',
+		},
+		headerTitle: <NavigationMenu />,
+	},
+	
+});
 const AuthStack = createStackNavigator({ Login: LoginScreen });
 
 const switchNav = createSwitchNavigator(
