@@ -17,6 +17,9 @@ import Route from '../constants/Routes';
 
 
 export default class LoginScreen extends React.Component {
+  static navigationOptions = {
+    header: null,
+  }
 
   constructor(props) {
     super(props);
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'stretch',
-    width: '50%',
+    width: 260,
   },
 });
 

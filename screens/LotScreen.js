@@ -24,8 +24,10 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
  */
 export default class LotScreen extends React.Component {
   static navigationOptions = {
-    header: null,
-    title: 'The Lot',
+    headerStyle: {
+      backgroundColor: '#BE1E2D',
+    },
+    headerTintColor: '#fff',
   };
 
   constructor(props) {
