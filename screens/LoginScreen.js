@@ -3,6 +3,7 @@ import {
   AsyncStorage,
   Button,
   Image,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -37,7 +38,9 @@ export default class LoginScreen extends React.Component {
   render() {
     return (
       <View style={styles.loginBackground}>
-        
+        <StatusBar
+          barStyle='light-content'
+          backgroundColor='#BE1E2D'/>
         <Image
           source={
             __DEV__
