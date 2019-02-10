@@ -1,8 +1,10 @@
 import React from 'react';
 import {
+  Animated,
   View,
   Text,
   Button,
+  Image,
   Platform,
   StyleSheet,
   ActionSheetIOS,
@@ -74,16 +76,25 @@ export default class TagModalView extends React.Component {
             <View
               style={styles.tagButtonContainer}>
 
-              <Button
-                title='Test Drive'
-                onPress={() => console.log('\nTest drive')}/>
-              <Button
-                title='Fuel Vehicle'
-                onPress={() => console.log('\nFuel Vehicle')}/>
-              <Button
-                title='Update Tag'
-                onPress={() => console.log('\nUpdate Tag')}/>
+              <ButtonWithImageAndLabel
+                text={'Test Drive'}
+                source={require('../assets/images/car-white.png')}
+                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
 
+              <ButtonWithImageAndLabel
+                text={'Fuel Vehicle'}
+                source={require('../assets/images/fuel-white.png')}
+                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+
+              <ButtonWithImageAndLabel
+                text={'Camera'}
+                source={require('../assets/images/camera-white.png')}
+                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+
+              <ButtonWithImageAndLabel
+                text={'Note'}
+                source={require('../assets/images/note-white.png')}
+                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
             </View>
 
             <View
@@ -113,6 +124,28 @@ export default class TagModalView extends React.Component {
       </View>
       
   	);
+  }
+}
+
+class ButtonWithImageAndLabel extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <TouchableWithoutFeedback 
+        onPress={() => {
+          console.log('TOUCHING ACTION BUTTON');
+        }}>
+        <Animated.View style={buttonStyles.unfocused, {flex: 1, flexDirection: 'column', width: 80, alignItems: 'center'}}>
+          <Image
+            source={this.props.source}
+            style={buttonStyles.icon}/>
+          <Text style={[buttonStyles.label, {marginTop: 5}]}>{this.props.text}</Text>
+        </Animated.View>
+      </TouchableWithoutFeedback>
+    )
   }
 }
 
@@ -174,10 +207,12 @@ const styles = StyleSheet.create({
   },
   tagButtonContainer: {
     flexDirection: 'row',
+    width: '100%',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    borderWidth: 20,
-    borderTopWidth: 15,
+    borderWidth: 5,
+    borderTopWidth: 12,
+    borderBottomWidth: 10,
     borderColor: '#828282',
   }, 
   spaceUpdateContainer: {

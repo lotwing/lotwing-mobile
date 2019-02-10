@@ -23,5 +23,23 @@ export default buttonStyles = StyleSheet.create({
   activeSecondaryTextColor: {
     fontSize: 11,
     color: '#FFFFFF',
-  }
+  },
+  focused: {
+    opacity: 100,
+  },
+  unfocused: {
+    opacity: 60,
+  },
+  label: {
+    backgroundColor: 'transparent',
+    color: '#FFFFFF',
+    fontSize: 10,
+    textAlign: 'center',
+    marginBottom: 1.5,
+  },
+  icon: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
