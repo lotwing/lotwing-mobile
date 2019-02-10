@@ -134,17 +134,18 @@ class ButtonWithImageAndLabel extends React.Component {
 
   render() {
     return (
-      <TouchableWithoutFeedback 
+      <TouchableOpacity 
         onPress={() => {
           console.log('TOUCHING ACTION BUTTON');
-        }}>
-        <Animated.View style={buttonStyles.unfocused, {flex: 1, flexDirection: 'column', width: 80, alignItems: 'center'}}>
+        }}
+        style={{width: 80, height: 50,}}>
+        <View style={{flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
           <Image
             source={this.props.source}
             style={buttonStyles.icon}/>
           <Text style={[buttonStyles.label, {marginTop: 5}]}>{this.props.text}</Text>
-        </Animated.View>
-      </TouchableWithoutFeedback>
+        </View>
+      </TouchableOpacity>
     )
   }
 }

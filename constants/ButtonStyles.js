@@ -24,12 +24,6 @@ export default buttonStyles = StyleSheet.create({
     fontSize: 11,
     color: '#FFFFFF',
   },
-  focused: {
-    opacity: 100,
-  },
-  unfocused: {
-    opacity: 60,
-  },
   label: {
     backgroundColor: 'transparent',
     color: '#FFFFFF',
