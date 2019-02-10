@@ -135,6 +135,7 @@ class ButtonWithImageAndLabel extends React.Component {
   render() {
     return (
       <TouchableOpacity 
+        activeOpacity={0.5}
         onPress={() => {
           console.log('TOUCHING ACTION BUTTON');
         }}
@@ -142,7 +143,8 @@ class ButtonWithImageAndLabel extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
           <Image
             source={this.props.source}
-            style={buttonStyles.icon}/>
+            style={buttonStyles.icon}
+            resizeMode={"contain"}/>
           <Text style={[buttonStyles.label, {marginTop: 5}]}>{this.props.text}</Text>
         </View>
       </TouchableOpacity>

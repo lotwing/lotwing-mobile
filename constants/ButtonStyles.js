@@ -32,7 +32,11 @@ export default buttonStyles = StyleSheet.create({
     marginBottom: 1.5,
   },
   icon: {
-    alignSelf: 'center',
+    flex: 1,
+    width: undefined,
+    height: undefined,
+    padding: 10,
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
   },
