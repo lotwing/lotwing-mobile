@@ -43,6 +43,21 @@ export default class TagModalView extends React.Component {
     console.log('confirmSpaceData called');
   }
 
+  launchPage(page_name) {
+    this.props.navigation.navigate('TagAction', {'page': page_name});
+    this.dismissModal();
+    
+    if (page_name == 'drive') {
+
+    } else if (page_name == 'fuel') {
+      this.props.navigation.navigate('Fuel', this.props);
+    } else if (page_name == 'camera') {
+
+    } else if (page_name == 'note') {
+
+    }
+  }
+
   render() {
   	return (
       <View
@@ -79,22 +94,22 @@ export default class TagModalView extends React.Component {
               <ButtonWithImageAndLabel
                 text={'Test Drive'}
                 source={require('../assets/images/car-white.png')}
-                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+                onPress={() => {this.launchPage('drive')}}/>
 
               <ButtonWithImageAndLabel
                 text={'Fuel Vehicle'}
                 source={require('../assets/images/fuel-white.png')}
-                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+                onPress={() => {this.launchPage('fuel')}}/>
 
               <ButtonWithImageAndLabel
                 text={'Camera'}
                 source={require('../assets/images/camera-white.png')}
-                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+                onPress={() => {this.launchPage('camera')}}/>
 
               <ButtonWithImageAndLabel
                 text={'Note'}
                 source={require('../assets/images/note-white.png')}
-                onPress={() => {console.log('TOUCHING ACTION BUTTON');}}/>
+                onPress={() => {this.launchPage('note')}}/>
             </View>
 
             <View
@@ -136,9 +151,7 @@ class ButtonWithImageAndLabel extends React.Component {
     return (
       <TouchableOpacity 
         activeOpacity={0.5}
-        onPress={() => {
-          console.log('TOUCHING ACTION BUTTON');
-        }}
+        onPress={this.props.onPress}
         style={{width: 80, height: 50,}}>
         <View style={{flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
           <Image

@@ -269,6 +269,7 @@ class LotView extends React.Component {
             model={this.state.model}
             style={styles.tagModalInnerView}
             modalStyling={styles.tagModalStyles}
+            navigation={this.props.navigation}
             setModalVisibility={this.setVisibility} />
         </Modal>
 
