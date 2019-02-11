@@ -36,6 +36,7 @@ const AppStack = createStackNavigator(
 			backgroundColor: '#BE1E2D',
 		},
 		headerTitle: <NavigationMenu />,
+		headerTintColor: 'white',
 	},
 	
 });

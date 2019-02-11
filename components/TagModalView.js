@@ -46,7 +46,7 @@ export default class TagModalView extends React.Component {
   launchPage(page_name) {
     this.props.navigation.navigate('TagAction', {'page': page_name});
     this.dismissModal();
-    
+
     if (page_name == 'drive') {
 
     } else if (page_name == 'fuel') {
