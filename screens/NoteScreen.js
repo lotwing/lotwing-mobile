@@ -17,7 +17,7 @@ import buttonStyles from '../constants/ButtonStyles';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
-export default class FuelScreen extends React.Component {
+export default class NoteScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params;
@@ -35,7 +35,7 @@ export default class FuelScreen extends React.Component {
 	  			</View>
 	  			<View style={pageStyles.column}>
 	          <Image
-	            source={require('../assets/images/fuel-white.png')}
+	            source={require('../assets/images/note-white.png')}
 	            style={[buttonStyles.icon, {padding: 10, minWidth: 30}]}
 	            resizeMode={"contain"}/>
 	        </View>
@@ -55,7 +55,7 @@ export default class FuelScreen extends React.Component {
 	  					{width: '90%', paddingTop: 15, paddingBottom: 15}
 	  				]}>
 	  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-	  					STOP FUELING
+	  					SAVE NOTE
 	  				</Text>
 	  			</TouchableOpacity>
   			</View>

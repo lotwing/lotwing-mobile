@@ -11,6 +11,9 @@ import {
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
 import FuelScreen from '../screens/FuelScreen';
+import DriveScreen from '../screens/DriveScreen';
+import NoteScreen from '../screens/NoteScreen';
+
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
 class NavigationMenu extends React.Component {
@@ -29,6 +32,8 @@ const AppStack = createStackNavigator(
 { 
 	Lot: LotScreen,
 	Fuel: FuelScreen,
+	Drive: DriveScreen,
+	Note: NoteScreen,
 },
 {
 	navigationOptions: {
