@@ -211,11 +211,12 @@ class LotView extends React.Component {
     this.setModalVisibility(value);
   }
 
-  setModalValues(vehicle_id, year, make, model) {
+  setModalValues(space_id, vehicle_id, year, make, model) {
     this.setState({
       year: year,
       make: make,
       model: model,
+      spaceId: space_id,
       vehicleId: vehicle_id,
     });
   }
@@ -229,7 +230,7 @@ class LotView extends React.Component {
       let make = vehicleData['make'];
       let model = vehicleData['model'];
 
-      this.setModalValues(vehicle_id, year, make, model);
+      this.setModalValues(space_id, vehicle_id, year, make, model);
       this.setModalVisibility(true);
     }
   }
@@ -263,6 +264,7 @@ class LotView extends React.Component {
           visible={this.state.modalVisible}>
    
           <TagModalView
+            spaceId={this.state.spaceId}
             vehicleId={this.state.vehicleId}
             year={this.state.year}
             make={this.state.make}

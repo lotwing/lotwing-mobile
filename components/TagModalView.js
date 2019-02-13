@@ -29,10 +29,21 @@ export default class TagModalView extends React.Component {
     super(props);
 
     this.dismissModal = this.dismissModal.bind(this);
+    this.confirmSpaceData = this.confirmSpaceData.bind(this);
   }
 
   dismissModal() {
     this.props.setModalVisibility(false);
+  }
+
+  structureTagPayload(type, event_details) {
+    // expects a valid type: tag, note, test_drive, fuel_vehicle, odometer_update
+    let body = {
+      'tag': {'vehicleId': this.props.vehicleId, 'shape_id': this.props.spaceId}, 
+      'event': {'event_type': type, 'event_details': event_details}
+    }
+
+    return body
   }
 
   changeParkingSpace() {
@@ -40,7 +51,27 @@ export default class TagModalView extends React.Component {
   }
 
   confirmSpaceData() {
-    console.log('confirmSpaceData called');
+    console.log('\nconfirmSpaceData called');
+    let space_data = this.structureTagPayload('tag');
+
+    console.log('TAG DATA: ', space_data);
+
+    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+          },
+        body: space_data,
+      })
+      .then((response) => response.json())
+          .then((responseJson) => {
+            console.log('\nTAG RESPONSE: ', responseJson.message, '\n');
+          })
+          .catch(err => {
+            console.log('CAUHT ERR, attempting logout: ', err, err.name);
+            return err
+          });
   }
 
   launchPage(page_name) {
