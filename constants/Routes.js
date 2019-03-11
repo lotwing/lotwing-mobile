@@ -17,7 +17,7 @@ export default {
 	// * shape_id (which parking space is this)
 	// * event_type (is it a "tag", "note", "test drive", etc)
 	// * event_details (for notes/test drives/etc, leave a comment here)
-	TAG_VEHICLE: 'api/tags/',
+	TAG_VEHICLE: '/api/tags/',
 
 	
 }

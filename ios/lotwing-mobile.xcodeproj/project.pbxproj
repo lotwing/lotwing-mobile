@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A748D09D21C505F2004F75F7 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A748D09C21C505F2004F75F7 /* XCTest.framework */; };
+		A7CDBBBE222AAFE800293EE0 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A7CDBBBD222AAFE800293EE0 /* libReact.a */; };
 		B501732B1DC01252003445D9 /* EXShell.plist in Resources */ = {isa = PBXBuildFile; fileRef = B501732A1DC01252003445D9 /* EXShell.plist */; };
 		B56386491DB9693800A0598C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B56386481DB9693800A0598C /* AppDelegate.m */; };
 		B56386511DB9693800A0598C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B56386501DB9693800A0598C /* Assets.xcassets */; };
@@ -27,6 +28,8 @@
 		A47FE4D7F70906B7DC8CE39B /* Pods-lotwing-mobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-lotwing-mobile.release.xcconfig"; path = "Pods/Target Support Files/Pods-lotwing-mobile/Pods-lotwing-mobile.release.xcconfig"; sourceTree = "<group>"; };
 		A7152ABE21C0348F0047E12F /* Mapbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Mapbox.framework; path = "../node_modules/@mapbox/react-native-mapbox-gl/ios/Mapbox.framework"; sourceTree = "<group>"; };
 		A748D09C21C505F2004F75F7 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = XCTest.framework; sourceTree = "<group>"; };
+		A7CDBBBD222AAFE800293EE0 /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7E6117C2234DC8F00DF1013 /* lotwing-mobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "lotwing-mobile.entitlements"; sourceTree = "<group>"; };
 		B501732A1DC01252003445D9 /* EXShell.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = EXShell.plist; sourceTree = "<group>"; };
 		B56386411DB9693800A0598C /* lotwing-mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "lotwing-mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B56386471DB9693800A0598C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -49,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7CDBBBE222AAFE800293EE0 /* libReact.a in Frameworks */,
 				EBB8117C1BFA0514F79CAF74 /* libPods-lotwing-mobile.a in Frameworks */,
 				A748D09D21C505F2004F75F7 /* XCTest.framework in Frameworks */,
 			);
@@ -60,6 +64,7 @@
 		1A42804E64B7E9E0AB8B6799 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A7CDBBBD222AAFE800293EE0 /* libReact.a */,
 				A748D09C21C505F2004F75F7 /* XCTest.framework */,
 				C4A88D15726AD99E8A257BC7 /* libPods-lotwing-mobile.a */,
 			);
@@ -97,6 +102,7 @@
 		B56386431DB9693800A0598C /* lotwing-mobile */ = {
 			isa = PBXGroup;
 			children = (
+				A7E6117C2234DC8F00DF1013 /* lotwing-mobile.entitlements */,
 				B56386471DB9693800A0598C /* AppDelegate.h */,
 				B56386481DB9693800A0598C /* AppDelegate.m */,
 				B56386501DB9693800A0598C /* Assets.xcassets */,
@@ -158,8 +164,13 @@
 				TargetAttributes = {
 					B56386401DB9693800A0598C = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = C8D8QTF339;
-						ProvisioningStyle = Automatic;
+						DevelopmentTeam = PVAADY68M7;
+						ProvisioningStyle = Manual;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -423,8 +434,13 @@
 			baseConfigurationReference = 2C1548D9E4CB1AEFA5CCAE6D /* Pods-lotwing-mobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = C8D8QTF339;
+				CODE_SIGN_ENTITLEMENTS = "lotwing-mobile/lotwing-mobile.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = PVAADY68M7;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/lotwing-mobile/Supporting/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -437,6 +453,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.lotwing.com;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Lotwing Provisioning Profile";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -446,8 +463,13 @@
 			baseConfigurationReference = A47FE4D7F70906B7DC8CE39B /* Pods-lotwing-mobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = C8D8QTF339;
+				CODE_SIGN_ENTITLEMENTS = "lotwing-mobile/lotwing-mobile.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = PVAADY68M7;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/lotwing-mobile/Supporting/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -460,6 +482,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.lotwing.com;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Lotwing Provisioning Profile";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

@@ -5,3 +5,11 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
+ios/.expo/
+ios/Pods/
+ios/build/
+ios/lotwing-mobile.xcworkspace/
+ios/lotwing-mobile/Supporting/EXBuildConstants.plist.bak
+android/.gradle/
+android/.idea/
+android/local.properties

@@ -39,8 +39,8 @@ export default class TagModalView extends React.Component {
   structureTagPayload(type, event_details) {
     // expects a valid type: tag, note, test_drive, fuel_vehicle, odometer_update
     let body = {
-      'tag': {'vehicleId': this.props.vehicleId, 'shape_id': this.props.spaceId}, 
-      'event': {'event_type': type, 'event_details': event_details}
+      'tag': {'vehicle_id': this.props.vehicleId, 'shape_id': this.props.spaceId}, 
+      'event': {'event_type': type, 'event_details': event_details ? event_details : ''}
     }
 
     return body
@@ -59,19 +59,21 @@ export default class TagModalView extends React.Component {
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
-        body: space_data,
+        },
+        body: JSON.stringify(space_data),
       })
-      .then((response) => response.json())
-          .then((responseJson) => {
-            console.log('\nTAG RESPONSE: ', responseJson.message, '\n');
-          })
-          .catch(err => {
-            console.log('CAUHT ERR, attempting logout: ', err, err.name);
-            return err
-          });
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseJson) => {
+      })
+      .catch(err => {
+        console.log('\nCAUHT ERROR: \n', err, err.name);
+        return err
+      });
   }
 
   launchPage(page_name) {

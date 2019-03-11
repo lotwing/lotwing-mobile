@@ -122,6 +122,7 @@ target 'lotwing-mobile' do
 
     installer.pod_targets.each do |target|
 
+
     if target.pod_name == 'ExpoKit'
       target.native_target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
@@ -148,6 +149,21 @@ target 'lotwing-mobile' do
         config.build_settings['HEADER_SEARCH_PATHS'] ||= ['$(inherited)']
       end
     end
+
+    # remove bitcode to allow installation in physical device
+    #target.remove_from_project
+    
+    #set bitcode to no on React pod
+    if target.pod_name == 'React'
+      target.native_target.build_configurations.each do |config|
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+      end
+    end
+
+    #target.native_target.build_configurations.each do |config| 
+    #   config.build_settings['ENABLE_BITCODE'] = 'NO'
+    # end
+
     # Build React Native with RCT_DEV enabled and RCT_ENABLE_INSPECTOR and
     # RCT_ENABLE_PACKAGER_CONNECTION disabled
     next unless target.pod_name == 'React'
@@ -156,6 +172,8 @@ target 'lotwing-mobile' do
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_DEV=1'
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'RCT_ENABLE_INSPECTOR=0'
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'ENABLE_PACKAGER_CONNECTION=0'
+      # remove bitcode to allow installation in physical device
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
 
     end
