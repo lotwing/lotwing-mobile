@@ -36,8 +36,10 @@ export default class FuelScreen extends React.Component {
 		console.log('\nsendFuelData called');
 		console.log('\ndetails: ', this.details);
 
-		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details, this.state.fuelTime);
+		//TODO(adwoa): make save button unclickable, process this action
 
+		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details, this.state.fuelTime);
+		let fuelScreen = this;
 		console.log('TAG DATA: ', space_data);
 
 		return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
@@ -53,10 +55,11 @@ export default class FuelScreen extends React.Component {
 		    return response.json();
 		  })
 		  .then((responseJson) => {
-		    confirmTagRegistered();
+		    fuelScreen.confirmTagRegistered();
 		  })
 		  .catch(err => {
 		    console.log('\nCAUHT ERROR: \n', err, err.name);
+		    //TODO(adwoa): make save button clickable again
 		    return err
 		  });
 	}
@@ -66,8 +69,6 @@ export default class FuelScreen extends React.Component {
 	}
 
 	confirmTagRegistered() {
-		// TODO(adwoa): render success checkmark
-
 		// push back to lotscreen
 		this.props.navigation.goBack();
 	}
