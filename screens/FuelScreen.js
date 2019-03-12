@@ -34,10 +34,9 @@ export default class FuelScreen extends React.Component {
 
 	sendFuelData() {
 		console.log('\nsendFuelData called');
-		console.log('\ndetails: ', this.details);
+		console.log('\nFuel Time: ', this.state.fuelTime);
 
 		//TODO(adwoa): make save button unclickable, process this action
-
 		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details, this.state.fuelTime);
 		let fuelScreen = this;
 		console.log('TAG DATA: ', space_data);
@@ -106,9 +105,9 @@ export default class FuelScreen extends React.Component {
 			return (
 				<View 
 	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
+	  				
 	  				<View
-	  					style={{backgroundColor:'white', width: '80%', height:'40%', 
-	  					padding: 20, paddingTop: 35, marginBottom: '10%'}}>
+	  					style={pageStyles.noteCard}>
 		  				<Text
 		  					style={textStyles.actionSummaryHeader}>
 		  					Summary
@@ -126,7 +125,7 @@ export default class FuelScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {LotActionHelper.cancelAction(this.props.navigation)}}>
+			  				onPress={() => {LotActionHelper.backAction(this.props.navigation)}}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					CANCEL
 			  				</Text>

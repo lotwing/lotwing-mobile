@@ -37,7 +37,8 @@ export default {
       });
   },
 
-  cancelAction: function(navigation) {
+  backAction: function(navigation) {
     navigation.goBack();
-  }
+  },
+
 }
