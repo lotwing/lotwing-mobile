@@ -20,5 +20,16 @@ export default pageStyles = StyleSheet.create({
   	flexDirection: 'row',
   	justifyContent: 'flex-start',
   	alignItems: 'center',
+  },
+  noteCard: {
+    backgroundColor:'white', 
+    borderColor: '#828282',
+    borderWidth: 0.5,
+    borderRadius: 5,
+    marginBottom: '10%',
+    width: '80%', 
+    height:'40%', 
+    paddingTop: 35, 
+    padding: 20, 
   }
 });
