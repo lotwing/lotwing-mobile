@@ -11,18 +11,6 @@ export default {
     return body
   },
 
-
-  // FUEL VEHICLE ___________
-
-
-  // TEST DRIVE ___________
-  // SKU Number provided > 
-  // Drive action taken > 
-
-
-  // TAG ___________
-  // SKU Number provided > Current vehicle data pulled > ...
-  // Tag action taken > action pushed to server
   registerTagAction: function(actionPayload) {
     let space_data = this.structureTagPayload(actionPayload);
     console.log('TAG DATA: ', space_data);
@@ -47,5 +35,9 @@ export default {
         console.log('\nCAUHT ERROR: \n', err, err.name);
         return err
       });
+  },
+
+  cancelAction: function(navigation) {
+    navigation.goBack();
   }
 }

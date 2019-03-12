@@ -17,4 +17,14 @@ export default textStyles = StyleSheet.create({
     color: '#E6E4E0',
     borderTopWidth: 5,
   },
+  actionSummaryHeader: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#BE1E2D',
+  },
+  actionSummaryText: {
+    fontSize: 15,
+    fontWeight: '200',
+  }
+  
 });

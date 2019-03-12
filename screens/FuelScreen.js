@@ -23,16 +23,20 @@ export default class FuelScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params;
+		this.showSaveTagViews = this.showSaveTagViews.bind(this);
 		this.sendFuelData = this.sendFuelData.bind(this);
+
+		this.state = {
+			isFuelActionVisible: true,
+			fuelTime: 0,
+		};
 	}
 
 	sendFuelData() {
 		console.log('\nsendFuelData called');
 		console.log('\ndetails: ', this.details);
 
-		console.log('\n\nLotActionHelper: \n', LotActionHelper);
-
-		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details);
+		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details, this.state.fuelTime);
 
 		console.log('TAG DATA: ', space_data);
 
@@ -49,7 +53,6 @@ export default class FuelScreen extends React.Component {
 		    return response.json();
 		  })
 		  .then((responseJson) => {
-		  	console.log('\n\nNAVIGATE BACK TO LOTSCREEN');
 		    confirmTagRegistered();
 		  })
 		  .catch(err => {
@@ -58,9 +61,93 @@ export default class FuelScreen extends React.Component {
 		  });
 	}
 
-	confirmTagRegistered() {
-		
+	showSaveTagViews() {
+		this.setState({isFuelActionVisible: false});
 	}
+
+	confirmTagRegistered() {
+		// TODO(adwoa): render success checkmark
+
+		// push back to lotscreen
+		this.props.navigation.goBack();
+	}
+
+	_renderProperFuelActionView() {
+		if (this.state.isFuelActionVisible) {
+			return (
+				<View
+					style={{flex:7}}>
+					<View 
+		  				style={{flex: 4}}>
+		  			</View>
+
+		  			<View style={
+		  				[
+		  					pageStyles.row, 
+		  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
+		  				]}>
+			  			<TouchableOpacity style={
+			  				[
+			  					buttonStyles.activeSecondaryModalButton,
+			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
+			  				]}
+			  				onPress={this.showSaveTagViews}>
+			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+			  					STOP FUELING
+			  				</Text>
+			  			</TouchableOpacity>
+		  			</View>
+		  		</View>
+	  			);
+
+		} else {
+
+			return (
+				<View 
+	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
+	  				<View
+	  					style={{backgroundColor:'white', width: '80%', height:'40%', 
+	  					padding: 20, paddingTop: 35, marginBottom: '10%'}}>
+		  				<Text
+		  					style={textStyles.actionSummaryHeader}>
+		  					Summary
+		  				</Text>
+		  				<Text
+		  					style={[textStyles.actionSummaryText, {marginTop: 15}]}>
+		  					Vehicle fueled for {this.state.fuelTime}
+		  				</Text>
+		  			</View>
+
+		  			<View
+		  				style={{flexDirection:'row', marginTop: 40}}>
+			  			<TouchableOpacity style={
+			  				[
+			  					buttonStyles.activeSecondaryModalButton,
+			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
+			  				]}
+			  				onPress={() => {LotActionHelper.cancelAction(this.props.navigation)}}>
+			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+			  					CANCEL
+			  				</Text>
+			  			</TouchableOpacity>
+
+				  		<TouchableOpacity style={
+			  				[
+			  					buttonStyles.activePrimaryModalButton,
+			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
+			  				]}
+			  				onPress={() => {this.sendFuelData()}}>
+			  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+			  					SAVE
+			  				</Text>
+			  			</TouchableOpacity>
+			  		</View>
+
+	  			</View>
+	  			);
+		}
+	}
+
 
 	render() {
 	  	return (
@@ -80,26 +167,7 @@ export default class FuelScreen extends React.Component {
 			        </View>
 	  			</View>
 
-	  			<View style={{flex: 4}}>
-	  			</View>
-
-	  			<View style={
-		  				[
-		  					pageStyles.row, 
-		  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
-		  				]}>
-		  			<TouchableOpacity style={
-		  				[
-		  					buttonStyles.activeSecondaryModalButton,
-		  					{width: '90%', paddingTop: 15, paddingBottom: 15}
-		  				]}
-		  				onPress={this.sendFuelData}>
-		  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-		  					STOP FUELING
-		  				</Text>
-		  			</TouchableOpacity>
-	  			</View>
-
+	  			{this._renderProperFuelActionView()}
 	  		</View>
 	  	);
   }
