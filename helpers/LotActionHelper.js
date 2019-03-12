@@ -1,4 +1,5 @@
-
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
 export default {
   structureTagPayload: function(type, props, event_details) {
@@ -12,8 +13,7 @@ export default {
   },
 
   registerTagAction: function(actionPayload) {
-    let space_data = this.structureTagPayload(actionPayload);
-    console.log('TAG DATA: ', space_data);
+    console.log('TAG DATA: ', actionPayload);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
         method: 'POST',
@@ -22,14 +22,13 @@ export default {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
         },
-        body: JSON.stringify(space_data),
+        body: JSON.stringify(actionPayload),
       })
       .then((response) => {
-        console.log(response);
-        response.json();
+        return response.json();
       })
       .then((responseJson) => {
-        console.log('\nTAG RESPONSE: ', responseJson, '\n');
+        return true
       })
       .catch(err => {
         console.log('\nCAUHT ERROR: \n', err, err.name);

@@ -28,7 +28,7 @@ export default class FuelScreen extends React.Component {
 
 		this.state = {
 			isFuelActionVisible: true,
-			fuelTime: 0,
+			fuelTime: '0:01',
 		};
 	}
 
