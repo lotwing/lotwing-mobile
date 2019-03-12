@@ -8,6 +8,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -71,34 +73,38 @@ export default class NoteScreen extends React.Component {
 	_renderProperNoteActionView() {
 		if (this.state.isNoteActionVisible) {
 			return (
-				<View
-					style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-					
-					<View style={[pageStyles.noteCard, {marginTop: '20%'}]}>
-		  				<TextInput
-							editable={true}
-							multiline={true}
-							onChangeText={(placeholderText) => this.setState({placeholderText})}
-		 					placeholder={this.state.placeholderText} />
-		  			</View>
+				<TouchableWithoutFeedback
+					onPress={() => {Keyboard.dismiss()}}
+					accessible={false}>
+					<View
+						style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
+						
+						<View style={[pageStyles.noteCard, {marginTop: '20%'}]}>
+			  				<TextInput
+								editable={true}
+								multiline={true}
+								onChangeText={(placeholderText) => this.setState({placeholderText})}
+			 					placeholder={this.state.placeholderText} />
+			  			</View>
 
-		  			<View style={
-			  				[
-			  					pageStyles.row, 
-			  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
-			  				]}>
-			  			<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activeSecondaryModalButton,
-			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={this.sendNoteData}>
-			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					SAVE NOTE
-			  				</Text>
-			  			</TouchableOpacity>
-		  			</View>
-		  		</View>
+			  			<View style={
+				  				[
+				  					pageStyles.row, 
+				  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
+				  				]}>
+				  			<TouchableOpacity style={
+				  				[
+				  					buttonStyles.activeSecondaryModalButton,
+				  					{width: '90%', paddingTop: 15, paddingBottom: 15}
+				  				]}
+				  				onPress={this.sendNoteData}>
+				  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+				  					SAVE NOTE
+				  				</Text>
+				  			</TouchableOpacity>
+			  			</View>
+			  		</View>
+		  		</TouchableWithoutFeedback>
 	  			);
 
 		} else {
