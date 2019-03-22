@@ -27,7 +27,7 @@ export default class Timer extends React.Component {
 
 	componentDidMount() {
 		console.log('Component did mount');
-		setInterval(() => {
+		this.intervalID = setInterval(() => {
 			let elapsedTime = Date.now() - this.state.timerStartedAt;
 			let visualCount = this.calculateVisual(elapsedTime);
 			console.log('ElapsedTime: ', elapsedTime);
@@ -38,6 +38,10 @@ export default class Timer extends React.Component {
 			});
 
 			}, 1000);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.intervalID);
 	}
 
 	_incrementTimer(context) {
