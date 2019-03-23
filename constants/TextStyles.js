@@ -25,6 +25,13 @@ export default textStyles = StyleSheet.create({
   actionSummaryText: {
     fontSize: 15,
     fontWeight: '200',
-  }
+  },
+  timer: {
+    textShadowColor: '#828282',
+    textShadowRadius: 10,
+    fontSize: 50,
+    fontWeight: '600',
+    color: 'white',
+  },
   
 });

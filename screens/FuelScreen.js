@@ -13,6 +13,8 @@ import {
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
+import Timer from '../components/Timer'
+
 import buttonStyles from '../constants/ButtonStyles';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
@@ -63,8 +65,15 @@ export default class FuelScreen extends React.Component {
 		  });
 	}
 
+	setFuelTime = (timeDisplayed) => {
+		console.log('RETURN from setFuelTime: ', timeDisplayed);
+		this.setState({fuelTime: timeDisplayed});
+	}
+
 	showSaveTagViews() {
-		this.setState({isFuelActionVisible: false});
+		this.setState({
+			isFuelActionVisible: false,
+		});
 	}
 
 	confirmTagRegistered() {
@@ -74,12 +83,18 @@ export default class FuelScreen extends React.Component {
 
 	_renderProperFuelActionView() {
 		if (this.state.isFuelActionVisible) {
+			let startTime = Date.now();
 			return (
 				<View
 					style={{flex:7}}>
 					<View 
-		  				style={{flex: 4}}>
+		  				style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
+		  				<Timer 
+		  					startTime={startTime}
+		  					fuelTime={this.setFuelTime}>
+		  				</Timer>
 		  			</View>
+	  				
 
 		  			<View style={
 		  				[

@@ -30,7 +30,7 @@ export default class Timer extends React.Component {
 		this.intervalID = setInterval(() => {
 			let elapsedTime = Date.now() - this.state.timerStartedAt;
 			let visualCount = this.calculateVisual(elapsedTime);
-			console.log('ElapsedTime: ', elapsedTime);
+			this.props.fuelTime(visualCount);
 		
 			this.setState({ 
 				elapsedTime: elapsedTime,
@@ -42,18 +42,6 @@ export default class Timer extends React.Component {
 
 	componentWillUnmount() {
 		clearInterval(this.intervalID);
-	}
-
-	_incrementTimer(context) {
-
-		let elapsedTime = Date.now() - context.state.timerStartedAt;
-		console.log('ElapsedTime: ', elapsedTime);
-		let visualCount = context.calculateVisual(elapsedTime, context);
-		
-		context.setState({ 
-			elapsedTime: elapsedTime,
-			visualCount: visualCount,
-		})
 	}
 
 	calculateVisual(elapsedTime) {
@@ -76,8 +64,8 @@ export default class Timer extends React.Component {
 
 	render() {
 		return (
-			<View style={[pageStyles.darkBody, pageStyles.column]}>
-				<Text style={textStyles.header}>
+			<View>
+				<Text style={textStyles.timer}>
 	            	{this.state.visualCount}</Text>
 	  		</View>
 		)
