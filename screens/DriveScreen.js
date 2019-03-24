@@ -17,6 +17,7 @@ import buttonStyles from '../constants/ButtonStyles';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
+import Timer from '../components/Timer';
 
 import LotActionHelper from '../helpers/LotActionHelper';
 
@@ -43,16 +44,26 @@ export default class DriveScreen extends React.Component {
 			});
 	}
 
+	setDriveTime = (timeDisplayed) => {
+		this.setState({driveTime: timeDisplayed});
+	}
+
 	showSaveTagViews() {
 		this.setState({isDriveActionVisible: false});
 	}
 
 	_renderProperDriveActionView() {
 		if (this.state.isDriveActionVisible) {
+			let startTime = Date.now();
 			return (
 				<View
 					style={{flex:7}}>
-					<View style={{flex: 4}}>
+					<View 
+						style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
+						<Timer 
+		  					startTime={startTime}
+		  					fuelTime={this.setDriveTime}>
+		  				</Timer>
 		  			</View>
 		  			<View style={
 			  				[
@@ -121,27 +132,27 @@ export default class DriveScreen extends React.Component {
 	}
 
 	render() {
-  	return (
-  		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
-	  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
-	  			<View style={[pageStyles.darkBody, pageStyles.column]}>
-	  				<Text style={textStyles.header}>
-	            {this.details.year} {this.details.make} {this.details.model}</Text>
-	          <Text style={textStyles.subtitle}>
-	            {this.details.vehicleId}</Text>
+	  	return (
+	  		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
+		  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
+		  			<View style={[pageStyles.darkBody, pageStyles.column]}>
+		  				<Text style={textStyles.header}>
+		            {this.details.year} {this.details.make} {this.details.model}</Text>
+		          <Text style={textStyles.subtitle}>
+		            {this.details.vehicleId}</Text>
+		  			</View>
+		  			<View style={pageStyles.column}>
+		          <Image
+		            source={require('../assets/images/car-white.png')}
+		            style={[buttonStyles.icon, {padding: 10, minWidth: 30}]}
+		            resizeMode={"contain"}/>
+		        </View>
 	  			</View>
-	  			<View style={pageStyles.column}>
-	          <Image
-	            source={require('../assets/images/car-white.png')}
-	            style={[buttonStyles.icon, {padding: 10, minWidth: 30}]}
-	            resizeMode={"contain"}/>
-	        </View>
-  			</View>
 
-  			{this._renderProperDriveActionView()}
+	  			{this._renderProperDriveActionView()}
 
 
-  		</View>
-  	);
+	  		</View>
+	  	);
   }
 }

@@ -13,7 +13,7 @@ import {
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
-import Timer from '../components/Timer'
+import Timer from '../components/Timer';
 
 import buttonStyles from '../constants/ButtonStyles';
 import pageStyles from '../constants/PageStyles';
@@ -65,8 +65,8 @@ export default class FuelScreen extends React.Component {
 		  });
 	}
 
+	// helper function for timer
 	setFuelTime = (timeDisplayed) => {
-		console.log('RETURN from setFuelTime: ', timeDisplayed);
 		this.setState({fuelTime: timeDisplayed});
 	}
 
