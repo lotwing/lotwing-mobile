@@ -66,6 +66,8 @@ export default class VehicleSpaceLayer extends React.Component {
           spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
         });
 
+        vehicleSpaceLayer.props.sendMapCallback(vehicleSpaceLayer.props.type, spaceVehicleMapObject);
+
         vehicleSpaceLayer.setState({
           spaceVehicleMap: spaceVehicleMapObject,
         });
