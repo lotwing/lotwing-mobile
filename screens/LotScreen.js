@@ -56,7 +56,7 @@ class LotView extends React.Component {
         year: 0,
         make: 'Nissan',
         model: 'Versa',
-        stockNumberVehicleIdMap: {},
+        stockNumberVehicleMap: {},
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -240,19 +240,28 @@ class LotView extends React.Component {
   getMapCallback = (type, data) => {
     console.log('In Get Map Callback...  ', type);
 
-    let snVehicleMap = this.state.stockNumberVehicleIdMap;
+    let snVehicleMap = this.state.stockNumberVehicleMap;
 
     if (type == 'new_vehicle' || type == 'used_vehicle') {
       Object.keys(data).forEach((spaceId) => {
         let vehicleData = data[spaceId];
-        snVehicleMap[vehicleData["stock_number"]] = vehicleData["id"];
+        snVehicleMap[vehicleData["stock_number"]] = vehicleData;
       });
       console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
     }
 
     this.setState({
-      stockNumberVehicleIdMap: snVehicleMap,
+      stockNumberVehicleMap: snVehicleMap,
     });
+  }
+
+  locateVehicleBySKU(sku) {
+    let vehicleData = this.state.stockNumberVehicleMap[sku];
+    // TODO(adwoa): complete this function
+    // 1. Get the stall where the vehicle is located
+    // 2. Navigate the map to that position (mvp optional)
+    // 3. Open the modal for that stall
+
   }
 
   getLot() {
@@ -295,6 +304,7 @@ class LotView extends React.Component {
             navigation={this.props.navigation}
             setModalVisibility={this.setVisibility} />
         </Modal>
+
 
         <Mapbox.MapView
           centerCoordinate={this.state.centerCoordinate}
