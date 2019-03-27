@@ -5,6 +5,7 @@ import {
   Platform,
   StatusBar,
   StyleSheet,
+  Image,
   Text,
   View,
 } from 'react-native';
@@ -287,6 +288,7 @@ class LotView extends React.Component {
         <StatusBar
           barStyle='light-content'
           backgroundColor='#BE1E2D'/>
+
         <Modal
           animationType='slide'
           transparent={true}
@@ -361,6 +363,14 @@ class LotView extends React.Component {
 
         </Mapbox.MapView>
 
+
+        <View
+          style={styles.floatingActionButton}>
+          <Image
+            source={require('../assets/images/search-solid.png')}
+            style={styles.searchIconSizing}/>
+        </View>
+
       </View>
 
     )
@@ -382,6 +392,24 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'stretch',
   }, 
+  searchIconSizing: {
+    width: 30,
+    resizeMode: 'contain',
+  },
+  floatingActionButton: {
+    position:'absolute', 
+    right: 30, 
+    bottom: 80, 
+    width: 66, 
+    height: 66,
+    backgroundColor: 'white', 
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#828282',
+    shadowOffset: {width: 1, height: 1},
+    shadowOpacity: 20,
+  },
 });
 
 const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
