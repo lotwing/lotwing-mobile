@@ -169,7 +169,7 @@ export default class NoteScreen extends React.Component {
 		            	{this.details.year} {this.details.make} {this.details.model}
 		            </Text>
 		          	<Text style={textStyles.subtitle}>
-		          		{this.details.vehicleId}
+		          		SKU {this.details.stockNumber}
 		          	</Text>
 	  			</View>
 

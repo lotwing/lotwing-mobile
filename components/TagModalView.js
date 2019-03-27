@@ -109,7 +109,7 @@ export default class TagModalView extends React.Component {
           
           <View
             style={styles.tagModalStallBar}>
-            <Text style={styles.stallHeader}>Stall {this.props.vehicleId}</Text>
+            <Text style={styles.stallHeader}>Stall {this.props.spaceId}</Text>
           </View>
 
           <View
@@ -118,7 +118,7 @@ export default class TagModalView extends React.Component {
             <Text style={styles.header}>
               {this.props.year} {this.props.make} {this.props.model}</Text>
             <Text style={styles.subtitle}>
-              {this.props.vehicleId}</Text>
+              SKU {this.props.stockNumber}</Text>
 
             <View
               style={styles.tagButtonContainer}>

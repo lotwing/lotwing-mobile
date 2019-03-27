@@ -172,7 +172,7 @@ export default class FuelScreen extends React.Component {
 		  				<Text style={textStyles.header}>
 			            {this.details.year} {this.details.make} {this.details.model}</Text>
 			          <Text style={textStyles.subtitle}>
-			            {this.details.vehicleId}</Text>
+			            SKU {this.details.stockNumber}</Text>
 			  			</View>
 			  			<View style={pageStyles.column}>
 			          <Image

@@ -51,10 +51,12 @@ class LotView extends React.Component {
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
+        stockNumber: 0,
         vehicleId: 0,
         year: 0,
         make: 'Nissan',
         model: 'Versa',
+        stockNumberVehicleIdMap: {},
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -209,13 +211,14 @@ class LotView extends React.Component {
     this.setModalVisibility(value);
   }
 
-  setModalValues(space_id, vehicle_id, year, make, model) {
+  setModalValues(space_id, stock_number, vehicle_id, year, make, model) {
     this.setState({
       year: year,
       make: make,
       model: model,
       spaceId: space_id,
       vehicleId: vehicle_id,
+      stockNumber: stock_number,
     });
   }
 
@@ -227,10 +230,29 @@ class LotView extends React.Component {
       let year = vehicleData['year'];
       let make = vehicleData['make'];
       let model = vehicleData['model'];
+      let stock_number = vehicleData['stock_number'];
 
-      this.setModalValues(space_id, vehicle_id, year, make, model);
+      this.setModalValues(space_id, stock_number, vehicle_id, year, make, model);
       this.setModalVisibility(true);
     }
+  }
+
+  getMapCallback = (type, data) => {
+    console.log('In Get Map Callback...  ', type);
+
+    let snVehicleMap = this.state.stockNumberVehicleIdMap;
+
+    if (type == 'new_vehicle' || type == 'used_vehicle') {
+      Object.keys(data).forEach((spaceId) => {
+        let vehicleData = data[spaceId];
+        snVehicleMap[vehicleData["stock_number"]] = vehicleData["id"];
+      });
+      console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
+    }
+
+    this.setState({
+      stockNumberVehicleIdMap: snVehicleMap,
+    });
   }
 
   getLot() {
@@ -264,6 +286,7 @@ class LotView extends React.Component {
           <TagModalView
             spaceId={this.state.spaceId}
             vehicleId={this.state.vehicleId}
+            stockNumber={this.state.stockNumber}
             year={this.state.year}
             make={this.state.make}
             model={this.state.model}
@@ -302,6 +325,7 @@ class LotView extends React.Component {
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
             setModalVisibility={this.setModalVisibility}
+            sendMapCallback={this.getMapCallback}
             type='empty'>
           </VehicleSpaceLayer>
 
@@ -311,6 +335,7 @@ class LotView extends React.Component {
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.newVehicleSpaces}
             showAndPopulateModal={this.showAndPopulateModal}
+            sendMapCallback={this.getMapCallback}
             type='new_vehicle'>
           </VehicleSpaceLayer>
 
@@ -320,6 +345,7 @@ class LotView extends React.Component {
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.usedVehicleSpaces}
             showAndPopulateModal={this.showAndPopulateModal}
+            sendMapCallback={this.getMapCallback}
             type='used_vehicle'>
           </VehicleSpaceLayer>
 
