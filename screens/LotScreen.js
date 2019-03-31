@@ -1,12 +1,16 @@
 import React from 'react';
 import {
   AsyncStorage,
+  Image,
+  Keyboard,
   Modal,
   Platform,
   StatusBar,
   StyleSheet,
-  Image,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -16,6 +20,8 @@ import VehicleSpaceLayer from '../components/VehicleSpaceLayer'
 import TagModalView from '../components/TagModalView'
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
+
+import textStyles from '../constants/TextStyles';
 
 /**
  *
@@ -57,6 +63,7 @@ class LotView extends React.Component {
         year: 0,
         make: 'Nissan',
         model: 'Versa',
+        skuCollectorVisible: false,
         stockNumberVehicleMap: {},
       }
 
@@ -68,6 +75,9 @@ class LotView extends React.Component {
           this.props.navigation.navigate('Auth');
         }
       });
+
+      this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
+      this.dismissInput = this.dismissInput.bind(this);
   }
 
   /**
@@ -202,7 +212,7 @@ class LotView extends React.Component {
     this.props.navigation.navigate('Auth');
   }
 
-
+  // Modal Visibility controls
   setModalVisibility(visibility) {
     console.log('     resetting state: setModalVisibility');
     this.setState({modalVisible: visibility});
@@ -238,6 +248,12 @@ class LotView extends React.Component {
     }
   }
 
+  dismissInput = () => {
+    Keyboard.dismiss();
+    this.setSKUCollectorVisibility();
+  }
+
+  // Map Data
   getMapCallback = (type, data) => {
     console.log('In Get Map Callback...  ', type);
 
@@ -254,6 +270,14 @@ class LotView extends React.Component {
     this.setState({
       stockNumberVehicleMap: snVehicleMap,
     });
+  }
+
+  // SKU Collector Visibility controls
+  setSKUCollectorVisibility() {
+    console.log('was: ', this.state.skuCollectorVisible);
+    let visibile = !this.state.skuCollectorVisible;
+    this.setState(
+      {skuCollectorVisible: visibile});
   }
 
   locateVehicleBySKU(sku) {
@@ -277,8 +301,41 @@ class LotView extends React.Component {
     console.log('     resetting state: getBuildings');
     if (this.state.lotShapes){
       return this.state.lotShapes['buildings'][0]["geo_info"]
-    }  
+    }
     return GlobalVariables.EMPTY_GEOJSON
+  }
+
+  maybeRenderTextInput() {
+    if (this.state.skuCollectorVisible) {
+      console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
+      return (
+        <TouchableWithoutFeedback
+          onPress={this.dismissInput}
+          accessible={false}>
+          <View
+            style={{
+              position:'absolute', 
+              height: '100%',
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center'}}>
+            <View
+              style={styles.floatingTextInputArea}>
+              <Text
+                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
+                SKU Number</Text>
+              <TextInput
+                autoCapitalize='none'
+                style={styles.floatingTextInput}
+                keyboardType='email-address'/>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+        );
+    } else {
+      console.log('NOT RENDERING TEXT INPUT');
+      return
+    }
   }
 
   render() {
@@ -364,12 +421,15 @@ class LotView extends React.Component {
         </Mapbox.MapView>
 
 
-        <View
-          style={styles.floatingActionButton}>
+        <TouchableOpacity
+          style={styles.floatingActionButton}
+          onPress={this.setSKUCollectorVisibility}>
           <Image
             source={require('../assets/images/search-solid.png')}
             style={styles.searchIconSizing}/>
-        </View>
+        </TouchableOpacity>
+
+        {this.maybeRenderTextInput()}
 
       </View>
 
@@ -397,18 +457,40 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   floatingActionButton: {
-    position:'absolute', 
+    position:'absolute',
     right: 30, 
-    bottom: 80, 
+    bottom: 80,
     width: 66, 
     height: 66,
-    backgroundColor: 'white', 
+    backgroundColor: '#828282', 
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#828282',
     shadowOffset: {width: 1, height: 1},
     shadowOpacity: 20,
+  },
+  floatingTextInputArea: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    height: '20%',
+    width: '80%',
+    padding: 20,
+    shadowColor: '#828282',
+    shadowOffset: {width: 1, height: 1},
+    shadowOpacity: 20,
+  },
+  floatingTextInput: {
+    backgroundColor: 'white',
+    borderBottomColor: 'gray',
+    borderColor: 'white',
+    borderWidth: 1,
+    height: 50,
+    margin: 10,
+    padding: 5,
+    width: '90%',
   },
 });
 
