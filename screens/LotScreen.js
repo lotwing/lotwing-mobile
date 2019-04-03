@@ -16,10 +16,11 @@ import {
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
-import VehicleSpaceLayer from '../components/VehicleSpaceLayer'
-import TagModalView from '../components/TagModalView'
+import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
+import TagModalView from '../components/TagModalView';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
+// import SimpleToast from 'react-native-simple-toast';
 
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
@@ -302,6 +303,9 @@ class LotView extends React.Component {
       this.showAndPopulateModal([space_id, vehicleData]);
     } else {
       // Display message: no vehicle with that sku number
+      // SimpleToast.show(
+      //   'SKU not in system',
+      //   SimpleToast.SHORT,);
 
     }
   }
@@ -338,6 +342,7 @@ class LotView extends React.Component {
               justifyContent: 'center'}}>
             <View
               style={styles.floatingTextInputArea}>
+
               <Text
                 style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
                 SKU Number</Text>
@@ -350,7 +355,7 @@ class LotView extends React.Component {
                 keyboardType='email-address'/>
 
               <View
-                style={[pageStyles.rightButtonContainer, {width: 260, paddingTop: 5}]}>
+                style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
 
                 <TouchableOpacity
                   style={buttonStyles.activeSecondaryModalButton}
@@ -524,7 +529,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomColor: 'gray',
     borderColor: 'white',
-    fontSize: 15,
+    fontSize: 18,
     borderWidth: 1,
     height: 50,
     margin: 10,
