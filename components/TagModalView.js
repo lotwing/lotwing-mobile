@@ -19,6 +19,8 @@ import Route from '../constants/Routes';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
+import pageStyles from '../constants/PageStyles';
+
 /**
  *
  * Lot shapes include:
@@ -145,7 +147,7 @@ export default class TagModalView extends React.Component {
             </View>
 
             <View
-              style={styles.spaceUpdateContainer}>
+              style={pageStyles.rightButtonContainer}>
 
               <TouchableOpacity
                 style={buttonStyles.activeSecondaryModalButton}
@@ -263,9 +265,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: 10,
     borderColor: '#828282',
   }, 
-  spaceUpdateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  }
 });

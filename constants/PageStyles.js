@@ -31,5 +31,10 @@ export default pageStyles = StyleSheet.create({
     height:'40%', 
     paddingTop: 35, 
     padding: 20, 
+  },
+  rightButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   }
 });

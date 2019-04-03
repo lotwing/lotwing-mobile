@@ -21,6 +21,7 @@ import TagModalView from '../components/TagModalView'
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
+import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
 /**
@@ -78,6 +79,8 @@ class LotView extends React.Component {
 
       this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
       this.dismissInput = this.dismissInput.bind(this);
+      this.locateVehicleBySKU = this.locateVehicleBySKU.bind(this);
+      this.skuEntered = 0;
   }
 
   /**
@@ -274,19 +277,33 @@ class LotView extends React.Component {
 
   // SKU Collector Visibility controls
   setSKUCollectorVisibility() {
-    console.log('was: ', this.state.skuCollectorVisible);
     let visibile = !this.state.skuCollectorVisible;
     this.setState(
       {skuCollectorVisible: visibile});
   }
 
-  locateVehicleBySKU(sku) {
-    let vehicleData = this.state.stockNumberVehicleMap[sku];
-    // TODO(adwoa): complete this function
+  getSKUFromInput() {
+    return this.skuEntered
+  }
+
+  locateVehicleBySKU() {
     // 1. Get the stall where the vehicle is located
-    // 2. Navigate the map to that position (mvp optional)
+    // 2. Navigate the map to that position (mvp optional) TODO (adwoa): add this functionality
     // 3. Open the modal for that stall
 
+    let sku = this.getSKUFromInput();
+    let vehicleData = this.state.stockNumberVehicleMap[sku];
+    
+    console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
+    console.log('VEHICLE DATA: ', vehicleData, '\n\n')
+
+    this.dismissInput();
+    if (vehicleData) {
+      let space_id = vehicleData['id'];
+      this.showAndPopulateModal([space_id, vehicleData]);
+    } else {
+      // Display message: no vehicle with that sku number
+    }
   }
 
   getLot() {
@@ -327,7 +344,27 @@ class LotView extends React.Component {
               <TextInput
                 autoCapitalize='none'
                 style={styles.floatingTextInput}
+                onChangeText={(sku) => {this.skuEntered = sku}}
                 keyboardType='email-address'/>
+              <View
+                style={pageStyles.rightButtonContainer}>
+
+                <TouchableOpacity
+                  style={buttonStyles.activeSecondaryModalButton}
+                  onPress={this.dismissInput}>
+                  <Text style={buttonStyles.activeSecondaryTextColor}>
+                    CANCEL
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={buttonStyles.activePrimaryModalButton}
+                  onPress={this.locateVehicleBySKU}>
+                  <Text style={[buttonStyles.activePrimaryTextColor, {borderColor: 'gray'}]}>
+                    SEARCH
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
