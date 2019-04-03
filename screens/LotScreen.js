@@ -295,14 +295,14 @@ class LotView extends React.Component {
     let vehicleData = this.state.stockNumberVehicleMap[sku];
     
     console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
-    console.log('VEHICLE DATA: ', vehicleData, '\n\n')
 
-    this.dismissInput();
     if (vehicleData) {
       let space_id = vehicleData['id'];
+      this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
     } else {
       // Display message: no vehicle with that sku number
+
     }
   }
 
@@ -331,7 +331,7 @@ class LotView extends React.Component {
           accessible={false}>
           <View
             style={{
-              position:'absolute', 
+              position: 'absolute',
               height: '100%',
               width: '100%',
               alignItems: 'center',
@@ -342,12 +342,15 @@ class LotView extends React.Component {
                 style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
                 SKU Number</Text>
               <TextInput
-                autoCapitalize='none'
+                autoCapitalize='characters'
+                multiline={false}
+                keyboardType='phone-pad'
                 style={styles.floatingTextInput}
                 onChangeText={(sku) => {this.skuEntered = sku}}
                 keyboardType='email-address'/>
+
               <View
-                style={pageStyles.rightButtonContainer}>
+                style={[pageStyles.rightButtonContainer, {width: 260, paddingTop: 5}]}>
 
                 <TouchableOpacity
                   style={buttonStyles.activeSecondaryModalButton}
@@ -358,9 +361,9 @@ class LotView extends React.Component {
                 </TouchableOpacity>
                 
                 <TouchableOpacity
-                  style={buttonStyles.activePrimaryModalButton}
+                  style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
                   onPress={this.locateVehicleBySKU}>
-                  <Text style={[buttonStyles.activePrimaryTextColor, {borderColor: 'gray'}]}>
+                  <Text style={[buttonStyles.activePrimaryTextColor]}>
                     SEARCH
                   </Text>
                 </TouchableOpacity>
@@ -512,8 +515,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
-    height: '20%',
-    width: '80%',
     padding: 20,
     shadowColor: '#828282',
     shadowOffset: {width: 1, height: 1},
@@ -523,11 +524,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomColor: 'gray',
     borderColor: 'white',
+    fontSize: 15,
     borderWidth: 1,
     height: 50,
     margin: 10,
     padding: 5,
-    width: '90%',
+    width: 260,
   },
 });
 
