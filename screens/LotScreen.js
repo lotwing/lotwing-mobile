@@ -20,7 +20,6 @@ import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import TagModalView from '../components/TagModalView';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
-// import SimpleToast from 'react-native-simple-toast';
 
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
@@ -301,13 +300,45 @@ class LotView extends React.Component {
       let space_id = vehicleData['id'];
       this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
-    } else {
-      // Display message: no vehicle with that sku number
-      // SimpleToast.show(
-      //   'SKU not in system',
-      //   SimpleToast.SHORT,);
+    } else { // vehicle not on map
+      console.log('Vehicle not on map. Checking server...');
+      let vehiclePromise = this._getVehicleBySKU(sku);
 
+      vehiclePromise.then((vehicleData) => {
+        if (vehicleData) {
+
+          this.dismissInput();
+          this.showAndPopulateModal(['  - -', vehicleData]);
+        } else {
+
+          // TODO(adwoa): Display message: no vehicle with that sku number
+          // SimpleToast.show(
+          //   'SKU not in system',
+          //   SimpleToast.SHORT,);
+          console.log('NO DATA');
+        }
+      });
     }
+  }
+
+  _getVehicleBySKU(stock_number) {
+    console.log('Stock Number Entered: ', stock_number);
+    console.log('HITTING ENDPOINT: ', GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number);
+    return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number , {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+          },
+      })
+      .then((response) => response.json())
+          .then((responseJson) => {
+            console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+            return responseJson
+          })
+          .catch(err => {
+            return false
+          })
   }
 
   getLot() {
