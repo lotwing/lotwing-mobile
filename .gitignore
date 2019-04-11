@@ -13,3 +13,5 @@ ios/lotwing-mobile/Supporting/EXBuildConstants.plist.bak
 android/.gradle/
 android/.idea/
 android/local.properties
+ios/lotwing-mobile/Supporting
+ios/lotwing-mobile/Supporting/
