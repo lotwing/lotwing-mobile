@@ -32,6 +32,11 @@ export default class TagModalView extends React.Component {
 
     this.dismissModal = this.dismissModal.bind(this);
     this.confirmSpaceData = this.confirmSpaceData.bind(this);
+    this.changeParkingSpace = this.changeParkingSpace.bind(this);
+
+    this.state = {
+      isExtendedDataVisible: false,
+    }
   }
 
   dismissModal() {
@@ -48,8 +53,13 @@ export default class TagModalView extends React.Component {
     return body
   }
 
+  setExtendedDataVisibility(visible) {
+    this.setState({isExtendedDataVisible: visible});
+  }
+
   changeParkingSpace() {
     console.log('changeParkingSpace called');
+    this.setExtendedDataVisibility(!this.state.isExtendedDataVisible);
   }
 
   confirmSpaceData() {
@@ -92,6 +102,19 @@ export default class TagModalView extends React.Component {
     }
   }
 
+  _renderExtendedData() {
+    if (this.state.isExtendedDataVisible) {
+      return (
+        <View
+          style={{visible: this.state.isExtendedDataVisible}}>
+          <View
+            style={{height: 300}}>
+          </View>
+        </View>
+      )
+    }
+  }
+
   render() {
   	return (
       <View
@@ -121,6 +144,8 @@ export default class TagModalView extends React.Component {
               {this.props.year} {this.props.make} {this.props.model}</Text>
             <Text style={styles.subtitle}>
               SKU {this.props.stockNumber}</Text>
+
+            {this._renderExtendedData()}
 
             <View
               style={styles.tagButtonContainer}>
