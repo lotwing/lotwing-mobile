@@ -1,6 +1,9 @@
 import {StyleSheet} from 'react-native';
 
 export default textStyles = StyleSheet.create({
+  largeText: {
+    fontSize: 25,
+  },
   header: {
     fontSize: 20,
     fontWeight: '300',
@@ -53,6 +56,6 @@ export default textStyles = StyleSheet.create({
     height: 50,
     margin: 10,
     padding: 5,
-    width: 260,
+    width: '90%',
   },
 });

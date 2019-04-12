@@ -298,9 +298,10 @@ class LotView extends React.Component {
     let vehicleData = this.state.stockNumberVehicleMap[sku];
     
     console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
-
+    console.log('\nKeys: ', Object.keys(vehicleData), '\nValues: ', Object.values(vehicleData));
+    
     if (vehicleData) {
-      let space_id = vehicleData['id'];
+      let space_id = vehicleData['id'].toString();
       this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
     } else { // vehicle not on map
@@ -388,10 +389,11 @@ class LotView extends React.Component {
               <TextInput
                 autoCapitalize='characters'
                 multiline={false}
-                keyboardType='phone-pad'
+                returnKeyType='search'
                 style={styles.floatingTextInput}
                 onChangeText={(sku) => {this.skuEntered = sku}}
-                keyboardType='email-address'/>
+                onSubmitEditing={(event) => this.locateVehicleBySKU()}
+                autoFocus={true}/>
 
               <View
                 style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>

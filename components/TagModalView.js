@@ -19,6 +19,8 @@ import buttonStyles from '../constants/ButtonStyles';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
+import LotActionHelper from '../helpers/LotActionHelper';
+
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 import pageStyles from '../constants/PageStyles';
@@ -106,6 +108,37 @@ export default class TagModalView extends React.Component {
     }
   }
 
+  updateStallNumber(new_stall) {
+    let newSpaceData = {spaceId: new_stall, vehicleId: this.props.vehicleId};
+    let space_data = LotActionHelper.structureTagPayload('tag', newSpaceData, 'Moved vehicle to stall ' + new_stall);
+    
+    console.log('\n\nSPACE DATA: ', space_data);
+    console.log('vehicle id: ', this.props.vehicleId);
+    console.log('space id: ', this.props.spaceId);
+    console.log('sku number: ', this.props.stockNumber);
+    // return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json',
+    //       'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+    //     },
+    //     body: JSON.stringify(space_data),
+    //   })
+    //   .then((response) => {
+    //     return response.json();
+    //   })
+    //   .then((responseJson) => {
+    //     this.setState({updatedStall: true});
+    //     this.dismissModal();
+    //   })
+    //   .catch(err => {
+    //     console.log('\nCAUHT ERROR: \n', err, err.name);
+    //     //TODO(adwoa): make save button clickable again
+    //     return err
+    //   });
+  }
+
   _renderAltActionView() { // either stallChange, info, or base
     if (this.state.modalContent == 'base') {
       return (
@@ -141,7 +174,7 @@ export default class TagModalView extends React.Component {
                   style={buttonStyles.activeSecondaryModalButton}
                   onPress={this.changeParkingSpace}>
                   <Text style={buttonStyles.activeSecondaryTextColor}>
-                    CHANGE
+                    CHANGE STALL
                   </Text>
                 </TouchableOpacity>
                 
@@ -189,14 +222,17 @@ export default class TagModalView extends React.Component {
         <View
           style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
           <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
-            Change Stall</Text>
+            Stall Number</Text>
           <TextInput
             autoCapitalize='characters'
             multiline={false}
-            keyboardType='phone-pad'
-            style={textStyles.greyBackgroundTextInput}
+            style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
+            placeholder={this.props.spaceId}
+            placeholderTextColor='rgba(237, 235, 232, 0.5)'
             onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
-            keyboardType='email-address'/>
+            onSubmitEditing={(event) => this.updateStallNumber(event.nativeEvent.text)}
+            returnKeyType='send'
+            autoFocus={true}/>
         </View>
       )
     }
