@@ -79,7 +79,7 @@ export default class NoteScreen extends React.Component {
 					<View
 						style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
 						
-						<View style={[pageStyles.noteCard, {marginTop: '20%'}]}>
+						<View style={[pageStyles.noteCard, {marginTop: '20%', height:'40%'}]}>
 			  				<TextInput
 								editable={true}
 								multiline={true}

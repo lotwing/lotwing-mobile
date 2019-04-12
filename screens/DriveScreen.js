@@ -89,7 +89,7 @@ export default class DriveScreen extends React.Component {
 	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
 	  				
 	  				<View
-	  					style={pageStyles.noteCard}>
+	  					style={[pageStyles.noteCard, {height:'40%'}]}>
 		  				<Text
 		  					style={textStyles.actionSummaryHeader}>
 		  					Summary
