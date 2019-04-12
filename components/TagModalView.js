@@ -3,6 +3,7 @@ import {
   Animated,
   View,
   Text,
+  TextInput,
   Button,
   Image,
   Platform,
@@ -10,6 +11,7 @@ import {
   ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';
@@ -20,6 +22,7 @@ import Route from '../constants/Routes';
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 import pageStyles from '../constants/PageStyles';
+import textStyles from '../constants/TextStyles';
 
 /**
  *
@@ -33,9 +36,10 @@ export default class TagModalView extends React.Component {
     this.dismissModal = this.dismissModal.bind(this);
     this.confirmSpaceData = this.confirmSpaceData.bind(this);
     this.changeParkingSpace = this.changeParkingSpace.bind(this);
+    this.newStallNumber = '- -';
 
     this.state = {
-      isExtendedDataVisible: false,
+      modalContent: 'base',
     }
   }
 
@@ -53,13 +57,13 @@ export default class TagModalView extends React.Component {
     return body
   }
 
-  setExtendedDataVisibility(visible) {
-    this.setState({isExtendedDataVisible: visible});
+  makeAltViewVisible(visible) {
+    this.setState({modalContent: visible});
   }
 
   changeParkingSpace() {
     console.log('changeParkingSpace called');
-    this.setExtendedDataVisibility(!this.state.isExtendedDataVisible);
+    this.makeAltViewVisible('stallChange');
   }
 
   confirmSpaceData() {
@@ -102,14 +106,97 @@ export default class TagModalView extends React.Component {
     }
   }
 
-  _renderExtendedData() {
-    if (this.state.isExtendedDataVisible) {
+  _renderAltActionView() { // either stallChange, info, or base
+    if (this.state.modalContent == 'base') {
+      return (
+        <View>
+          <View
+                style={styles.tagButtonContainer}>
+
+                <ButtonWithImageAndLabel
+                  text={'Test Drive'}
+                  source={require('../assets/images/car-white.png')}
+                  onPress={() => {this.launchPage('drive')}}/>
+
+                <ButtonWithImageAndLabel
+                  text={'Fuel Vehicle'}
+                  source={require('../assets/images/fuel-white.png')}
+                  onPress={() => {this.launchPage('fuel')}}/>
+
+                <ButtonWithImageAndLabel
+                  text={'Camera'}
+                  source={require('../assets/images/camera-white.png')}
+                  onPress={() => {this.launchPage('camera')}}/>
+
+                <ButtonWithImageAndLabel
+                  text={'Note'}
+                  source={require('../assets/images/note-white.png')}
+                  onPress={() => {this.launchPage('note')}}/>
+              </View>
+
+              <View
+                style={pageStyles.rightButtonContainer}>
+
+                <TouchableOpacity
+                  style={buttonStyles.activeSecondaryModalButton}
+                  onPress={this.changeParkingSpace}>
+                  <Text style={buttonStyles.activeSecondaryTextColor}>
+                    CHANGE
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={buttonStyles.activePrimaryModalButton}
+                  onPress={this.confirmSpaceData}>
+                  <Text style={buttonStyles.activePrimaryTextColor}>
+                    CONFIRM
+                  </Text>
+                </TouchableOpacity>
+
+              </View>
+            </View>
+          )
+
+    } else if (this.state.modalContent == 'info') {
       return (
         <View
-          style={{visible: this.state.isExtendedDataVisible}}>
+          style={{visible: this.state.modalContent}}>
+
           <View
-            style={{height: 300}}>
+            style={[pageStyles.noteCard, {width: '100%', paddingTop: 20, borderRadius: 0}]}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={textStyles.modalDataHeader}>
+                Mileage</Text>
+              <Text style={textStyles.modalData}>
+                {this.props.extraVehicleData.mileage} miles</Text>
+            </View>
+
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={textStyles.modalDataHeader}>
+                Time in Stock</Text>
+              <Text style={textStyles.modalData}>
+                {this.props.extraVehicleData.age_in_days} days</Text>
+            </View>   
           </View>
+
+
+        </View>
+      )
+    } else if (this.state.modalContent == 'stallChange') {
+      return (
+        <View
+          style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
+          <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
+            Change Stall</Text>
+          <TextInput
+            autoCapitalize='characters'
+            multiline={false}
+            keyboardType='phone-pad'
+            style={textStyles.greyBackgroundTextInput}
+            onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
+            keyboardType='email-address'/>
         </View>
       )
     }
@@ -117,8 +204,8 @@ export default class TagModalView extends React.Component {
 
   render() {
   	return (
-      <View
-        style={styles.tagModalOverlay}>
+      <KeyboardAvoidingView
+        style={styles.tagModalOverlay} behavior="height" enabled>
 
         <TouchableWithoutFeedback 
           onPress={() => {
@@ -145,57 +232,12 @@ export default class TagModalView extends React.Component {
             <Text style={styles.subtitle}>
               SKU {this.props.stockNumber}</Text>
 
-            {this._renderExtendedData()}
-
-            <View
-              style={styles.tagButtonContainer}>
-
-              <ButtonWithImageAndLabel
-                text={'Test Drive'}
-                source={require('../assets/images/car-white.png')}
-                onPress={() => {this.launchPage('drive')}}/>
-
-              <ButtonWithImageAndLabel
-                text={'Fuel Vehicle'}
-                source={require('../assets/images/fuel-white.png')}
-                onPress={() => {this.launchPage('fuel')}}/>
-
-              <ButtonWithImageAndLabel
-                text={'Camera'}
-                source={require('../assets/images/camera-white.png')}
-                onPress={() => {this.launchPage('camera')}}/>
-
-              <ButtonWithImageAndLabel
-                text={'Note'}
-                source={require('../assets/images/note-white.png')}
-                onPress={() => {this.launchPage('note')}}/>
-            </View>
-
-            <View
-              style={pageStyles.rightButtonContainer}>
-
-              <TouchableOpacity
-                style={buttonStyles.activeSecondaryModalButton}
-                onPress={this.changeParkingSpace}>
-                <Text style={buttonStyles.activeSecondaryTextColor}>
-                  CHANGE
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={buttonStyles.activePrimaryModalButton}
-                onPress={this.confirmSpaceData}>
-                <Text style={buttonStyles.activePrimaryTextColor}>
-                  CONFIRM
-                </Text>
-              </TouchableOpacity>
-
-            </View>
+            {this._renderAltActionView()}
 
           </View>
 
         </View>
-      </View>
+      </KeyboardAvoidingView>
       
   	);
   }

@@ -26,6 +26,16 @@ export default textStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '200',
   },
+  modalDataHeader: {
+    fontSize: 18,
+    fontWeight: '300',
+    color: '#BE1E2D',
+  },
+  modalData: {
+    fontSize: 18,
+    fontWeight: '200',
+    color: '#828282',
+  },
   timer: {
     textShadowColor: '#828282',
     textShadowRadius: 5,
@@ -34,5 +44,15 @@ export default textStyles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
   },
-  
+  greyBackgroundTextInput: {
+    borderBottomColor: 'white',
+    borderColor: 'grey',
+    borderWidth: 1,
+    color: 'white',
+    fontSize: 18,
+    height: 50,
+    margin: 10,
+    padding: 5,
+    width: 260,
+  },
 });
