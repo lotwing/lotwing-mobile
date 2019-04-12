@@ -7,6 +7,7 @@ import {
   Platform,
   StatusBar,
   StyleSheet,
+  KeyboardAvoidingView,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Text,
@@ -66,6 +67,7 @@ class LotView extends React.Component {
         model: 'Versa',
         skuCollectorVisible: false,
         stockNumberVehicleMap: {},
+        extraVehicleData: {},
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -225,7 +227,7 @@ class LotView extends React.Component {
     this.setModalVisibility(value);
   }
 
-  setModalValues(space_id, stock_number, vehicle_id, year, make, model) {
+  setModalValues(space_id, stock_number, vehicle_id, year, make, model, extra) {
     this.setState({
       year: year,
       make: make,
@@ -233,6 +235,7 @@ class LotView extends React.Component {
       spaceId: space_id,
       vehicleId: vehicle_id,
       stockNumber: stock_number,
+      extraVehicleData: extra,
     });
   }
 
@@ -246,7 +249,7 @@ class LotView extends React.Component {
       let model = vehicleData['model'];
       let stock_number = vehicleData['stock_number'];
 
-      this.setModalValues(space_id, stock_number, vehicle_id, year, make, model);
+      this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
       this.setModalVisibility(true);
     }
   }
@@ -361,19 +364,24 @@ class LotView extends React.Component {
     if (this.state.skuCollectorVisible) {
       console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
       return (
-        <TouchableWithoutFeedback
-          onPress={this.dismissInput}
-          accessible={false}>
-          <View
-            style={{
+        <KeyboardAvoidingView behavior="padding" 
+          style={{
               position: 'absolute',
               height: '100%',
               width: '100%',
               alignItems: 'center',
-              justifyContent: 'center'}}>
+              justifyContent: 'center'}}
+          enabled>
+          <TouchableWithoutFeedback
+            onPress={this.dismissInput}
+            accessible={false}>
+            <View style={{minHeight: '40%', width: '100%'}}>
+            </View>
+          </TouchableWithoutFeedback>
+           
+          <View>
             <View
               style={styles.floatingTextInputArea}>
-
               <Text
                 style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
                 SKU Number</Text>
@@ -406,8 +414,15 @@ class LotView extends React.Component {
               </View>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-        );
+
+          <TouchableWithoutFeedback
+            onPress={this.dismissInput}
+            accessible={false}>
+            <View style={{minHeight: '40%', width: '100%'}}>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      );
     } else {
       console.log('NOT RENDERING TEXT INPUT');
       return
@@ -416,8 +431,10 @@ class LotView extends React.Component {
 
   render() {
     console.log('+ + + Render Lot Screen');
+      // <View style={styles.container}>
+      // not position
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
         <StatusBar
           barStyle='light-content'
           backgroundColor='#BE1E2D'/>
@@ -434,6 +451,7 @@ class LotView extends React.Component {
             year={this.state.year}
             make={this.state.make}
             model={this.state.model}
+            extraVehicleData={this.state.extraVehicleData}
             style={styles.tagModalInnerView}
             modalStyling={styles.tagModalStyles}
             navigation={this.props.navigation}
@@ -507,7 +525,7 @@ class LotView extends React.Component {
 
         {this.maybeRenderTextInput()}
 
-      </View>
+      </KeyboardAvoidingView>
 
     )
   }
