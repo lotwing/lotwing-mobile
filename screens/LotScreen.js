@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   AsyncStorage,
   Image,
   Keyboard,
@@ -19,6 +20,7 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import TagModalView from '../components/TagModalView';
+import LotActionHelper from '../helpers/LotActionHelper';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
@@ -83,6 +85,7 @@ class LotView extends React.Component {
       this.dismissInput = this.dismissInput.bind(this);
       this.locateVehicleBySKU = this.locateVehicleBySKU.bind(this);
       this.skuEntered = 0;
+      this._loadLotView = this._loadLotView.bind(this);
   }
 
   /**
@@ -93,6 +96,7 @@ class LotView extends React.Component {
   _loadLotView() {
     var lotview = this;
 
+    console.log('* * * * * LOAD LOT VIEW * * * * *');
     return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT , {
         method: 'GET',
         headers: {
@@ -227,6 +231,56 @@ class LotView extends React.Component {
     this.setModalVisibility(value);
   }
 
+  updateLotAndDismissModal = (new_stall, vehicleId) => {
+    // 1. Dismiss Modal & Show Loading Screen
+    this.setModalVisibility(false);
+
+    // 2. Update Stall Number & Fetch updated lot
+    // TODO(adwoa): make this process faster. We should be 
+    // doing single space updates and listening for other 
+    // parking space change actions continuously so that this 
+    // does not require an entier lot reload
+    let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
+    stallUpdatedPromise.then((result) => {
+      console.log('STALL UPDATE RESULT: ', result);
+      // 3. Re-render lot by updating state
+      this._loadLotView();
+    });
+
+  }
+
+  updateStallNumber(new_stall, vehicleId, ) {
+    let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
+    let space_data = LotActionHelper.structureTagPayload('change_stall', newSpaceData, 'Moved vehicle to stall ' + new_stall);
+    
+    console.log('\n\nSPACE DATA: ', space_data);
+    console.log('vehicle id: ', vehicleId,' == ', this.state.vehicleId);
+    console.log('old space id: ', this.state.spaceId);
+    console.log('new space id: ', new_stall);
+    console.log('sku number: ', this.state.stockNumber);
+    
+    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+        body: JSON.stringify(space_data),
+      })
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseJson) => {
+        return responseJson
+      })
+      .catch(err => {
+        console.log('\nCAUHT ERROR: \n', err, err.name);
+        //TODO(adwoa): make save button clickable again
+        return err
+      });
+  }
+
   setModalValues(space_id, stock_number, vehicle_id, year, make, model, extra) {
     this.setState({
       year: year,
@@ -268,6 +322,7 @@ class LotView extends React.Component {
     if (type == 'new_vehicle' || type == 'used_vehicle') {
       Object.keys(data).forEach((spaceId) => {
         let vehicleData = data[spaceId];
+        vehicleData['shape_id'] = spaceId;
         snVehicleMap[vehicleData["stock_number"]] = vehicleData;
       });
       console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
@@ -298,10 +353,9 @@ class LotView extends React.Component {
     let vehicleData = this.state.stockNumberVehicleMap[sku];
     
     console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
-    console.log('\nKeys: ', Object.keys(vehicleData), '\nValues: ', Object.values(vehicleData));
     
     if (vehicleData) {
-      let space_id = vehicleData['id'].toString();
+      let space_id = vehicleData['shape_id'].toString();
       this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
     } else { // vehicle not on map
@@ -457,7 +511,8 @@ class LotView extends React.Component {
             style={styles.tagModalInnerView}
             modalStyling={styles.tagModalStyles}
             navigation={this.props.navigation}
-            setModalVisibility={this.setVisibility} />
+            setModalVisibility={this.setVisibility}
+            updateLotAndDismissModal={this.updateLotAndDismissModal} />
         </Modal>
 
 

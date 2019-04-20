@@ -19,8 +19,6 @@ import buttonStyles from '../constants/ButtonStyles';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
-import LotActionHelper from '../helpers/LotActionHelper';
-
 import Mapbox from '@mapbox/react-native-mapbox-gl';
 
 import pageStyles from '../constants/PageStyles';
@@ -37,7 +35,6 @@ export default class TagModalView extends React.Component {
 
     this.dismissModal = this.dismissModal.bind(this);
     this.confirmSpaceData = this.confirmSpaceData.bind(this);
-    this.changeParkingSpace = this.changeParkingSpace.bind(this);
     this.newStallNumber = '- -';
 
     this.state = {
@@ -47,6 +44,10 @@ export default class TagModalView extends React.Component {
 
   dismissModal() {
     this.props.setModalVisibility(false);
+  }
+
+  updateLotAndDismissModal() {
+    this.props.updateLotAndDismissModal();
   }
 
   structureTagPayload(type, event_details) {
@@ -61,11 +62,6 @@ export default class TagModalView extends React.Component {
 
   makeAltViewVisible(visible) {
     this.setState({modalContent: visible});
-  }
-
-  changeParkingSpace() {
-    console.log('changeParkingSpace called');
-    this.makeAltViewVisible('stallChange');
   }
 
   confirmSpaceData() {
@@ -87,6 +83,7 @@ export default class TagModalView extends React.Component {
         return response.json();
       })
       .then((responseJson) => {
+        this.dismissModal();
       })
       .catch(err => {
         console.log('\nCAUHT ERROR: \n', err, err.name);
@@ -106,37 +103,6 @@ export default class TagModalView extends React.Component {
     } else if (page_name == 'note') {
       this.props.navigation.navigate('Note', this.props);
     }
-  }
-
-  updateStallNumber(new_stall) {
-    let newSpaceData = {spaceId: new_stall, vehicleId: this.props.vehicleId};
-    let space_data = LotActionHelper.structureTagPayload('tag', newSpaceData, 'Moved vehicle to stall ' + new_stall);
-    
-    console.log('\n\nSPACE DATA: ', space_data);
-    console.log('vehicle id: ', this.props.vehicleId);
-    console.log('space id: ', this.props.spaceId);
-    console.log('sku number: ', this.props.stockNumber);
-    // return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
-    //     method: 'POST',
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Content-Type': 'application/json',
-    //       'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-    //     },
-    //     body: JSON.stringify(space_data),
-    //   })
-    //   .then((response) => {
-    //     return response.json();
-    //   })
-    //   .then((responseJson) => {
-    //     this.setState({updatedStall: true});
-    //     this.dismissModal();
-    //   })
-    //   .catch(err => {
-    //     console.log('\nCAUHT ERROR: \n', err, err.name);
-    //     //TODO(adwoa): make save button clickable again
-    //     return err
-    //   });
   }
 
   _renderAltActionView() { // either stallChange, info, or base
@@ -172,7 +138,7 @@ export default class TagModalView extends React.Component {
 
                 <TouchableOpacity
                   style={buttonStyles.activeSecondaryModalButton}
-                  onPress={this.changeParkingSpace}>
+                  onPress={() => {this.makeAltViewVisible('stallChange')}}>
                   <Text style={buttonStyles.activeSecondaryTextColor}>
                     CHANGE STALL
                   </Text>
@@ -230,7 +196,7 @@ export default class TagModalView extends React.Component {
             placeholder={this.props.spaceId}
             placeholderTextColor='rgba(237, 235, 232, 0.5)'
             onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
-            onSubmitEditing={(event) => this.updateStallNumber(event.nativeEvent.text)}
+            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(event.nativeEvent.text, this.props.vehicleId)}
             returnKeyType='send'
             autoFocus={true}/>
         </View>
@@ -241,7 +207,7 @@ export default class TagModalView extends React.Component {
   render() {
   	return (
       <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="height" enabled>
+        style={styles.tagModalOverlay} behavior="padding" enabled>
 
         <TouchableWithoutFeedback 
           onPress={() => {
