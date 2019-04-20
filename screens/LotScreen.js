@@ -86,6 +86,7 @@ class LotView extends React.Component {
       this.locateVehicleBySKU = this.locateVehicleBySKU.bind(this);
       this.skuEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
+      this.updateSpaceVehicleMap = false;
   }
 
   /**
@@ -244,8 +245,9 @@ class LotView extends React.Component {
     stallUpdatedPromise.then((result) => {
       console.log('STALL UPDATE RESULT: ', result);
       // 3. Re-render lot by updating state
-      this._loadLotView();
-    });
+      this.updateSpaceVehicleMap = true;
+      return this._loadLotView();
+    }).then(() => {this.updateSpaceVehicleMap = false;})
 
   }
 
@@ -295,7 +297,7 @@ class LotView extends React.Component {
 
   showAndPopulateModal = (data) => {
     let [space_id, vehicleData] = data;
-
+    
     if (vehicleData) {
       let vehicle_id = vehicleData['id'];
       let year = vehicleData['year'];
@@ -316,14 +318,17 @@ class LotView extends React.Component {
   // Map Data
   getMapCallback = (type, data) => {
     console.log('In Get Map Callback...  ', type);
-
     let snVehicleMap = this.state.stockNumberVehicleMap;
 
     if (type == 'new_vehicle' || type == 'used_vehicle') {
       Object.keys(data).forEach((spaceId) => {
+        console.log('SPACE QUERIED: ', spaceId);
         let vehicleData = data[spaceId];
-        vehicleData['shape_id'] = spaceId;
-        snVehicleMap[vehicleData["stock_number"]] = vehicleData;
+
+        if (vehicleData) {
+          vehicleData['shape_id'] = spaceId;
+          snVehicleMap[vehicleData["stock_number"]] = vehicleData;
+        }
       });
       console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
     }
@@ -554,8 +559,9 @@ class LotView extends React.Component {
             style={lotLayerStyles.new_vehicle_occupied_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.newVehicleSpaces}
-            showAndPopulateModal={this.showAndPopulateModal}
             sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='new_vehicle'>
           </VehicleSpaceLayer>
 
@@ -564,8 +570,9 @@ class LotView extends React.Component {
             style={lotLayerStyles.used_vehicle_occupied_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.usedVehicleSpaces}
-            showAndPopulateModal={this.showAndPopulateModal}
             sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='used_vehicle'>
           </VehicleSpaceLayer>
 

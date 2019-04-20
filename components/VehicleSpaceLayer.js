@@ -40,9 +40,11 @@ export default class VehicleSpaceLayer extends React.Component {
 
   _loadLotVehicleData() {
     var vehicleSpaceLayer = this;
+    console.log(' ____ ATTEMPTING lot vehicle reload ____', this.props.updateSpaceVehicleMap);
 
-    if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length == 0) { // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
+    if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length == 0 || this.props.updateSpaceVehicleMap) { // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
       let spaceVehicleMapObject = {};
+      console.log(' ____ LOADING lot vehicle data ____');
 
       let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
       let vehiclePromises = vehicleSpaceLayer.props.spaces.map((space_id) => url_base + space_id);
@@ -63,6 +65,7 @@ export default class VehicleSpaceLayer extends React.Component {
         console.log('\nRETURNED VEHICLE DATA: ', vehicleResponses.length, ' vehicles');
         vehicleResponses.forEach((vehicle) => {
           let parking_space_id = vehicle["shape"]["id"];
+          if (vehicle["vehicle"]) console.log('Vehicle, Parking Space: ', vehicle["vehicle"]["stock_number"], ', ', parking_space_id)
           spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
         });
 
@@ -103,11 +106,11 @@ export default class VehicleSpaceLayer extends React.Component {
 
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
+      console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
       let vehicle_data = this.state.spaceVehicleMap[space_id];
-
       this.props.showAndPopulateModal([space_id, vehicle_data]);
-
     } else {
+      console.log('pass...');
     }
 
   }
