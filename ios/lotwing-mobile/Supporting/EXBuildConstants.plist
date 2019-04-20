@@ -16,6 +16,6 @@
 	<key>TEMPORARY_SDK_VERSION</key>
 	<string>31.0.0</string>
 	<key>developmentUrl</key>
-	<string>http://192.168.8.102:19000</string>
+	<string>http://sb-day.addboa.lotwing-mobile.exp.direct:80</string>
 </dict>
 </plist>
