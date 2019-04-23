@@ -40,11 +40,11 @@ export default class VehicleSpaceLayer extends React.Component {
 
   _loadLotVehicleData() {
     var vehicleSpaceLayer = this;
-    console.log(' ____ ATTEMPTING lot vehicle reload ____', this.props.updateSpaceVehicleMap);
+    console.log('ATTEMPTING lot vehicle reload ____', this.props.updateSpaceVehicleMap);
 
     if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length == 0 || this.props.updateSpaceVehicleMap) { // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
       let spaceVehicleMapObject = {};
-      console.log(' ____ LOADING lot vehicle data ____');
+      console.log('- - - LOADING lot vehicle data');
 
       let url_base = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE;
       let vehiclePromises = vehicleSpaceLayer.props.spaces.map((space_id) => url_base + space_id);
@@ -110,7 +110,7 @@ export default class VehicleSpaceLayer extends React.Component {
       let vehicle_data = this.state.spaceVehicleMap[space_id];
       this.props.showAndPopulateModal([space_id, vehicle_data]);
     } else {
-      console.log('pass...');
+      this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE]);
     }
 
   }

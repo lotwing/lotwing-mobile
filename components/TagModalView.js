@@ -36,9 +36,10 @@ export default class TagModalView extends React.Component {
     this.dismissModal = this.dismissModal.bind(this);
     this.confirmSpaceData = this.confirmSpaceData.bind(this);
     this.newStallNumber = '- -';
+    this.newStockNumber = '- -';
 
     this.state = {
-      modalContent: 'base',
+      modalContent: this.props.modalType,
     }
   }
 
@@ -60,8 +61,8 @@ export default class TagModalView extends React.Component {
     return body
   }
 
-  makeAltViewVisible(visible) {
-    this.setState({modalContent: visible});
+  makeAltViewVisible(contentType) {
+    this.setState({modalContent: contentType});
   }
 
   confirmSpaceData() {
@@ -106,97 +107,138 @@ export default class TagModalView extends React.Component {
   }
 
   _renderAltActionView() { // either stallChange, info, or base
-    if (this.state.modalContent == 'base') {
+    if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
       return (
-        <View>
+        <View
+          style={styles.tagModalMainBody}>
+
+          <Text style={styles.header}>
+            {this.props.year} {this.props.make} {this.props.model}</Text>
+          <Text style={styles.subtitle}>
+            Stall {this.props.spaceId}</Text>
           <View
-                style={styles.tagButtonContainer}>
+            style={styles.tagButtonContainer}>
 
-                <ButtonWithImageAndLabel
-                  text={'Test Drive'}
-                  source={require('../assets/images/car-white.png')}
-                  onPress={() => {this.launchPage('drive')}}/>
+            <ButtonWithImageAndLabel
+              text={'Test Drive'}
+              source={require('../assets/images/car-white.png')}
+              onPress={() => {this.launchPage('drive')}}/>
 
-                <ButtonWithImageAndLabel
-                  text={'Fuel Vehicle'}
-                  source={require('../assets/images/fuel-white.png')}
-                  onPress={() => {this.launchPage('fuel')}}/>
+            <ButtonWithImageAndLabel
+              text={'Fuel Vehicle'}
+              source={require('../assets/images/fuel-white.png')}
+              onPress={() => {this.launchPage('fuel')}}/>
 
-                <ButtonWithImageAndLabel
-                  text={'Camera'}
-                  source={require('../assets/images/camera-white.png')}
-                  onPress={() => {this.launchPage('camera')}}/>
+            <ButtonWithImageAndLabel
+              text={'Camera'}
+              source={require('../assets/images/camera-white.png')}
+              onPress={() => {this.launchPage('camera')}}/>
 
-                <ButtonWithImageAndLabel
-                  text={'Note'}
-                  source={require('../assets/images/note-white.png')}
-                  onPress={() => {this.launchPage('note')}}/>
+            <ButtonWithImageAndLabel
+              text={'Note'}
+              source={require('../assets/images/note-white.png')}
+              onPress={() => {this.launchPage('note')}}/>
+          </View>
+
+          <View
+            style={pageStyles.rightButtonContainer}>
+
+            <TouchableOpacity
+              style={buttonStyles.activeSecondaryModalButton}
+              onPress={() => {this.makeAltViewVisible(GlobalVariables.STALL_ENTRY_MODAL_TYPE)}}>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
+                CHANGE STALL
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={buttonStyles.activePrimaryModalButton}
+              onPress={this.confirmSpaceData}>
+              <Text style={buttonStyles.activePrimaryTextColor}>
+                CONFIRM
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      )
+
+    } else if (this.state.modalContent == GlobalVariables.INFO_MODAL_TYPE) {
+      return (
+       <View
+          style={styles.tagModalMainBody}>
+
+          <Text style={styles.header}>
+            {this.props.year} {this.props.make} {this.props.model}</Text>
+          <Text style={styles.subtitle}>
+            Stall {this.props.spaceId}</Text>
+          <View
+            style={{visible: this.state.modalContent}}>
+
+            <View
+              style={[pageStyles.noteCard, {width: '100%', paddingTop: 20, borderRadius: 0}]}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={textStyles.modalDataHeader}>
+                  Mileage</Text>
+                <Text style={textStyles.modalData}>
+                  {this.props.extraVehicleData.mileage} miles</Text>
               </View>
 
               <View
-                style={pageStyles.rightButtonContainer}>
-
-                <TouchableOpacity
-                  style={buttonStyles.activeSecondaryModalButton}
-                  onPress={() => {this.makeAltViewVisible('stallChange')}}>
-                  <Text style={buttonStyles.activeSecondaryTextColor}>
-                    CHANGE STALL
-                  </Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={buttonStyles.activePrimaryModalButton}
-                  onPress={this.confirmSpaceData}>
-                  <Text style={buttonStyles.activePrimaryTextColor}>
-                    CONFIRM
-                  </Text>
-                </TouchableOpacity>
-
-              </View>
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={textStyles.modalDataHeader}>
+                  Time in Stock</Text>
+                <Text style={textStyles.modalData}>
+                  {this.props.extraVehicleData.age_in_days} days</Text>
+              </View>   
             </View>
-          )
-
-    } else if (this.state.modalContent == 'info') {
-      return (
-        <View
-          style={{visible: this.state.modalContent}}>
-
-          <View
-            style={[pageStyles.noteCard, {width: '100%', paddingTop: 20, borderRadius: 0}]}>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={textStyles.modalDataHeader}>
-                Mileage</Text>
-              <Text style={textStyles.modalData}>
-                {this.props.extraVehicleData.mileage} miles</Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={textStyles.modalDataHeader}>
-                Time in Stock</Text>
-              <Text style={textStyles.modalData}>
-                {this.props.extraVehicleData.age_in_days} days</Text>
-            </View>   
           </View>
-
-
         </View>
       )
-    } else if (this.state.modalContent == 'stallChange') {
+
+    } else if (this.state.modalContent == GlobalVariables.STALL_ENTRY_MODAL_TYPE) {
       return (
         <View
-          style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
+          style={styles.tagModalMainBody}>
+
+          <Text style={styles.header}>
+            {this.props.year} {this.props.make} {this.props.model}</Text>
+          <Text style={styles.subtitle}>
+            Stall {this.props.spaceId}</Text>
+          <View
+            style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
+            <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
+              Stall Number</Text>
+            <TextInput
+              autoCapitalize='characters'
+              multiline={false}
+              style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
+              placeholder={this.props.spaceId}
+              placeholderTextColor='rgba(237, 235, 232, 0.5)'
+              onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
+              onSubmitEditing={(event) => this.props.updateLotAndDismissModal(event.nativeEvent.text, this.props.vehicleId)}
+              returnKeyType='send'
+              autoFocus={true}/>
+          </View>
+        </View>
+      )
+    } else if (this.state.modalContent == GlobalVariables.EMPTY_MODAL_TYPE) {
+      return (
+        <View
+          style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
           <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
-            Stall Number</Text>
+            Populate Empty Space</Text>
+          <Text style={styles.subtitle}>
+            Stall {this.props.spaceId}</Text>
           <TextInput
             autoCapitalize='characters'
             multiline={false}
             style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
-            placeholder={this.props.spaceId}
+            placeholder='Stock Number'
             placeholderTextColor='rgba(237, 235, 232, 0.5)'
-            onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
-            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(event.nativeEvent.text, this.props.vehicleId)}
+            onChangeText={(stockNumber) => {this.newStockNumber = stockNumber}}
+            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text)}
             returnKeyType='send'
             autoFocus={true}/>
         </View>
@@ -223,20 +265,10 @@ export default class TagModalView extends React.Component {
           
           <View
             style={styles.tagModalStallBar}>
-            <Text style={styles.stallHeader}>Stall {this.props.spaceId}</Text>
+            <Text style={styles.stallHeader}>SKU {this.props.stockNumber ? this.props.stockNumber : '   - -'}</Text>
           </View>
 
-          <View
-            style={styles.tagModalMainBody}>
-
-            <Text style={styles.header}>
-              {this.props.year} {this.props.make} {this.props.model}</Text>
-            <Text style={styles.subtitle}>
-              SKU {this.props.stockNumber}</Text>
-
-            {this._renderAltActionView()}
-
-          </View>
+          {this._renderAltActionView()}
 
         </View>
       </KeyboardAvoidingView>

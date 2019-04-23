@@ -20,6 +20,7 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import TagModalView from '../components/TagModalView';
+import PopulateSpaceView from '../components/PopulateSpaceView';
 import LotActionHelper from '../helpers/LotActionHelper';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
@@ -67,6 +68,7 @@ class LotView extends React.Component {
         year: 0,
         make: 'Nissan',
         model: 'Versa',
+        modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
         stockNumberVehicleMap: {},
         extraVehicleData: {},
@@ -87,6 +89,7 @@ class LotView extends React.Component {
       this.skuEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
       this.updateSpaceVehicleMap = false;
+      
   }
 
   /**
@@ -223,16 +226,21 @@ class LotView extends React.Component {
   }
 
   // Modal Visibility controls
-  setModalVisibility(visibility) {
-    console.log('     resetting state: setModalVisibility');
-    this.setState({modalVisible: visibility});
+  setModalVisibility(visibility, isEmpty = false) {
+    console.log('\n\n\n* * * *   resetting state: setModalVisibility... empty? ', isEmpty, '\n\n\n');
+    
+    if (isEmpty) {
+      this.setState({modalVisible: visibility, modalType: GlobalVariables.EMPTY_MODAL_TYPE});
+    } else {
+      this.setState({modalVisible: visibility, modalType: GlobalVariables.BASIC_MODAL_TYPE});
+    }
   }
 
   setVisibility = (value) => {
     this.setModalVisibility(value);
   }
 
-  updateLotAndDismissModal = (new_stall, vehicleId) => {
+  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null) => {
     // 1. Dismiss Modal & Show Loading Screen
     this.setModalVisibility(false);
 
@@ -241,17 +249,34 @@ class LotView extends React.Component {
     // doing single space updates and listening for other 
     // parking space change actions continuously so that this 
     // does not require an entier lot reload
-    let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
-    stallUpdatedPromise.then((result) => {
-      console.log('STALL UPDATE RESULT: ', result);
-      // 3. Re-render lot by updating state
-      this.updateSpaceVehicleMap = true;
-      return this._loadLotView();
-    }).then(() => {this.updateSpaceVehicleMap = false;})
+    if (vehicleId) {
+      console.log('VEHICLE ID ENTERED: updating');
+      let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
+      
+      stallUpdatedPromise.then((result) => {
+        console.log('STALL UPDATE RESULT: ', result);
+        // 3. Re-render lot by updating state
+        this.updateSpaceVehicleMap = true;
+        return this._loadLotView();
+      }).then(() => {this.updateSpaceVehicleMap = false;});
+
+    } else if (sku_number) {
+      console.log('SKU ENTERED: updating');
+      let vehiclePromise = this._getVehicleBySKU(sku_number);
+      
+      vehiclePromise.then((vehicleData) => {
+        return this.updateStallNumber(new_stall, vehicleData['id'])
+      }).then((result) => {
+        console.log('STALL UPDATE RESULT: ', result);
+        // 3. Re-render lot by updating state
+        this.updateSpaceVehicleMap = true;
+        return this._loadLotView();
+      }).then(() => {this.updateSpaceVehicleMap = false;});
+    }
 
   }
 
-  updateStallNumber(new_stall, vehicleId, ) {
+  updateStallNumber(new_stall, vehicleId) {
     let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
     let space_data = LotActionHelper.structureTagPayload('change_stall', newSpaceData, 'Moved vehicle to stall ' + new_stall);
     
@@ -274,6 +299,7 @@ class LotView extends React.Component {
         return response.json();
       })
       .then((responseJson) => {
+        console.log(responseJson);
         return responseJson
       })
       .catch(err => {
@@ -283,7 +309,7 @@ class LotView extends React.Component {
       });
   }
 
-  setModalValues(space_id, stock_number, vehicle_id, year, make, model, extra) {
+  setModalValues(space_id, stock_number = 0, vehicle_id = 0, year = 0, make = 0, model = 0, extra = 0) {
     this.setState({
       year: year,
       make: make,
@@ -298,7 +324,12 @@ class LotView extends React.Component {
   showAndPopulateModal = (data) => {
     let [space_id, vehicleData] = data;
     
-    if (vehicleData) {
+    if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
+      // show empty modal
+      this.setModalValues(space_id)
+      this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
+
+    } else if (vehicleData && vehicleData['id']) {
       let vehicle_id = vehicleData['id'];
       let year = vehicleData['year'];
       let make = vehicleData['make'];
@@ -307,7 +338,7 @@ class LotView extends React.Component {
 
       this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
       this.setModalVisibility(true);
-    }
+    } 
   }
 
   dismissInput = () => {
@@ -490,6 +521,57 @@ class LotView extends React.Component {
     }
   }
 
+  _renderTagModal() {
+    console.log('\n\n\n\nModal Type: ', this.state.modalType);
+    // if (this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE) {
+    console.log('Render Tag Modal View');
+    let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
+    return (
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={this.state.modalVisible}>
+ 
+        <TagModalView
+          modalType={this.state.modalType}
+          spaceId={this.state.spaceId}
+          vehicleId={this.state.vehicleId}
+          stockNumber={stockNumberToDisplay}
+          year={this.state.year}
+          make={this.state.make}
+          model={this.state.model}
+          extraVehicleData={this.state.extraVehicleData}
+          style={styles.tagModalInnerView}
+          modalStyling={styles.tagModalStyles}
+          navigation={this.props.navigation}
+          setModalVisibility={this.setVisibility}
+          updateLotAndDismissModal={this.updateLotAndDismissModal} />
+      </Modal>
+      )
+    // } else if (this.state.modalType == GlobalVariables.EMPTY_MODAL_TYPE) {
+
+    // }
+  }
+
+  _renderPopulationView() {
+    console.log('\n\n\n\nModal Type: ', this.state.modalType);
+    if (this.state.modalType == GlobalVariables.EMPTY_MODAL_TYPE) {
+      console.log('Render Populate Space View');
+      return (
+        <Modal
+          animationType='fade'
+          transparent={true}
+          visible={this.state.modalVisible}>
+   
+          <PopulateSpaceView
+            navigation={this.props.navigation}
+            setModalVisibility={this.setVisibility}
+            updateLotAndDismissModal={this.updateLotAndDismissModal} />
+        </Modal>
+        )
+    }
+  }
+
   render() {
     console.log('+ + + Render Lot Screen');
       // <View style={styles.container}>
@@ -500,26 +582,7 @@ class LotView extends React.Component {
           barStyle='light-content'
           backgroundColor='#BE1E2D'/>
 
-        <Modal
-          animationType='slide'
-          transparent={true}
-          visible={this.state.modalVisible}>
-   
-          <TagModalView
-            spaceId={this.state.spaceId}
-            vehicleId={this.state.vehicleId}
-            stockNumber={this.state.stockNumber}
-            year={this.state.year}
-            make={this.state.make}
-            model={this.state.model}
-            extraVehicleData={this.state.extraVehicleData}
-            style={styles.tagModalInnerView}
-            modalStyling={styles.tagModalStyles}
-            navigation={this.props.navigation}
-            setModalVisibility={this.setVisibility}
-            updateLotAndDismissModal={this.updateLotAndDismissModal} />
-        </Modal>
-
+        {this._renderTagModal()}
 
         <Mapbox.MapView
           centerCoordinate={this.state.centerCoordinate}
@@ -549,6 +612,7 @@ class LotView extends React.Component {
             style={lotLayerStyles.empty_parking_spaces}
             parkingShapes={this.state.parkingShapes}
             spaces={this.state.emptySpaces}
+            showAndPopulateModal={this.showAndPopulateModal}
             setModalVisibility={this.setModalVisibility}
             sendMapCallback={this.getMapCallback}
             type='empty'>
@@ -577,7 +641,6 @@ class LotView extends React.Component {
           </VehicleSpaceLayer>
 
         </Mapbox.MapView>
-
 
         <TouchableOpacity
           style={styles.floatingActionButton}
