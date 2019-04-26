@@ -20,7 +20,7 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import TagModalView from '../components/TagModalView';
-import PopulateSpaceView from '../components/PopulateSpaceView';
+import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
 
 import Mapbox from '@mapbox/react-native-mapbox-gl';
@@ -553,7 +553,7 @@ class LotView extends React.Component {
     // }
   }
 
-  _renderPopulationView() {
+  _renderFeedbackView() {
     console.log('\n\n\n\nModal Type: ', this.state.modalType);
     if (this.state.modalType == GlobalVariables.EMPTY_MODAL_TYPE) {
       console.log('Render Populate Space View');
@@ -563,7 +563,7 @@ class LotView extends React.Component {
           transparent={true}
           visible={this.state.modalVisible}>
    
-          <PopulateSpaceView
+          <ActionFeedbackView
             navigation={this.props.navigation}
             setModalVisibility={this.setVisibility}
             updateLotAndDismissModal={this.updateLotAndDismissModal} />
