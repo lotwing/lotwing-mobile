@@ -36,6 +36,51 @@ export default {
       });
   },
 
+  endTimeboundTagAction: function(actionPayload, eventId) {
+    console.log('END TAG DATA: ', actionPayload, eventId);
+
+    return fetch(GlobalVariables.BASE_ROUTE + Route.COMPLETE_TIMED_TAG_EVENT + eventId, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+      body: JSON.stringify(actionPayload),
+    })
+    .then((response) => {
+      console.log('RETURNED FROM COMPLETE_TIMED_TAG_EVENT', response);
+      // nothing returned from this action...
+    })
+    .catch(err => {
+      console.log('\nCAUHT ERROR: \n', err, err.name);
+      return err
+    })
+  },
+
+  getEventId: function(spaceId) {
+    console.log('GET EVENT ID: ', spaceId);
+
+    return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + spaceId, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+    })
+    .then((response) => {
+      return response.json();
+    })
+    .then((response) => {
+      return response['events'][0]['data']['id']
+    })
+    .catch(err => {
+      console.log('\nCAUHT ERROR: \n', err, err.name);
+      return err
+    })
+  },
+
   backAction: function(navigation) {
     navigation.goBack();
   },

@@ -20,5 +20,12 @@ export default {
 	// * event_details (for notes/test drives/etc, leave a comment here)
 	TAG_VEHICLE: '/api/tags/',
 
+	// PUT REQUEST
+	// - - - - - - - - - - - - - - - - 
+	COMPLETE_TIMED_TAG_EVENT: '/api/events/' // add event id to the end of this
+	// Body {
+	// 	acknowledged: true/false
+	// 	event_details: "" }
+
 	
 }

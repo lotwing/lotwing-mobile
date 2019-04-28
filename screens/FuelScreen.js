@@ -25,21 +25,28 @@ export default class FuelScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params;
-		this.showSaveTagViews = this.showSaveTagViews.bind(this);
-		this.sendFuelData = this.sendFuelData.bind(this);
+		this.startOrStopAction = this.startOrStopAction.bind(this);
+
+		this.endFueling = this.endFueling.bind(this);
+
+		this.fuelEventId = null;
 
 		this.state = {
 			isFuelActionVisible: true,
+			isStopButtonVisible: false,
 			fuelTime: '0:01',
+			startStopButtonText: 'START FUELING',
 		};
+
+		console.log('NAVIGATION DATA: ', this.props.navigation.state);
 	}
 
-	sendFuelData() {
-		console.log('\nsendFuelData called');
+	startFuelingAction() {
+		console.log('\nstartFuelingAction called');
 		console.log('\nFuel Time: ', this.state.fuelTime);
 
 		//TODO(adwoa): make save button unclickable, process this action
-		let space_data = LotActionHelper.structureTagPayload('fuel_vehicle', this.details, this.state.fuelTime);
+		let space_data = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, this.details, 'starting to fuel');
 		let fuelScreen = this;
 		console.log('TAG DATA: ', space_data);
 
@@ -56,13 +63,48 @@ export default class FuelScreen extends React.Component {
 		    return response.json();
 		  })
 		  .then((responseJson) => {
-		    fuelScreen.confirmTagRegistered();
+		    fuelScreen.startFuelTimer();
 		  })
 		  .catch(err => {
 		    console.log('\nCAUHT ERROR: \n', err, err.name);
 		    //TODO(adwoa): make save button clickable again
 		    return err
 		  });
+	}
+
+	startFuelTimer() {
+		this.setState({
+			isStopButtonVisible: true,
+			startStopButtonText: 'STOP FUELING',
+		});
+	}
+
+	endFueling(shouldAcknowledgeAction) {
+		let fuelScreen = this;
+		let endedPackage = {};
+
+		if (shouldAcknowledgeAction) {
+			endedPackage = {
+				acknowledged: shouldAcknowledgeAction,
+				event_details: 'fueled in ' + fuelScreen.state.fuelTime
+			}
+		} else {
+			endedPackage = {
+				acknowledged: shouldAcknowledgeAction,
+				event_details: 'fuel event ' + this.fuelEventId + ' canceled'
+			}
+		}
+
+		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId);
+
+		eventIdPromise.then((event_id) => {
+			console.log('EVENT ID: ', event_id);
+			let fuelEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, event_id);
+			fuelEndPromise.then(() => {
+				fuelScreen.confirmTagRegistered();
+			});
+		});
+
 	}
 
 	// helper function for timer
@@ -76,9 +118,34 @@ export default class FuelScreen extends React.Component {
 		});
 	}
 
+	startOrStopAction() {
+		if (!this.state.isStopButtonVisible) {
+			this.startFuelingAction();
+		} else {
+			this.showSaveTagViews();
+		}
+	}
+
 	confirmTagRegistered() {
 		// push back to lotscreen
 		this.props.navigation.goBack();
+	}
+
+	_renderTimerOnStart(startTime) {
+		if (this.state.isStopButtonVisible) {
+			return (
+				<Timer 
+  					startTime={startTime}
+  					fuelTime={this.setFuelTime}>
+  				</Timer>
+  				)
+		} else {
+			return (
+				<Text style={textStyles.timer}>
+	            	00:00:00
+	            </Text>
+	        )
+		}
 	}
 
 	_renderProperFuelActionView() {
@@ -89,10 +156,7 @@ export default class FuelScreen extends React.Component {
 					style={{flex:7}}>
 					<View 
 		  				style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
-		  				<Timer 
-		  					startTime={startTime}
-		  					fuelTime={this.setFuelTime}>
-		  				</Timer>
+		  				{this._renderTimerOnStart(startTime)}
 		  			</View>
 	  				
 
@@ -106,9 +170,9 @@ export default class FuelScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={this.showSaveTagViews}>
+			  				onPress={this.startOrStopAction}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					STOP FUELING
+			  					{this.state.startStopButtonText}
 			  				</Text>
 			  			</TouchableOpacity>
 		  			</View>
@@ -140,7 +204,7 @@ export default class FuelScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {LotActionHelper.backAction(this.props.navigation)}}>
+			  				onPress={() => {this.endFueling(false)}}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					CANCEL
 			  				</Text>
@@ -151,7 +215,7 @@ export default class FuelScreen extends React.Component {
 			  					buttonStyles.activePrimaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {this.sendFuelData()}}>
+			  				onPress={() => {this.endFueling(true)}}>
 			  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					SAVE
 			  				</Text>
@@ -170,15 +234,15 @@ export default class FuelScreen extends React.Component {
 		  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
 		  			<View style={[pageStyles.darkBody, pageStyles.column]}>
 		  				<Text style={textStyles.header}>
-			            {this.details.year} {this.details.make} {this.details.model}</Text>
-			          <Text style={textStyles.subtitle}>
-			            SKU {this.details.stockNumber}</Text>
-			  			</View>
-			  			<View style={pageStyles.column}>
-			          <Image
-			            source={require('../assets/images/fuel-white.png')}
-			            style={[buttonStyles.icon, {padding: 10, minWidth: 30}]}
-			            resizeMode={"contain"}/>
+						{this.details.year} {this.details.make} {this.details.model}</Text>
+						<Text style={textStyles.subtitle}>
+							SKU {this.details.stockNumber}</Text>
+					</View>
+					<View style={pageStyles.column}>
+						<Image
+							source={require('../assets/images/fuel-white.png')}
+							style={[buttonStyles.icon, {padding: 10, minWidth: 30}]}
+							resizeMode={"contain"}/>
 			        </View>
 	  			</View>
 
