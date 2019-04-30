@@ -523,7 +523,6 @@ class LotView extends React.Component {
 
   _renderTagModal() {
     console.log('\n\n\n\nModal Type: ', this.state.modalType);
-    // if (this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE) {
     console.log('Render Tag Modal View');
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
@@ -548,9 +547,6 @@ class LotView extends React.Component {
           updateLotAndDismissModal={this.updateLotAndDismissModal} />
       </Modal>
       )
-    // } else if (this.state.modalType == GlobalVariables.EMPTY_MODAL_TYPE) {
-
-    // }
   }
 
   _renderFeedbackView() {
