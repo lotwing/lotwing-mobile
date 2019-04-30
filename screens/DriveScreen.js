@@ -26,6 +26,8 @@ export default class DriveScreen extends React.Component {
 		super(props);
 		this.details = this.props.navigation.state.params;
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
+		
+		this.startOrStopAction = this.startOrStopAction.bind(this);
 		this.endTestDrive = this.endTestDrive.bind(this);
 
 		this.driveEventId = null;
@@ -34,19 +36,27 @@ export default class DriveScreen extends React.Component {
 			isDriveActionVisible: true,
 			isStopButtonVisible: false,
 			driveTime: '0:01',
-			startStopButtonText: 'START FUELING',
+			startStopButtonText: 'START TEST DRIVE',
 		};
 	}
 
-
 	startDrivingAction() {
-		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, this.details, this.state.driveTime);
+		let driveScreen = this;
+		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, driveScreen.details, 'starting test drive');
 		LotActionHelper.registerTagAction(payload)
-			.then((value) => {
-				if (value) {
-					LotActionHelper.backAction(this.props.navigation);
+			.then((responseJson) => {
+				if (responseJson) {
+					driveScreen.driveEventId = responseJson['event']['id'];
+			    	driveScreen.startTestDriveTimer();
 				}
 			});
+	}
+
+	startTestDriveTimer() {
+		this.setState({
+			isStopButtonVisible: true,
+			startStopButtonText: 'STOP TEST DRIVE',
+		});
 	}
 
 	setDriveTime = (timeDisplayed) => {
@@ -79,6 +89,31 @@ export default class DriveScreen extends React.Component {
 		this.setState({isDriveActionVisible: false});
 	}
 
+	startOrStopAction() {
+		if (!this.state.isStopButtonVisible) {
+			this.startDrivingAction();
+		} else {
+			this.showSaveTagViews();
+		}
+	}
+
+	_renderTimerOnStart(startTime) {
+		if (this.state.isStopButtonVisible) {
+			return (
+				<Timer 
+  					startTime={startTime}
+  					fuelTime={this.setFuelTime}>
+  				</Timer>
+  				)
+		} else {
+			return (
+				<Text style={textStyles.timer}>
+	            	00:00:00
+	            </Text>
+	        )
+		}
+	}
+
 	_renderProperDriveActionView() {
 		if (this.state.isDriveActionVisible) {
 			let startTime = Date.now();
@@ -87,10 +122,7 @@ export default class DriveScreen extends React.Component {
 					style={{flex:7}}>
 					<View 
 						style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
-						<Timer 
-		  					startTime={startTime}
-		  					fuelTime={this.setDriveTime}>
-		  				</Timer>
+						{this._renderTimerOnStart(startTime)}
 		  			</View>
 		  			<View style={
 			  				[
@@ -102,9 +134,9 @@ export default class DriveScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={this.showSaveTagViews}>
+			  				onPress={this.startOrStopAction}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					STOP TEST DRIVE
+			  					{this.state.startStopButtonText}
 			  				</Text>
 			  			</TouchableOpacity>
 		  			</View>

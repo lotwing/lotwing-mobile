@@ -28,7 +28,7 @@ export default {
         return response.json();
       })
       .then((responseJson) => {
-        return true
+        return responseJson
       })
       .catch(err => {
         console.log('\nCAUHT ERROR: \n', err, err.name);
