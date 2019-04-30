@@ -26,16 +26,21 @@ export default class DriveScreen extends React.Component {
 		super(props);
 		this.details = this.props.navigation.state.params;
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
-		this.sendDrivingData = this.sendDrivingData.bind(this);
+		this.endTestDrive = this.endTestDrive.bind(this);
+
+		this.driveEventId = null;
 
 		this.state = {
 			isDriveActionVisible: true,
+			isStopButtonVisible: false,
 			driveTime: '0:01',
+			startStopButtonText: 'START FUELING',
 		};
 	}
 
-	sendDrivingData() {
-		let payload = LotActionHelper.structureTagPayload('test_drive', this.details, this.state.driveTime);
+
+	startDrivingAction() {
+		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, this.details, this.state.driveTime);
 		LotActionHelper.registerTagAction(payload)
 			.then((value) => {
 				if (value) {
@@ -46,6 +51,28 @@ export default class DriveScreen extends React.Component {
 
 	setDriveTime = (timeDisplayed) => {
 		this.setState({driveTime: timeDisplayed});
+	}
+
+	endTestDrive(shouldAcknowledgeAction) {
+		let driveScreen = this;
+		let endedPackage = {};
+
+		if (shouldAcknowledgeAction) {
+			endedPackage = {
+				acknowledged: shouldAcknowledgeAction,
+				event_details: 'test driven for ' + driveScreen.state.driveTime
+			}
+		} else {
+			endedPackage = {
+				acknowledged: shouldAcknowledgeAction,
+				event_details: 'drive event ' + this.driveEventId + ' canceled'
+			}
+		}
+
+		let driveEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, driveScreen.driveEventId);
+		driveEndPromise.then(() => {
+			LotActionHelper.backAction(driveScreen.props.navigation);
+		});
 	}
 
 	showSaveTagViews() {
@@ -107,7 +134,7 @@ export default class DriveScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {LotActionHelper.backAction(this.props.navigation)}}>
+			  				onPress={() => {this.endTestDrive(false)}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					CANCEL
 			  				</Text>
@@ -118,7 +145,7 @@ export default class DriveScreen extends React.Component {
 			  					buttonStyles.activePrimaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {this.sendDrivingData()}}>
+			  				onPress={() => {this.endTestDrive(true)}}>
 			  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					SAVE
 			  				</Text>
