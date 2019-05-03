@@ -64,8 +64,8 @@ export default class FuelScreen extends React.Component {
 		  })
 		  .then((responseJson) => {
 		  	console.log(responseJson);
-		  	this.fuelEventId = responseJson['event']['id'];
-		    fuelScreen.startFuelTimer();
+		  	this.fuelEventId = responseJson['event'] ? responseJson['event']['id'] : null;
+		  	fuelScreen.startFuelTimer();
 		  })
 		  .catch(err => {
 		    console.log('\nCAUHT ERROR: \n', err, err.name);

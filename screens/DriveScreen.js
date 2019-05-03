@@ -46,9 +46,14 @@ export default class DriveScreen extends React.Component {
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {
 				if (responseJson) {
-					driveScreen.driveEventId = responseJson['event']['id'];
+					console.log('RESPONSE: ', responseJson);
+					driveScreen.driveEventId = responseJson['event'] ? responseJson['event']['id']: null;
 			    	driveScreen.startTestDriveTimer();
 				}
+			})
+			.catch(err => {
+			    console.log('\nCAUHT ERROR: \n', err, err.name);
+			    return err
 			});
 	}
 
@@ -79,9 +84,14 @@ export default class DriveScreen extends React.Component {
 			}
 		}
 
-		let driveEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, driveScreen.driveEventId);
-		driveEndPromise.then(() => {
-			LotActionHelper.backAction(driveScreen.props.navigation);
+		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId);
+
+		eventIdPromise.then((event_id) => {
+			console.log('EVENT ID: ', event_id);
+			let driveEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, event_id);
+			driveEndPromise.then(() => {
+				LotActionHelper.backAction(driveScreen.props.navigation);
+			});
 		});
 	}
 
@@ -102,7 +112,7 @@ export default class DriveScreen extends React.Component {
 			return (
 				<Timer 
   					startTime={startTime}
-  					fuelTime={this.setFuelTime}>
+  					fuelTime={this.setDriveTime}>
   				</Timer>
   				)
 		} else {
@@ -166,7 +176,7 @@ export default class DriveScreen extends React.Component {
 			  					buttonStyles.activeSecondaryModalButton,
 			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
 			  				]}
-			  				onPress={() => {this.endTestDrive(false)}>
+			  				onPress={() => {this.endTestDrive(false)}}>
 			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			  					CANCEL
 			  				</Text>
