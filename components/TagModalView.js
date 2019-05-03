@@ -47,6 +47,10 @@ export default class TagModalView extends React.Component {
     this.props.setModalVisibility(false);
   }
 
+  showChooseSpaceView() {
+    this.props.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE);
+  }
+
   updateLotAndDismissModal() {
     this.props.updateLotAndDismissModal();
   }
@@ -145,7 +149,7 @@ export default class TagModalView extends React.Component {
 
             <TouchableOpacity
               style={buttonStyles.activeSecondaryModalButton}
-              onPress={() => {this.makeAltViewVisible(GlobalVariables.STALL_ENTRY_MODAL_TYPE)}}>
+              onPress={() => {this.showChooseSpaceView()}}>
               <Text style={buttonStyles.activeSecondaryTextColor}>
                 CHANGE STALL
               </Text>

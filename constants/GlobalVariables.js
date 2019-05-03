@@ -13,6 +13,7 @@ export default {
 
 	BASIC_MODAL_TYPE: 'base',
 	EMPTY_MODAL_TYPE: 'empty',
+	CHOOSE_EMPTY_SPACE: 'click_to_populate',
 	INFO_MODAL_TYPE: 'info',
 	STALL_ENTRY_MODAL_TYPE: 'stallChange',
 

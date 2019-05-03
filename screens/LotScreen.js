@@ -20,6 +20,7 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import TagModalView from '../components/TagModalView';
+import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
 
@@ -72,6 +73,8 @@ class LotView extends React.Component {
         skuCollectorVisible: false,
         stockNumberVehicleMap: {},
         extraVehicleData: {},
+        clickToPopulateStall: null,
+        clickToPopulateText: 'Populating space...'
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -153,17 +156,17 @@ class LotView extends React.Component {
       })
       .then((response) => response.json())
           .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
-            console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
+            // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            console.log('     resetting state: _loadParkingSpaceMetadata');
+            // console.log('     resetting state: _loadParkingSpaceMetadata');
             lotview.setState({
               newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
               usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
               emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
             });
 
-            console.log('\n\nNEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
-            console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
+            // console.log('\n\nNEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
+            // console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
 
           });
   }  
@@ -225,22 +228,33 @@ class LotView extends React.Component {
     this.props.navigation.navigate('Auth');
   }
 
+
+  setVisibility = (value, opt_modalType, opt_currVehicleId) => {
+    this.setModalVisibility(value, opt_modalType, opt_currVehicleId);
+  }
+
   // Modal Visibility controls
-  setModalVisibility(visibility, isEmpty = false) {
-    console.log('\n\n\n* * * *   resetting state: setModalVisibility... empty? ', isEmpty, '\n\n\n');
+  setModalVisibility(visibility, modalType = false, vehicleId = null) {
+    console.log('\n\n\n* * * *   resetting state: setModalVisibility... empty? ', modalType, '\n\n\n');
     
-    if (isEmpty) {
-      this.setState({modalVisible: visibility, modalType: GlobalVariables.EMPTY_MODAL_TYPE});
+    if (modalType) {
+      let textToShow = null
+      if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
+        textToShow = 'Choose the stall to populate...';
+        console.log('Should populate VEHICLE ', this.state.vehicleId);
+      }
+      this.setState({modalVisible: visibility, modalType: modalType, clickToPopulateText: textToShow});
     } else {
       this.setState({modalVisible: visibility, modalType: GlobalVariables.BASIC_MODAL_TYPE});
     }
   }
 
-  setVisibility = (value) => {
-    this.setModalVisibility(value);
+  setPopulateViewVisibility(visibility, modalType = false, vehicleId = null) {
+    this.setState({modalVisible: visibility, modalType: modalType, clickToPopulateText: textToShow});
   }
 
-  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null) => {
+
+  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_clickPopulateViewVisibility) => {
     // 1. Dismiss Modal & Show Loading Screen
     this.setModalVisibility(false);
 
@@ -324,21 +338,57 @@ class LotView extends React.Component {
   showAndPopulateModal = (data) => {
     let [space_id, vehicleData] = data;
     
-    if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
-      // show empty modal
-      this.setModalValues(space_id)
-      this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
+    if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
+      if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
+        // show empty modal
+        this.setModalValues(space_id)
+        this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
-    } else if (vehicleData && vehicleData['id']) {
-      let vehicle_id = vehicleData['id'];
-      let year = vehicleData['year'];
-      let make = vehicleData['make'];
-      let model = vehicleData['model'];
-      let stock_number = vehicleData['stock_number'];
+      } else if (vehicleData && vehicleData['id']) {
+        let vehicle_id = vehicleData['id'];
+        let year = vehicleData['year'];
+        let make = vehicleData['make'];
+        let model = vehicleData['model'];
+        let stock_number = vehicleData['stock_number'];
 
-      this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
-      this.setModalVisibility(true);
-    } 
+        this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
+        this.setModalVisibility(true);
+      } 
+    } else {
+      // Show Add Vehicle to highlighted space message
+      console.log('Space Data: ' , data);
+      this.populateStall(data[0]);
+    }
+  }
+
+  populateStall(space_id) {
+    if (space_id) {
+      this.setState({clickToPopulateStall: space_id, clickToPopulateText: 'Populating stall '+ space_id+'...'});
+
+      console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
+      console.log('VEHICLE ID: ', this.state.vehicleId);
+      // 2. Update Stall Number & Fetch updated lot
+      // TODO(adwoa): make this process faster. We should be 
+      // doing single space updates and listening for other 
+      // parking space change actions continuously so that this 
+      // does not require an entier lot reload
+      if (this.state.vehicleId) {
+        console.log('VEHICLE ID ENTERED: updating');
+        let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
+        
+        stallUpdatedPromise.then((result) => {
+          console.log('STALL UPDATE RESULT: ', result);
+          // 3. Re-render lot by updating state
+          this.updateSpaceVehicleMap = true;
+          return this._loadLotView();
+        }).then(() => {
+          this.updateSpaceVehicleMap = false;
+          // 1. Dismiss Modal & Show Loading Screen
+          this.setState({modalType: null}); 
+        });
+      }
+
+    }
   }
 
   dismissInput = () => {
@@ -353,7 +403,7 @@ class LotView extends React.Component {
 
     if (type == 'new_vehicle' || type == 'used_vehicle') {
       Object.keys(data).forEach((spaceId) => {
-        console.log('SPACE QUERIED: ', spaceId);
+        // console.log('SPACE QUERIED: ', spaceId);
         let vehicleData = data[spaceId];
 
         if (vehicleData) {
@@ -361,7 +411,7 @@ class LotView extends React.Component {
           snVehicleMap[vehicleData["stock_number"]] = vehicleData;
         }
       });
-      console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
+      // console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
     }
 
     this.setState({
@@ -416,8 +466,8 @@ class LotView extends React.Component {
   }
 
   _getVehicleBySKU(stock_number) {
-    console.log('Stock Number Entered: ', stock_number);
-    console.log('HITTING ENDPOINT: ', GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number);
+    // console.log('Stock Number Entered: ', stock_number);
+    // console.log('HITTING ENDPOINT: ', GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number);
     return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number , {
         method: 'GET',
         headers: {
@@ -451,9 +501,23 @@ class LotView extends React.Component {
     return GlobalVariables.EMPTY_GEOJSON
   }
 
+  maybeRenderSearchButton() {
+    if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
+      return (
+        <TouchableOpacity
+          style={styles.floatingActionButton}
+          onPress={this.setSKUCollectorVisibility}>
+          <Image
+            source={require('../assets/images/search-solid.png')}
+            style={styles.searchIconSizing}/>
+        </TouchableOpacity>
+        )
+    }
+  }
+
   maybeRenderTextInput() {
     if (this.state.skuCollectorVisible) {
-      console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
+      // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
       return (
         <KeyboardAvoidingView behavior="padding" 
           style={{
@@ -550,20 +614,17 @@ class LotView extends React.Component {
   }
 
   _renderFeedbackView() {
-    console.log('\n\n\n\nModal Type: ', this.state.modalType);
-    if (this.state.modalType == GlobalVariables.EMPTY_MODAL_TYPE) {
+    // console.log('\n\n\n\nModal Type: ', this.state.modalType);
+    if (this.state.modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
       console.log('Render Populate Space View');
       return (
-        <Modal
-          animationType='fade'
-          transparent={true}
-          visible={this.state.modalVisible}>
-   
-          <ActionFeedbackView
-            navigation={this.props.navigation}
-            setModalVisibility={this.setVisibility}
-            updateLotAndDismissModal={this.updateLotAndDismissModal} />
-        </Modal>
+        <ClickToPopulateViewHandler
+          navigation={this.props.navigation}
+          setModalVisibility={this.setVisibility}
+          updateLotAndDismissModal={this.updateLotAndDismissOnClickPopulateView}
+          clickToPopulateVehicleId={this.state.vehicleId}
+          clickToPopulateStall={this.state.clickToPopulateStall}
+          clickToPopulateText={this.state.clickToPopulateText} />
         )
     }
   }
@@ -572,6 +633,7 @@ class LotView extends React.Component {
     console.log('+ + + Render Lot Screen');
       // <View style={styles.container}>
       // not position
+
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
         <StatusBar
@@ -638,15 +700,11 @@ class LotView extends React.Component {
 
         </Mapbox.MapView>
 
-        <TouchableOpacity
-          style={styles.floatingActionButton}
-          onPress={this.setSKUCollectorVisibility}>
-          <Image
-            source={require('../assets/images/search-solid.png')}
-            style={styles.searchIconSizing}/>
-        </TouchableOpacity>
+        {this.maybeRenderSearchButton()}
 
         {this.maybeRenderTextInput()}
+
+        {this._renderFeedbackView()}
 
       </KeyboardAvoidingView>
 
