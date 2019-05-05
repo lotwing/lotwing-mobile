@@ -25,7 +25,5 @@ export default {
 	COMPLETE_TIMED_TAG_EVENT: '/api/events/' // add event id to the end of this
 	// Body {
 	// 	acknowledged: true/false
-	// 	event_details: "" }
-
-	
+	// 	event_details: "" }	
 }
