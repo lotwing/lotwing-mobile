@@ -19,6 +19,7 @@ import {
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
+import BuildingLayer from '../components/BuildingLayer';
 import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
@@ -493,12 +494,15 @@ class LotView extends React.Component {
     return GlobalVariables.EMPTY_GEOJSON
   }
 
+
   getBuildings() {
-    console.log('     resetting state: getBuildings');
+    let buildingMap = {};
     if (this.state.lotShapes){
-      return this.state.lotShapes['buildings'][0]["geo_info"]
+      this.state.lotShapes['buildings'].forEach((shape) => {
+        buildingMap[shape["id"]] = shape;
+      });
     }
-    return GlobalVariables.EMPTY_GEOJSON
+    return buildingMap
   }
 
   maybeRenderSearchButton() {
@@ -657,13 +661,9 @@ class LotView extends React.Component {
               style={lotLayerStyles.parking_lot} />
           </Mapbox.ShapeSource>
 
-          <Mapbox.ShapeSource
-            id ='buildings'
-            shape={this.getBuildings()}>
-            <Mapbox.FillLayer
-              id ='fill_buildings_lot'
-              style={lotLayerStyles.buildings} />
-          </Mapbox.ShapeSource>
+          <BuildingLayer
+            buildingShapes={this.getBuildings()}>
+          </BuildingLayer>
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
