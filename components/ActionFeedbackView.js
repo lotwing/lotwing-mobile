@@ -36,12 +36,12 @@ export default class ActionFeedbackView extends React.Component {
 
   render() {
     return (
-      <View
+      <TouchableOpacity
         style={styles.stallPopulationPrompt}>
         <Text
           style={styles.stallPopulationPromptText}>
           Choose the stall to populate... </Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 }
