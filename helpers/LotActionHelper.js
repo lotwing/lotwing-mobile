@@ -2,6 +2,9 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
 export default {
+  /*
+   * Tag Actions
+   */
   structureTagPayload: function(type, props, event_details) {
     // expects a valid type: tag, change_stall, note, test_drive, fuel_vehicle, odometer_update, photo_update, mark_sold, write_up
     let body = {
@@ -81,8 +84,37 @@ export default {
     })
   },
 
+  /*
+   * Navigation Action
+   */
   backAction: function(navigation) {
     navigation.goBack();
+  },
+
+  /*
+   * Mapbox Shape Formation Actions
+   */
+  createPolygonsFromObject: function(polygonObject) {
+    return Object.keys(polygonObject)
+        .map((ps_id) => this._createNewPolygon(polygonObject[ps_id]["geo_info"]["geometry"]["coordinates"], ps_id));
+  },
+   _createNewPolygon: function(coordinates, id) {
+    let empty_polygon_geojson = {
+      "id": id,
+      "type": "Feature",
+      "geometry": {
+          "type": "Polygon",
+          "coordinates": coordinates
+        }
+    };
+    return empty_polygon_geojson
+  },
+
+  createFeatureCollection: function(list_of_features) {
+    return ({
+      "type": "FeatureCollection",
+      "features": list_of_features
+    })
   },
 
 }
