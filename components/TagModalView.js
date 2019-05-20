@@ -120,9 +120,7 @@ export default class TagModalView extends React.Component {
           style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
-            {this.props.extraVehicleData.color} {this.props.year} </Text>
-          <Text style={styles.subtitle}>
-            Stall {this.props.spaceId}</Text>
+            {this.props.model} {this.props.extraVehicleData.color} </Text>
           <View
             style={styles.tagButtonContainer}>
 
@@ -177,8 +175,6 @@ export default class TagModalView extends React.Component {
 
           <Text style={styles.header}>
             {this.props.year} {this.props.make} {this.props.model}</Text>
-          <Text style={styles.subtitle}>
-            Stall {this.props.spaceId}</Text>
           <View
             style={{visible: this.state.modalContent}}>
 
@@ -211,8 +207,6 @@ export default class TagModalView extends React.Component {
 
           <Text style={styles.header}>
             {this.props.year} {this.props.make} {this.props.model}</Text>
-          <Text style={styles.subtitle}>
-            Stall {this.props.spaceId}</Text>
           <View
             style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
             <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
@@ -236,8 +230,6 @@ export default class TagModalView extends React.Component {
           style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
           <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
             Populate Empty Space</Text>
-          <Text style={styles.subtitle}>
-            Stall {this.props.spaceId}</Text>
           <TextInput
             autoCapitalize='characters'
             multiline={false}
@@ -275,7 +267,7 @@ export default class TagModalView extends React.Component {
           <View
             style={styles.tagModalStallBar}>
             <Text style={styles.stallHeader}> SKU {this.props.stockNumber ? this.props.stockNumber : '   - -'} </Text>
-            <Text style={styles.stallHeader}>{isBasicModal ? {this.props.extraVehicleData.is_used ? 'Used' : 'New'} {this.props.make} {this.props.model} : {}}</Text>
+            <Text style={styles.stallHeader}>{isBasicModal ? {this.props.extraVehicleData.is_used ? 'Used' : 'New'} {this.props.year} {this.props.make} : {}}</Text>
           </View>
 
           {this._renderAltActionView()}
