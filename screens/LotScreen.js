@@ -324,7 +324,20 @@ class LotView extends React.Component {
       });
   }
 
-  setModalValues(space_id, stock_number = 0, vehicle_id = 0, year = 0, make = 0, model = 0, extra = 0) {
+  setModalValues(modal_type, space_id, stock_number = 0, vehicle_id = 0, year = 0, make = 0, model = 0, extra = 0) {
+    // IF stall is empty only space_id needed
+    if (modal_type == GlobalVariables.EMPTY_MODAL_TYPE) {
+      if (!space_id) {
+        throw Error('No space id was passed to display the empty tag modal');
+      }
+    }
+    // IF stall is populated pass all data barring extra which is optional
+    else {
+      if (extra == 0) {
+        throw Error('The proper data wasn\'t delivered to display the modal');
+      }
+    }
+
     this.setState({
       year: year,
       make: make,
@@ -342,7 +355,7 @@ class LotView extends React.Component {
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
         // show empty modal
-        this.setModalValues(space_id)
+        this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
       } else if (vehicleData && vehicleData['id']) {
