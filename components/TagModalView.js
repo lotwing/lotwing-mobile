@@ -111,13 +111,16 @@ export default class TagModalView extends React.Component {
   }
 
   _renderAltActionView() { // either stallChange, info, or base
+    // car features that can be displayed
+    // spaceId, make, model, year, color, sku
+
     if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
       return (
         <View
           style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
-            {this.props.year} {this.props.make} {this.props.model}</Text>
+            {this.props.extraVehicleData.color} {this.props.year} </Text>
           <Text style={styles.subtitle}>
             Stall {this.props.spaceId}</Text>
           <View
@@ -251,6 +254,8 @@ export default class TagModalView extends React.Component {
   }
 
   render() {
+    let isBasicModal = this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE;
+
   	return (
       <KeyboardAvoidingView
         style={styles.tagModalOverlay} behavior="padding" enabled>
@@ -269,7 +274,8 @@ export default class TagModalView extends React.Component {
           
           <View
             style={styles.tagModalStallBar}>
-            <Text style={styles.stallHeader}>SKU {this.props.stockNumber ? this.props.stockNumber : '   - -'}</Text>
+            <Text style={styles.stallHeader}> SKU {this.props.stockNumber ? this.props.stockNumber : '   - -'} </Text>
+            <Text style={styles.stallHeader}>{isBasicModal ? {this.props.extraVehicleData.is_used ? 'Used' : 'New'} {this.props.make} {this.props.model} : {}}</Text>
           </View>
 
           {this._renderAltActionView()}
@@ -339,8 +345,8 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
   },
   tagModalStallBar: {
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    flexDirection: 'row',
+    justifyContent: 'stretch',
     alignItems: 'flex-end',
     width: '100%',
     height: 49,
