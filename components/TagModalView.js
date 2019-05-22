@@ -225,6 +225,7 @@ export default class TagModalView extends React.Component {
         </View>
       )
     } else if (this.state.modalContent == GlobalVariables.EMPTY_MODAL_TYPE) {
+      //TODO(adwoa): EMPTY_MODAL_TYPE add feedback here
       return (
         <View
           style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
