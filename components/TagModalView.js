@@ -120,7 +120,7 @@ export default class TagModalView extends React.Component {
           style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
-            {this.props.model} {this.props.extraVehicleData.color} </Text>
+            {this.props.model}, {this.props.extraVehicleData.color} </Text>
           <View
             style={styles.tagButtonContainer}>
 
