@@ -558,19 +558,19 @@ class LotView extends React.Component {
               style={styles.floatingTextInputArea}>
               <Text
                 style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
-                SKU Number</Text>
+                Stock Number</Text>
               <TextInput
                 autoCapitalize='characters'
                 multiline={false}
                 returnKeyType='search'
-                style={styles.floatingTextInput}
+                style={[styles.floatingTextInput, {color: 'rgba(0, 0, 0, 0.75)'}]}
                 onChangeText={(sku) => {this.skuEntered = sku}}
                 onSubmitEditing={(event) => this.locateVehicleBySKU()}
                 autoFocus={true}/>
 
               <Text
-                style={[textStyles.actionSummaryText, {color: '#BE1E2D'}]}>
-                {this.state.skuSearchFailed ? 'Vehicle not found. Try another stock number.' : ''}</Text>
+                style={[textStyles.actionSummaryText, {color: '#BE1E2D', fontSize: 10, marginLeft: 10, paddingBottom: 5}]}>
+                {this.state.skuSearchFailed ? 'Vehicle not found. Please try another stock number.' : ''}</Text>
 
               <View
                 style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
