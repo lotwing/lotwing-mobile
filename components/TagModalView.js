@@ -247,8 +247,11 @@ export default class TagModalView extends React.Component {
 
   render() {
     let isBasicModal = this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE;
-
-  	return (
+    
+    let vehicleUsageType = this.props.extraVehicleData.is_used ? 'Used' : 'New';
+    let modalTitle = isBasicModal ? vehicleUsageType + ' ' + this.props.year + ' ' + this.props.make : ' ';
+  	
+    return (
       <KeyboardAvoidingView
         style={styles.tagModalOverlay} behavior="padding" enabled>
 
@@ -266,8 +269,8 @@ export default class TagModalView extends React.Component {
           
           <View
             style={styles.tagModalStallBar}>
-            <Text style={styles.stallHeader}> SKU {this.props.stockNumber ? this.props.stockNumber : '   - -'} </Text>
-            <Text style={styles.stallHeader}>{isBasicModal ? {this.props.extraVehicleData.is_used ? 'Used' : 'New'} {this.props.year} {this.props.make} : {}}</Text>
+            <Text style={styles.stallHeader}> {this.props.stockNumber ? this.props.stockNumber : '   - -'} </Text>
+            <Text style={styles.stallHeader}>{modalTitle}</Text>
           </View>
 
           {this._renderAltActionView()}
@@ -304,9 +307,10 @@ class ButtonWithImageAndLabel extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    fontSize: 20,
-    fontWeight: '300',
-    color: 'white',
+    fontSize: 18,
+    fontWeight: '100',
+    color: '#E6E4E0',
+    paddingBottom: 5,
   },
   subtitle: {
     fontSize: 13,
@@ -314,10 +318,11 @@ const styles = StyleSheet.create({
     color: '#E6E4E0',
   },
   stallHeader: {
-    fontSize: 19,
-    fontWeight: '100',
-    color: '#E6E4E0',
-    borderTopWidth: 5,
+    fontSize: 20,
+    fontWeight: '300',
+    color: 'white',
+    borderTopWidth: 4,
+    borderBottomWidth: 3,
   },
   tagModalOverlay: {
     height: '100%',
@@ -338,7 +343,7 @@ const styles = StyleSheet.create({
   },
   tagModalStallBar: {
     flexDirection: 'row',
-    justifyContent: 'stretch',
+    justifyContent: 'space-between',
     alignItems: 'flex-end',
     width: '100%',
     height: 49,
@@ -349,6 +354,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 10,
     borderRightColor: '#828282',
     backgroundColor: '#828282',
+    paddingLeft: 5,
   },
   tagModalMainBody: {
     flexDirection: 'column',

@@ -355,23 +355,25 @@ class LotView extends React.Component {
     
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
+        console.log('\n\nEmpty Modal');
         // show empty modal
         this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
       } else if (vehicleData && vehicleData['id']) {
+        console.log('\n\nS&P non empty. extra: \n', vehicleData['id']);
         let vehicle_id = vehicleData['id'];
         let year = vehicleData['year'];
         let make = vehicleData['make'];
         let model = vehicleData['model'];
         let stock_number = vehicleData['stock_number'];
 
-        this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
+        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, stock_number, vehicle_id, year, make, model, vehicleData);
         this.setModalVisibility(true);
       } 
     } else {
       // Show Add Vehicle to highlighted space message
-      console.log('Space Data: ' , data);
+      console.log('\n\nSpace Data: ' , data);
       this.populateStall(data[0]);
     }
   }
