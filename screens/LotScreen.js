@@ -72,6 +72,7 @@ class LotView extends React.Component {
         model: 'Versa',
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
+        skuSearchFailed: false,
         stockNumberVehicleMap: {},
         extraVehicleData: {},
         clickToPopulateStall: null,
@@ -354,23 +355,25 @@ class LotView extends React.Component {
     
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
+        console.log('\n\nEmpty Modal');
         // show empty modal
         this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
       } else if (vehicleData && vehicleData['id']) {
+        console.log('\n\nS&P non empty. extra: \n', vehicleData['id']);
         let vehicle_id = vehicleData['id'];
         let year = vehicleData['year'];
         let make = vehicleData['make'];
         let model = vehicleData['model'];
         let stock_number = vehicleData['stock_number'];
 
-        this.setModalValues(space_id, stock_number, vehicle_id, year, make, model, vehicleData);
+        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, stock_number, vehicle_id, year, make, model, vehicleData);
         this.setModalVisibility(true);
       } 
     } else {
       // Show Add Vehicle to highlighted space message
-      console.log('Space Data: ' , data);
+      console.log('\n\nSpace Data: ' , data);
       this.populateStall(data[0]);
     }
   }
@@ -436,8 +439,10 @@ class LotView extends React.Component {
   // SKU Collector Visibility controls
   setSKUCollectorVisibility() {
     let visibile = !this.state.skuCollectorVisible;
-    this.setState(
-      {skuCollectorVisible: visibile});
+    this.setState({
+      skuCollectorVisible: visibile,
+      skuSearchFailed: false,
+    });
   }
 
   getSKUFromInput() {
@@ -458,22 +463,19 @@ class LotView extends React.Component {
       let space_id = vehicleData['shape_id'].toString();
       this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
-    } else { // vehicle not on map
-      console.log('Vehicle not on map. Checking server...');
+    } else { 
+      console.log('Vehicle not currently on the map. Checking server...');
       let vehiclePromise = this._getVehicleBySKU(sku);
 
       vehiclePromise.then((vehicleData) => {
         if (vehicleData) {
-
           this.dismissInput();
           this.showAndPopulateModal(['  - -', vehicleData]);
         } else {
-
-          // TODO(adwoa): Display message: no vehicle with that sku number
-          // SimpleToast.show(
-          //   'SKU not in system',
-          //   SimpleToast.SHORT,);
-          console.log('NO DATA');
+          // Display sku location failure text within search modal
+          this.setState({
+            skuSearchFailed: true,
+          });
         }
       });
     }
@@ -566,6 +568,10 @@ class LotView extends React.Component {
                 onSubmitEditing={(event) => this.locateVehicleBySKU()}
                 autoFocus={true}/>
 
+              <Text
+                style={[textStyles.actionSummaryText, {color: '#BE1E2D'}]}>
+                {this.state.skuSearchFailed ? 'Vehicle not found. Try another stock number.' : ''}</Text>
+
               <View
                 style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
 
@@ -630,7 +636,7 @@ class LotView extends React.Component {
       )
   }
 
-  _renderFeedbackView() {
+  maybeRenderPopulateOnClick() {
     // console.log('\n\n\n\nModal Type: ', this.state.modalType);
     if (this.state.modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
       console.log('Render Populate Space View');
@@ -714,10 +720,8 @@ class LotView extends React.Component {
         </Mapbox.MapView>
 
         {this.maybeRenderSearchButton()}
-
         {this.maybeRenderTextInput()}
-
-        {this._renderFeedbackView()}
+        {this.maybeRenderPopulateOnClick()}
 
       </KeyboardAvoidingView>
 
