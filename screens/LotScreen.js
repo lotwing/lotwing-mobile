@@ -265,6 +265,8 @@ class LotView extends React.Component {
     // doing single space updates and listening for other 
     // parking space change actions continuously so that this 
     // does not require an entier lot reload
+    
+    // TODO(adwoa): add the feedback that we're looking for on empty stall vehicle population via empty stall click
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
