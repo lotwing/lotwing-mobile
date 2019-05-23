@@ -470,7 +470,7 @@ class LotView extends React.Component {
       vehiclePromise.then((vehicleData) => {
         if (vehicleData) {
           this.dismissInput();
-          this.showAndPopulateModal(['  - -', vehicleData]);
+          this.showAndPopulateModal([false, vehicleData]);
         } else {
           // Display sku location failure text within search modal
           this.setState({
@@ -493,7 +493,7 @@ class LotView extends React.Component {
       })
       .then((response) => response.json())
           .then((responseJson) => {
-            console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+            console.log('VEHICLE PULLED FROM STORE: ', responseJson['vin']);
             return responseJson
           })
           .catch(err => {

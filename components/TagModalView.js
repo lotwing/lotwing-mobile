@@ -115,12 +115,14 @@ export default class TagModalView extends React.Component {
     // spaceId, make, model, year, color, sku
 
     if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
+      let vehicleColor = this.props.extraVehicleData.color ? this.props.extraVehicleData.color : '- -';
+      
       return (
         <View
           style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
-            {this.props.model}, {this.props.extraVehicleData.color} </Text>
+            {this.props.model}, {vehicleColor} </Text>
           <View
             style={styles.tagButtonContainer}>
 
@@ -248,9 +250,10 @@ export default class TagModalView extends React.Component {
 
   render() {
     let isBasicModal = this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE;
-    
+    let isOnMap = this.props.spaceId;
+
     let vehicleUsageType = this.props.extraVehicleData.is_used ? 'Used' : 'New';
-    let modalTitle = isBasicModal ? vehicleUsageType + ' ' + this.props.year + ' ' + this.props.make : ' ';
+    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + this.props.year + ' ' + this.props.make : 'Not in Stall' : ' ';
   	
     return (
       <KeyboardAvoidingView
