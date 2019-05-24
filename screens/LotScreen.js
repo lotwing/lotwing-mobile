@@ -244,7 +244,7 @@ class LotView extends React.Component {
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
         textToShow = 'Choose the stall to populate...';
         console.log('Should populate VEHICLE ', this.state.vehicleId);
-      } else if (modalType == GlobalVariables.BASIC_MODAL_TYPE && visibility == false && opt_basic_modal_action_fb_msg) {
+      } else if (modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE && visibility == false && opt_basic_modal_action_fb_msg) {
         textToShow = opt_basic_modal_action_fb_msg;
       }
       this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
@@ -259,16 +259,14 @@ class LotView extends React.Component {
 
 
   updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
-    // 1. Dismiss Modal & Show Loading Screen
-    this.setModalVisibility(false, GlobalVariables.BASIC_MODAL_TYPE, null, opt_feedbackMsg);
+    // 1. Dismiss Modal & Show Loading Feedback
+    this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, opt_feedbackMsg);
 
-    // 2. Update Stall Number & Fetch updated lot
+    // 2. Update Stall Number & Fetch Updated Lot
     // TODO(adwoa): make this process faster. We should be 
     // doing single space updates and listening for other 
     // parking space change actions continuously so that this 
-    // does not require an entier lot reload
-    
-    // TODO(adwoa): add the feedback that we're looking for on empty stall vehicle population via empty stall click
+    // does not require an entire lot reload
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
@@ -278,7 +276,10 @@ class LotView extends React.Component {
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
-      }).then(() => {this.updateSpaceVehicleMap = false;});
+      }).then(() => {
+        this.updateSpaceVehicleMap = false;
+        this.setState({modalType: null});
+      });
 
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
@@ -291,7 +292,10 @@ class LotView extends React.Component {
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
-      }).then(() => {this.updateSpaceVehicleMap = false;});
+      }).then(() => {
+        this.updateSpaceVehicleMap = false;
+        this.setState({modalType: null});
+      });
     }
 
   }
@@ -349,6 +353,7 @@ class LotView extends React.Component {
       model: model,
       spaceId: space_id,
       vehicleId: vehicle_id,
+      modalType: modal_type,
       stockNumber: stock_number,
       extraVehicleData: extra,
     });
@@ -405,7 +410,7 @@ class LotView extends React.Component {
         }).then(() => {
           this.updateSpaceVehicleMap = false;
           // 1. Dismiss Modal & Show Loading Screen
-          this.setState({modalType: null}); 
+          this.setState({modalType: null});
         });
       }
 
@@ -657,7 +662,7 @@ class LotView extends React.Component {
   }
 
   maybeRenderActionFeedbackView() {
-    if (this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE && this.state.modalVisible == false) {
+    if (this.state.modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE && this.state.modalVisible == false) {
       return (
         <ActionFeedbackView
           feedbackText={this.state.feedbackText} />

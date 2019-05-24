@@ -15,7 +15,8 @@ export default {
 	EMPTY_MODAL_TYPE: 'empty',
 	CHOOSE_EMPTY_SPACE: 'click_to_populate',
 	INFO_MODAL_TYPE: 'info',
-	STALL_ENTRY_MODAL_TYPE: 'stallChange',
+	STALL_ENTRY_MODAL_TYPE: 'stall_change',
+	ACTION_FEEDBACK_MODAL_TYPE: 'action_feedback',
 
 	// VEHICLE ACTIONS
 
