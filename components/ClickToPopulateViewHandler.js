@@ -33,8 +33,8 @@ export default class ClickToPopulateViewHandler extends React.Component {
   constructor(props) {
     super(props);
 
-    if (!this.props.clickToPopulateText) this.props.clickToPopulateText = 'Choose the stall to populate...';
-    console.log('TEXT to display: ', this.props.clickToPopulateText);
+    if (!this.props.feedbackText) this.props.feedbackText = 'Choose the stall to populate...';
+    console.log('TEXT to display: ', this.props.feedbackText);
   }
 
   render() {
@@ -43,7 +43,7 @@ export default class ClickToPopulateViewHandler extends React.Component {
         style={styles.stallPopulationPrompt}>
         <Text
           style={styles.stallPopulationPromptText}>
-          {this.props.clickToPopulateText} </Text>
+          {this.props.feedbackText} </Text>
       </TouchableOpacity>
     );
   }

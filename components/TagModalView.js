@@ -240,7 +240,7 @@ export default class TagModalView extends React.Component {
             placeholder='Stock Number'
             placeholderTextColor='rgba(237, 235, 232, 0.5)'
             onChangeText={(stockNumber) => {this.newStockNumber = stockNumber}}
-            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text)}
+            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text, 'Attempting to Populate Empty Space...')}
             returnKeyType='send'
             autoFocus={true}/>
         </View>

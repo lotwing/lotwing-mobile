@@ -40,7 +40,7 @@ export default class ActionFeedbackView extends React.Component {
         style={styles.stallPopulationPrompt}>
         <Text
           style={styles.stallPopulationPromptText}>
-          Choose the stall to populate... </Text>
+          {this.props.feedbackText} </Text>
       </TouchableOpacity>
     );
   }

@@ -76,7 +76,7 @@ class LotView extends React.Component {
         stockNumberVehicleMap: {},
         extraVehicleData: {},
         clickToPopulateStall: null,
-        clickToPopulateText: 'Populating space...'
+        feedbackText: 'Populating space...'
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -236,7 +236,7 @@ class LotView extends React.Component {
   }
 
   // Modal Visibility controls
-  setModalVisibility(visibility, modalType = false, vehicleId = null) {
+  setModalVisibility(visibility, modalType = false, vehicleId = null, opt_basic_modal_action_fb_msg = null) {
     console.log('\n\n\n* * * *   resetting state: setModalVisibility... empty? ', modalType, '\n\n\n');
     
     if (modalType) {
@@ -244,21 +244,23 @@ class LotView extends React.Component {
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
         textToShow = 'Choose the stall to populate...';
         console.log('Should populate VEHICLE ', this.state.vehicleId);
+      } else if (modalType == GlobalVariables.BASIC_MODAL_TYPE && visibility == false && opt_basic_modal_action_fb_msg) {
+        textToShow = opt_basic_modal_action_fb_msg;
       }
-      this.setState({modalVisible: visibility, modalType: modalType, clickToPopulateText: textToShow});
+      this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
     } else {
       this.setState({modalVisible: visibility, modalType: GlobalVariables.BASIC_MODAL_TYPE});
     }
   }
 
   setPopulateViewVisibility(visibility, modalType = false, vehicleId = null) {
-    this.setState({modalVisible: visibility, modalType: modalType, clickToPopulateText: textToShow});
+    this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
   }
 
 
-  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_clickPopulateViewVisibility) => {
+  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
     // 1. Dismiss Modal & Show Loading Screen
-    this.setModalVisibility(false);
+    this.setModalVisibility(false, GlobalVariables.BASIC_MODAL_TYPE, null, opt_feedbackMsg);
 
     // 2. Update Stall Number & Fetch updated lot
     // TODO(adwoa): make this process faster. We should be 
@@ -382,7 +384,7 @@ class LotView extends React.Component {
 
   populateStall(space_id) {
     if (space_id) {
-      this.setState({clickToPopulateStall: space_id, clickToPopulateText: 'Populating stall '+ space_id+'...'});
+      this.setState({clickToPopulateStall: space_id, feedbackText: 'Populating stall '+ space_id+'...'});
 
       console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
       console.log('VEHICLE ID: ', this.state.vehicleId);
@@ -649,8 +651,17 @@ class LotView extends React.Component {
           updateLotAndDismissModal={this.updateLotAndDismissOnClickPopulateView}
           clickToPopulateVehicleId={this.state.vehicleId}
           clickToPopulateStall={this.state.clickToPopulateStall}
-          clickToPopulateText={this.state.clickToPopulateText} />
+          feedbackText={this.state.feedbackText} />
         )
+    }
+  }
+
+  maybeRenderActionFeedbackView() {
+    if (this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE && this.state.modalVisible == false) {
+      return (
+        <ActionFeedbackView
+          feedbackText={this.state.feedbackText} />
+      )
     }
   }
 
@@ -724,6 +735,7 @@ class LotView extends React.Component {
         {this.maybeRenderSearchButton()}
         {this.maybeRenderTextInput()}
         {this.maybeRenderPopulateOnClick()}
+        {this.maybeRenderActionFeedbackView()}
 
       </KeyboardAvoidingView>
 
