@@ -17,7 +17,7 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
  * Lot shapes include:
  * parking_lots, buildings, parking_spaces
  */
-export default class VehicleSpaceLayer extends React.Component {
+export default class VehicleSpaceLayer extends React.PureComponent {
   
   constructor(props) {
       super(props);
@@ -102,15 +102,18 @@ export default class VehicleSpaceLayer extends React.Component {
    * @param e : object returned from the system's onPress handler
    */
   onSourceLayerPress(e) {
-    const space_id = e.nativeEvent.payload['id'];
+    let payload = e.nativeEvent.payload;
+    const space_id = payload['id'];
+
+    console.log('\n\nSource layer pressed');
 
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
       console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
       let vehicle_data = this.state.spaceVehicleMap[space_id];
-      this.props.showAndPopulateModal([space_id, vehicle_data]);
+      this.props.showAndPopulateModal([space_id, vehicle_data], payload);
     } else {
-      this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE]);
+      this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE], payload);
     }
 
   }

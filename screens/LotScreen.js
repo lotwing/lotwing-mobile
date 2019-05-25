@@ -19,6 +19,7 @@ import {
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
+import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
 import BuildingLayer from '../components/BuildingLayer';
 import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
@@ -76,6 +77,7 @@ class LotView extends React.Component {
         stockNumberVehicleMap: {},
         extraVehicleData: {},
         clickToPopulateStall: null,
+        clickedStall: null,
         feedbackText: 'Populating space...'
       }
 
@@ -89,6 +91,7 @@ class LotView extends React.Component {
       });
 
       this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
+      this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
       this.dismissInput = this.dismissInput.bind(this);
       this.locateVehicleBySKU = this.locateVehicleBySKU.bind(this);
       this.skuEntered = 0;
@@ -237,8 +240,9 @@ class LotView extends React.Component {
 
   // Modal Visibility controls
   setModalVisibility(visibility, modalType = false, vehicleId = null, opt_basic_modal_action_fb_msg = null) {
-    console.log('\n\n\n* * * *   resetting state: setModalVisibility... empty? ', modalType, '\n\n\n');
-    
+    // let clickedStallValue = visibility ? this.state.clickedStall : null;
+    // console.log('\n* * * *   show clicked stall? ', clickedStallValue, '\n\n\n');
+
     if (modalType) {
       let textToShow = null
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
@@ -259,10 +263,13 @@ class LotView extends React.Component {
 
 
   updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
-    // 1. Dismiss Modal & Show Loading Feedback
+    // 1. Remove Vehicle  Highlight
+    this.setVehicleHighlight(null);
+
+    // 2. Dismiss Modal & Show Loading Feedback
     this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, opt_feedbackMsg);
 
-    // 2. Update Stall Number & Fetch Updated Lot
+    // 3. Update Stall Number & Fetch Updated Lot
     // TODO(adwoa): make this process faster. We should be 
     // doing single space updates and listening for other 
     // parking space change actions continuously so that this 
@@ -359,9 +366,22 @@ class LotView extends React.Component {
     });
   }
 
-  showAndPopulateModal = (data) => {
+  setVehicleHighlight(polygonClicked) {
+    this.setState({clickedStall: polygonClicked});
+  }
+
+  showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
+
+    // Highlight selected stall
+    // 1. Pass polygon clicked or searched for here in order to highlight
+    if (polygonClicked) {
+      this.setVehicleHighlight(polygonClicked);
+    } else {
+      this.setVehicleHighlight(null);
+    }
     
+    // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
         console.log('\n\nEmpty Modal');
@@ -370,7 +390,7 @@ class LotView extends React.Component {
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
       } else if (vehicleData && vehicleData['id']) {
-        console.log('\n\nS&P non empty. extra: \n', vehicleData['id']);
+        console.log('Extra data not empty: ', vehicleData['id']);
         let vehicle_id = vehicleData['id'];
         let year = vehicleData['year'];
         let make = vehicleData['make'];
@@ -511,7 +531,6 @@ class LotView extends React.Component {
   }
 
   getLot() {
-    console.log('     resetting state: getLot');
     if (this.state.lotShapes) {
       return this.state.lotShapes['parking_lots'][0]["geo_info"]
     }
@@ -612,14 +631,12 @@ class LotView extends React.Component {
         </KeyboardAvoidingView>
       );
     } else {
-      console.log('NOT RENDERING TEXT INPUT');
       return
     }
   }
 
   _renderTagModal() {
-    console.log('\n\n\n\nModal Type: ', this.state.modalType);
-    console.log('Render Tag Modal View');
+    console.log('Render Tag Modal View: ', this.state.modalType);
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
       <Modal
@@ -640,7 +657,8 @@ class LotView extends React.Component {
           modalStyling={styles.tagModalStyles}
           navigation={this.props.navigation}
           setModalVisibility={this.setVisibility}
-          updateLotAndDismissModal={this.updateLotAndDismissModal} />
+          updateLotAndDismissModal={this.updateLotAndDismissModal}
+          setVehicleHighlight={this.setVehicleHighlight} />
       </Modal>
       )
   }
@@ -671,7 +689,7 @@ class LotView extends React.Component {
   }
 
   render() {
-    console.log('+ + + Render Lot Screen');
+    console.log('\n\n\n+ + + Render Lot Screen + + +');
       // <View style={styles.container}>
       // not position
 
@@ -735,10 +753,14 @@ class LotView extends React.Component {
             type='used_vehicle'>
           </VehicleSpaceLayer>
 
+          <VehicleHighlightLayer
+            clickedStallPolygon={this.state.clickedStall}>
+          </VehicleHighlightLayer>
         </Mapbox.MapView>
 
         {this.maybeRenderSearchButton()}
         {this.maybeRenderTextInput()}
+
         {this.maybeRenderPopulateOnClick()}
         {this.maybeRenderActionFeedbackView()}
 
@@ -832,3 +854,36 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
 });
 
 const debug_location = [37.353285, -122.0079];
+
+const debug_highlight_polygon = {
+  "geometry": {
+    "coordinates":  [
+       [
+         [
+          -122.00724072754383,
+          37.35288456190844,
+        ],
+         [
+          -122.00723871588707,
+          37.352924805756714,
+        ],
+         [
+          -122.00721139088273,
+          37.352924805756714,
+        ],
+         [
+          -122.0072128996253,
+          37.35288456190844,
+        ],
+         [
+          -122.00724072754383,
+          37.35288456190844,
+        ],
+      ],
+    ],
+    "type": "Polygon",
+  },
+  "id": "130",
+  "properties": {},
+  "type": "Feature",
+}

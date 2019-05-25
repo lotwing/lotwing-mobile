@@ -44,6 +44,7 @@ export default class TagModalView extends React.Component {
   }
 
   dismissModal() {
+    this.props.setVehicleHighlight(null);
     this.props.setModalVisibility(false);
   }
 

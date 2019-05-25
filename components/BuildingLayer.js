@@ -13,7 +13,7 @@ import LotActionHelper from '../helpers/LotActionHelper';
  * Lot shapes include:
  * parking_lots, buildings, parking_spaces
  */
-export default class BuildingLayer extends React.Component {
+export default class BuildingLayer extends React.PureComponent {
   
   constructor(props) {
       super(props);
@@ -53,7 +53,6 @@ export default class BuildingLayer extends React.Component {
   }
 
   render() {
-  	console.log('RENDER CALLED');
   	return (
   		<View>
   			{this.renderBuildings()}
