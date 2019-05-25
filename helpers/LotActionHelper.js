@@ -98,7 +98,8 @@ export default {
     return Object.keys(polygonObject)
         .map((ps_id) => this._createNewPolygon(polygonObject[ps_id]["geo_info"]["geometry"]["coordinates"], ps_id));
   },
-   _createNewPolygon: function(coordinates, id) {
+  
+  _createNewPolygon: function(coordinates, id) {
     let empty_polygon_geojson = {
       "id": id,
       "type": "Feature",
