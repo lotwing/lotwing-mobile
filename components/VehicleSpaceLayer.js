@@ -18,7 +18,7 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
  * parking_lots, buildings, parking_spaces
  */
 export default class VehicleSpaceLayer extends React.PureComponent {
-  
+
   constructor(props) {
       super(props);
 
@@ -42,7 +42,8 @@ export default class VehicleSpaceLayer extends React.PureComponent {
     var vehicleSpaceLayer = this;
     console.log('ATTEMPTING lot vehicle reload ____', this.props.updateSpaceVehicleMap);
 
-    if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length == 0 || this.props.updateSpaceVehicleMap) { // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
+    if (Object.keys(vehicleSpaceLayer.state.spaceVehicleMap).length === 0 || this.props.updateSpaceVehicleMap) {
+      // NOTE: Check here to stop refetch. We have to see if this check works works when a car's state is updated
       let spaceVehicleMapObject = {};
       console.log('- - - LOADING lot vehicle data');
 
@@ -121,7 +122,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
   getAllParkingSpaceCoordinatesObject() {
     if (this.props.spaces.length > 0) {
       let coordinatesObject = {};
-      
+
       this.props.spaces.forEach((id) => {
         coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
       });
@@ -138,7 +139,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
       let polygons = Object.keys(ps_coord_obj)
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
-      
+
       let featureCollection = this._createFeatureCollection(polygons);
 
       return (

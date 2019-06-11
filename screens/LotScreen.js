@@ -51,7 +51,7 @@ export default class LotScreen extends React.Component {
 }
 
 class LotView extends React.Component {
-  
+
   constructor(props) {
       super(props);
 
@@ -97,84 +97,80 @@ class LotView extends React.Component {
       this.skuEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
       this.updateSpaceVehicleMap = false;
-      
+
   }
 
   /**
-   * Loads all of the data associated with a lot and updates 
+   * Loads all of the data associated with a lot and updates
    * the associated state variables, triggering a reload of
    * the lotview.
    */
   _loadLotView() {
     var lotview = this;
-
     console.log('* * * * * LOAD LOT VIEW * * * * *');
     return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT , {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+       console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
+       if (responseJson.message == "Signature has expired") {
+         console.log('Throwing Error');
+         throw Error('Unauthorized user');
+       }
+
+       GlobalVariables.LOT_DATA = responseJson;
+
+       // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
+       let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
+       let lot_coords = lot_geometry["coordinates"][0];
+
+       let lotParkingSpaceMap = {};
+       GlobalVariables.LOT_DATA['parking_spaces'].forEach((space) => {
+         lotParkingSpaceMap[space["id"]] = space;
+      });
+      console.log('     resetting state: _loadLotView');
+      lotview._loadParkingSpaceMetadata({
+        centerCoordinate: lotview._calculateCenter(lot_coords),
+        parkingShapes: lotParkingSpaceMap,
       })
-      .then((response) => response.json())
-          .then((responseJson) => {
-            console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
-            if (responseJson.message == "Signature has expired") {
-              console.log('Throwing Error');
-              throw Error('Unauthorized user');
-            }
-
-            GlobalVariables.LOT_DATA = responseJson;
-
-            // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
-            let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
-            let lot_coords = lot_geometry["coordinates"][0];
-
-            let lotParkingSpaceMap = {};
-            GlobalVariables.LOT_DATA['parking_spaces'].forEach((space) => {
-              lotParkingSpaceMap[space["id"]] = space;
-            });
-
-           console.log('     resetting state: _loadLotView');
-            lotview.setState({
-              centerCoordinate: lotview._calculateCenter(lot_coords),
-              lotShapes: GlobalVariables.LOT_DATA,
-              parkingShapes: lotParkingSpaceMap,
-            });
-          })
-          .then(() => lotview._loadParkingSpaceMetadata())
-          .catch(err => {
-            console.log('CAUHT ERR, attempting logout: ', err, err.name);
-            return err
-          });
+    })
+    .catch(err => {
+      console.log('CAUGHT ERR, attempting logout: ', err, err.name);
+      return err
+    });
   }
 
-  _loadParkingSpaceMetadata() {
+  _loadParkingSpaceMetadata({ centerCoordinate, parkingShapes }) {
     var lotview = this;
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA , {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
-      })
-      .then((response) => response.json())
-          .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
-            // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+    })
+    .then((response) => response.json())
+    .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
+      // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
-            // console.log('     resetting state: _loadParkingSpaceMetadata');
-            lotview.setState({
-              newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
-              usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
-              emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
-            });
+      // console.log('     resetting state: _loadParkingSpaceMetadata');
 
-            // console.log('\n\nNEW VEHICLE SPACES: ', this.state.newVehicleSpaces);
-            // console.log('USED VEHICLE SPACES: ', this.state.usedVehicleSpaces);
-
-          });
-  }  
+      lotview.setState({
+        newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
+        usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
+        emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
+        centerCoordinate,
+        lotShapes: GlobalVariables.LOT_DATA,
+        parkingShapes,
+      });
+    });
+  }
 
   _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {
     let center_coordinate = [];
@@ -198,15 +194,15 @@ class LotView extends React.Component {
 
       coord.forEach((point) => {
         [px, py] = point;
-  
+
         if (max_min_array[0][0] > px) max_min_array[0][0] = px;
         if (max_min_array[0][1] < px) max_min_array[0][1] = px;
-        
+
         if (max_min_array[1][0] > py) max_min_array[1][0] = py;
         if (max_min_array[1][1] < py) max_min_array[1][1] = py;
       });
 
-      center_coordinate = [max_min_array[0].reduce((a, b) => {return a + b})/2, 
+      center_coordinate = [max_min_array[0].reduce((a, b) => {return a + b})/2,
         max_min_array[1].reduce((a, b) => {return a + b})/2];
     }
 
@@ -270,14 +266,14 @@ class LotView extends React.Component {
     this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, opt_feedbackMsg);
 
     // 3. Update Stall Number & Fetch Updated Lot
-    // TODO(adwoa): make this process faster. We should be 
-    // doing single space updates and listening for other 
-    // parking space change actions continuously so that this 
+    // TODO(adwoa): make this process faster. We should be
+    // doing single space updates and listening for other
+    // parking space change actions continuously so that this
     // does not require an entire lot reload
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
-      
+
       stallUpdatedPromise.then((result) => {
         console.log('STALL UPDATE RESULT: ', result);
         // 3. Re-render lot by updating state
@@ -291,7 +287,7 @@ class LotView extends React.Component {
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
       let vehiclePromise = this._getVehicleBySKU(sku_number);
-      
+
       vehiclePromise.then((vehicleData) => {
         return this.updateStallNumber(new_stall, vehicleData['id'])
       }).then((result) => {
@@ -310,13 +306,13 @@ class LotView extends React.Component {
   updateStallNumber(new_stall, vehicleId) {
     let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
     let space_data = LotActionHelper.structureTagPayload('change_stall', newSpaceData, 'Moved vehicle to stall ' + new_stall);
-    
+
     console.log('\n\nSPACE DATA: ', space_data);
     console.log('vehicle id: ', vehicleId,' == ', this.state.vehicleId);
     console.log('old space id: ', this.state.spaceId);
     console.log('new space id: ', new_stall);
     console.log('sku number: ', this.state.stockNumber);
-    
+
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
         method: 'POST',
         headers: {
@@ -334,7 +330,7 @@ class LotView extends React.Component {
         return responseJson
       })
       .catch(err => {
-        console.log('\nCAUHT ERROR: \n', err, err.name);
+        console.log('\nCAUGHT ERROR: \n', err, err.name);
         //TODO(adwoa): make save button clickable again
         return err
       });
@@ -380,7 +376,7 @@ class LotView extends React.Component {
     } else {
       this.setVehicleHighlight(null);
     }
-    
+
     // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
@@ -399,7 +395,7 @@ class LotView extends React.Component {
 
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, stock_number, vehicle_id, year, make, model, vehicleData);
         this.setModalVisibility(true);
-      } 
+      }
     } else {
       // Show Add Vehicle to highlighted space message
       console.log('\n\nSpace Data: ' , data);
@@ -414,14 +410,14 @@ class LotView extends React.Component {
       console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
       console.log('VEHICLE ID: ', this.state.vehicleId);
       // 2. Update Stall Number & Fetch updated lot
-      // TODO(adwoa): make this process faster. We should be 
-      // doing single space updates and listening for other 
-      // parking space change actions continuously so that this 
+      // TODO(adwoa): make this process faster. We should be
+      // doing single space updates and listening for other
+      // parking space change actions continuously so that this
       // does not require an entier lot reload
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
         let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
-        
+
         stallUpdatedPromise.then((result) => {
           console.log('STALL UPDATE RESULT: ', result);
           // 3. Re-render lot by updating state
@@ -485,14 +481,14 @@ class LotView extends React.Component {
 
     let sku = this.getSKUFromInput();
     let vehicleData = this.state.stockNumberVehicleMap[sku];
-    
+
     console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
-    
+
     if (vehicleData) {
       let space_id = vehicleData['shape_id'].toString();
       this.dismissInput();
       this.showAndPopulateModal([space_id, vehicleData]);
-    } else { 
+    } else {
       console.log('Vehicle not currently on the map. Checking server...');
       let vehiclePromise = this._getVehicleBySKU(sku);
 
@@ -566,7 +562,7 @@ class LotView extends React.Component {
     if (this.state.skuCollectorVisible) {
       // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
       return (
-        <KeyboardAvoidingView behavior="padding" 
+        <KeyboardAvoidingView behavior="padding"
           style={{
               position: 'absolute',
               height: '100%',
@@ -580,7 +576,7 @@ class LotView extends React.Component {
             <View style={{minHeight: '40%', width: '100%'}}>
             </View>
           </TouchableWithoutFeedback>
-           
+
           <View>
             <View
               style={styles.floatingTextInputArea}>
@@ -610,7 +606,7 @@ class LotView extends React.Component {
                     CANCEL
                   </Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
                   onPress={this.locateVehicleBySKU}>
@@ -643,7 +639,7 @@ class LotView extends React.Component {
         animationType='slide'
         transparent={true}
         visible={this.state.modalVisible}>
- 
+
         <TagModalView
           modalType={this.state.modalType}
           spaceId={this.state.spaceId}
@@ -728,6 +724,7 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             setModalVisibility={this.setModalVisibility}
             sendMapCallback={this.getMapCallback}
+            updateSpaceVehicleMap={false}
             type='empty'>
           </VehicleSpaceLayer>
 
@@ -784,18 +781,18 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignItems: 'stretch',
-  }, 
+  },
   searchIconSizing: {
     width: 30,
     resizeMode: 'contain',
   },
   floatingActionButton: {
     position:'absolute',
-    right: 30, 
+    right: 30,
     bottom: 80,
-    width: 66, 
+    width: 66,
     height: 66,
-    backgroundColor: '#828282', 
+    backgroundColor: '#828282',
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',

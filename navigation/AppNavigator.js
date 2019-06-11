@@ -1,7 +1,7 @@
 import React from 'react';
-import { 
-	createStackNavigator, 
-	createSwitchNavigator, 
+import {
+	createStackNavigator,
+	createSwitchNavigator,
 } from 'react-navigation';
 
 import {
@@ -29,7 +29,7 @@ class NavigationMenu extends React.Component {
 }
 
 const AppStack = createStackNavigator(
-{ 
+{
 	Lot: LotScreen,
 	Fuel: FuelScreen,
 	Drive: DriveScreen,
@@ -43,7 +43,7 @@ const AppStack = createStackNavigator(
 		headerTitle: <NavigationMenu />,
 		headerTintColor: 'white',
 	},
-	
+
 });
 const AuthStack = createStackNavigator({ Login: LoginScreen });
 
@@ -61,6 +61,6 @@ const switchNav = createSwitchNavigator(
 
 export default switchNav;
 
-// TODO(adwoa): IF and WHEN we update the react-navigation dependency to version 
+// TODO(adwoa): IF and WHEN we update the react-navigation dependency to version
 // 3.0 we should use createAppContainer
-// const lotwingAppContainer = createAppContainer(switchNav); 
+// const lotwingAppContainer = createAppContainer(switchNav);
