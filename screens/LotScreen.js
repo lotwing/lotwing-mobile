@@ -168,7 +168,25 @@ class LotView extends React.Component {
         centerCoordinate,
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
+        errorLoading: false,
+        modalVisible: false,
+        spaceVehicleMap: {},
+        spaceId: 0,
+        stockNumber: 0,
+        vehicleId: 0,
+        year: 0,
+        make: 'Nissan',
+        model: 'Versa',
+        modalType: GlobalVariables.BASIC_MODAL_TYPE,
+        skuCollectorVisible: false,
+        skuSearchFailed: false,
+        stockNumberVehicleMap: {},
+        extraVehicleData: {},
+        clickToPopulateStall: null,
+        clickedStall: null,
+        feedbackText: ''
       });
+      this.updateSpaceVehicleMap = false;
     });
   }
 
@@ -235,11 +253,11 @@ class LotView extends React.Component {
   }
 
   // Modal Visibility controls
-  setModalVisibility(visibility, modalType = false, vehicleId = null, opt_basic_modal_action_fb_msg = null) {
+  setModalVisibility(visibility, modalType = null, vehicleId = null, opt_basic_modal_action_fb_msg = null) {
     // let clickedStallValue = visibility ? this.state.clickedStall : null;
     // console.log('\n* * * *   show clicked stall? ', clickedStallValue, '\n\n\n');
-
-    if (modalType) {
+    console.log('Set modal visibility')
+    if (modalType !== null) {
       let textToShow = null
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
         textToShow = 'Choose the stall to populate...';
@@ -253,13 +271,14 @@ class LotView extends React.Component {
     }
   }
 
-  setPopulateViewVisibility(visibility, modalType = false, vehicleId = null) {
+  setPopulateViewVisibility(visibility, modalType = null, vehicleId = null) {
     this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
   }
 
 
   updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
     // 1. Remove Vehicle  Highlight
+    console.log('updateLotAndDismissModal')
     this.setVehicleHighlight(null);
 
     // 2. Dismiss Modal & Show Loading Feedback
@@ -279,10 +298,7 @@ class LotView extends React.Component {
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
-      }).then(() => {
-        this.updateSpaceVehicleMap = false;
-        this.setState({modalType: null});
-      });
+      })
 
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
@@ -295,10 +311,7 @@ class LotView extends React.Component {
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
-      }).then(() => {
-        this.updateSpaceVehicleMap = false;
-        this.setState({modalType: null});
-      });
+      })
     }
 
   }
@@ -326,7 +339,7 @@ class LotView extends React.Component {
         return response.json();
       })
       .then((responseJson) => {
-        console.log(responseJson);
+        //console.log(responseJson);
         return responseJson
       })
       .catch(err => {
@@ -376,7 +389,6 @@ class LotView extends React.Component {
     } else {
       this.setVehicleHighlight(null);
     }
-
     // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
@@ -395,6 +407,9 @@ class LotView extends React.Component {
 
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, stock_number, vehicle_id, year, make, model, vehicleData);
         this.setModalVisibility(true);
+      } else {
+        console.log('DATA MISSING: ', vehicleData)
+
       }
     } else {
       // Show Add Vehicle to highlighted space message
@@ -419,15 +434,11 @@ class LotView extends React.Component {
         let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
 
         stallUpdatedPromise.then((result) => {
-          console.log('STALL UPDATE RESULT: ', result);
+          //console.log('STALL UPDATE RESULT: ', result);
           // 3. Re-render lot by updating state
           this.updateSpaceVehicleMap = true;
           return this._loadLotView();
-        }).then(() => {
-          this.updateSpaceVehicleMap = false;
-          // 1. Dismiss Modal & Show Loading Screen
-          this.setState({modalType: null});
-        });
+        })
       }
 
     }
@@ -633,6 +644,8 @@ class LotView extends React.Component {
 
   _renderTagModal() {
     console.log('Render Tag Modal View: ', this.state.modalType);
+    console.log('Modal Visible: ', this.state.modalVisible);
+    console.log('ModalVisibility', this.setVisibility)
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
       <Modal
