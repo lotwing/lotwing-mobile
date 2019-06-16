@@ -24,9 +24,10 @@ import LotActionHelper from '../helpers/LotActionHelper';
 export default class DriveScreen extends React.Component {
 	constructor(props) {
 		super(props);
-		this.details = this.props.navigation.state.params;
+		this.details = this.props.navigation.state.params.props;
+		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
-		
+
 		this.startOrStopAction = this.startOrStopAction.bind(this);
 		this.endTestDrive = this.endTestDrive.bind(this);
 
@@ -42,7 +43,7 @@ export default class DriveScreen extends React.Component {
 
 	startDrivingAction() {
 		let driveScreen = this;
-		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, driveScreen.details, 'starting test drive');
+		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, { vehicleId: driveScreen.vehicle.id, spaceId: driveScreen.details.spaceId }, 'starting test drive');
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {
 				if (responseJson) {
@@ -110,7 +111,7 @@ export default class DriveScreen extends React.Component {
 	_renderTimerOnStart(startTime) {
 		if (this.state.isStopButtonVisible) {
 			return (
-				<Timer 
+				<Timer
   					startTime={startTime}
   					fuelTime={this.setDriveTime}>
   				</Timer>
@@ -130,13 +131,13 @@ export default class DriveScreen extends React.Component {
 			return (
 				<View
 					style={{flex:7}}>
-					<View 
+					<View
 						style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
 						{this._renderTimerOnStart(startTime)}
 		  			</View>
 		  			<View style={
 			  				[
-			  					pageStyles.row, 
+			  					pageStyles.row,
 			  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
 			  				]}>
 			  			<TouchableOpacity style={
@@ -154,9 +155,9 @@ export default class DriveScreen extends React.Component {
   			);
 		} else {
 			return (
-				<View 
+				<View
 	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-	  				
+
 	  				<View
 	  					style={[pageStyles.noteCard, {height:'40%'}]}>
 		  				<Text
@@ -206,9 +207,9 @@ export default class DriveScreen extends React.Component {
 		  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
 		  			<View style={[pageStyles.darkBody, pageStyles.column]}>
 		  				<Text style={textStyles.header}>
-		            {this.details.year} {this.details.make} {this.details.model}</Text>
+		            {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}</Text>
 		          <Text style={textStyles.subtitle}>
-		            SKU {this.details.stockNumber}</Text>
+		            SKU {this.vehicle.stockNumber}</Text>
 		  			</View>
 		  			<View style={pageStyles.column}>
 		          <Image

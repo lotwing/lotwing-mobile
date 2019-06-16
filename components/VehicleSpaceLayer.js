@@ -66,8 +66,8 @@ export default class VehicleSpaceLayer extends React.PureComponent {
         console.log('\nRETURNED VEHICLE DATA: ', vehicleResponses.length, ' vehicles');
         vehicleResponses.forEach((vehicle) => {
           let parking_space_id = vehicle["shape"]["id"];
-          if (vehicle["vehicle"]) console.log('Vehicle, Parking Space: ', vehicle["vehicle"]["stock_number"], ', ', parking_space_id)
-          spaceVehicleMapObject[parking_space_id] = vehicle["vehicle"];
+          if (vehicle["vehicles"].length) console.log('Vehicle, Parking Space: ', vehicle["vehicles"][0]["stock_number"], ', ', parking_space_id)
+          spaceVehicleMapObject[parking_space_id] = vehicle["vehicles"];
         });
 
         vehicleSpaceLayer.props.sendMapCallback(vehicleSpaceLayer.props.type, spaceVehicleMapObject);
@@ -107,16 +107,19 @@ export default class VehicleSpaceLayer extends React.PureComponent {
     const space_id = payload['id'];
 
     console.log('\n\nSource layer pressed');
-
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
     if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
       console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
       let vehicle_data = this.state.spaceVehicleMap[space_id];
       this.props.showAndPopulateModal([space_id, vehicle_data], payload);
+    } else if (this.props.type == 'duplicates') {
+      console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
+      let vehicle_data = this.state.spaceVehicleMap[space_id];
+      //console.log(this.state.spaceVehicleMap)
+      this.props.showAndPopulateModal([space_id, vehicle_data], payload);
     } else {
       this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE], payload);
     }
-
   }
 
   getAllParkingSpaceCoordinatesObject() {
@@ -152,7 +155,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
             id ={'parking_space_fill' + '-' + this.props.type}
             key={'parking_spaces_fill'+ '-' + this.props.type}
             style={this.props.style} />
-       </Mapbox.ShapeSource>
+        </Mapbox.ShapeSource>
       )
     }
 

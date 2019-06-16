@@ -25,7 +25,8 @@ import LotActionHelper from '../helpers/LotActionHelper';
 export default class NoteScreen extends React.Component {
 	constructor(props) {
 		super(props);
-		this.details = this.props.navigation.state.params;
+		this.details = this.props.navigation.state.params.props;
+		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
 		this.sendNoteData = this.sendNoteData.bind(this);
 
@@ -44,7 +45,7 @@ export default class NoteScreen extends React.Component {
 		console.log('\nNote: ', this.state.placeholderText);
 
 		//TODO(adwoa): make save button unclickable, process this action
-		let space_data = LotActionHelper.structureTagPayload('note', this.details, this.state.placeholderText);
+		let space_data = LotActionHelper.structureTagPayload('note', { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, this.state.placeholderText);
 		let noteScreen = this;
 		console.log('TAG DATA: ', space_data);
 
@@ -78,7 +79,7 @@ export default class NoteScreen extends React.Component {
 					accessible={false}>
 					<View
 						style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-						
+
 						<View style={[pageStyles.noteCard, {marginTop: '20%', height:'40%'}]}>
 			  				<TextInput
 								editable={true}
@@ -89,7 +90,7 @@ export default class NoteScreen extends React.Component {
 
 			  			<View style={
 				  				[
-				  					pageStyles.row, 
+				  					pageStyles.row,
 				  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
 				  				]}>
 				  			<TouchableOpacity style={
@@ -108,14 +109,14 @@ export default class NoteScreen extends React.Component {
 	  			);
 
 		} else {
-			// This batch of code is not currently ever reached.... we don't need a 
+			// This batch of code is not currently ever reached.... we don't need a
 			// second confirmation screen when you're trying to save a note. Either
 			// click save or navigate back
 
 			// TODO(adwoa): either delete this or make the thing below a component that's more easily callable
 
 			return (
-				<View 
+				<View
 	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
 	  				<View
 	  					style={pageStyles.noteCard}>
@@ -160,16 +161,17 @@ export default class NoteScreen extends React.Component {
 	}
 
 	render() {
+		console.log(this.vehicle.stockNumber)
   	return (
   		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
 	  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
-	  			
+
 	  			<View style={[pageStyles.darkBody, pageStyles.column]}>
 	  				<Text style={textStyles.header}>
-		            	{this.details.year} {this.details.make} {this.details.model}
+		            	{this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
 		            </Text>
 		          	<Text style={textStyles.subtitle}>
-		          		SKU {this.details.stockNumber}
+		          		SKU {this.vehicle.stockNumber}
 		          	</Text>
 	  			</View>
 

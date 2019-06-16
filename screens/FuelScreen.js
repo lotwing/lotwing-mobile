@@ -24,7 +24,8 @@ import LotActionHelper from '../helpers/LotActionHelper';
 export default class FuelScreen extends React.Component {
 	constructor(props) {
 		super(props);
-		this.details = this.props.navigation.state.params;
+		this.details = this.props.navigation.state.params.props;
+		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
 		this.startOrStopAction = this.startOrStopAction.bind(this);
 
 		this.endFueling = this.endFueling.bind(this);
@@ -46,7 +47,7 @@ export default class FuelScreen extends React.Component {
 		console.log('\nFuel Time: ', this.state.fuelTime);
 
 		//TODO(adwoa): make save button unclickable, process this action
-		let space_data = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, this.details, 'starting to fuel');
+		let space_data = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting to fuel');
 		let fuelScreen = this;
 		console.log('TAG DATA: ', space_data);
 
@@ -136,7 +137,7 @@ export default class FuelScreen extends React.Component {
 	_renderTimerOnStart(startTime) {
 		if (this.state.isStopButtonVisible) {
 			return (
-				<Timer 
+				<Timer
   					startTime={startTime}
   					fuelTime={this.setFuelTime}>
   				</Timer>
@@ -156,15 +157,15 @@ export default class FuelScreen extends React.Component {
 			return (
 				<View
 					style={{flex:7}}>
-					<View 
+					<View
 		  				style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
 		  				{this._renderTimerOnStart(startTime)}
 		  			</View>
-	  				
+
 
 		  			<View style={
 		  				[
-		  					pageStyles.row, 
+		  					pageStyles.row,
 		  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
 		  				]}>
 			  			<TouchableOpacity style={
@@ -184,9 +185,9 @@ export default class FuelScreen extends React.Component {
 		} else {
 
 			return (
-				<View 
+				<View
 	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-	  				
+
 	  				<View
 	  					style={[pageStyles.noteCard, {height:'40%'}]}>
 		  				<Text
@@ -236,9 +237,9 @@ export default class FuelScreen extends React.Component {
 		  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
 		  			<View style={[pageStyles.darkBody, pageStyles.column]}>
 		  				<Text style={textStyles.header}>
-						{this.details.year} {this.details.make} {this.details.model}</Text>
+						{this.vehicle.year} {this.vehicle.make} {this.vehicle.model}</Text>
 						<Text style={textStyles.subtitle}>
-							SKU {this.details.stockNumber}</Text>
+							SKU {this.vehicle.stockNumber}</Text>
 					</View>
 					<View style={pageStyles.column}>
 						<Image

@@ -63,14 +63,16 @@ class LotView extends React.Component {
         newVehicleSpaces: [],
         usedVehicleSpaces: [],
         emptySpaces: [],
+        duplicateSpaces: [],
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
-        stockNumber: 0,
+        vehicles: [],
+        //stockNumber: 0,
         vehicleId: 0,
-        year: 0,
-        make: 'Nissan',
-        model: 'Versa',
+        //year: 0,
+        //make: 'Nissan',
+        //model: 'Versa',
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
         skuSearchFailed: false,
@@ -160,11 +162,11 @@ class LotView extends React.Component {
       // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
 
       // console.log('     resetting state: _loadParkingSpaceMetadata');
-
       lotview.setState({
         newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
         usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
         emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
+        duplicateSpaces: responseJson["duplicate_parked_spaces"].map((space) => space["id"]),
         centerCoordinate,
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
@@ -172,11 +174,12 @@ class LotView extends React.Component {
         modalVisible: false,
         spaceVehicleMap: {},
         spaceId: 0,
-        stockNumber: 0,
+        vehicles: [],
+        //stockNumber: 0,
         vehicleId: 0,
-        year: 0,
-        make: 'Nissan',
-        model: 'Versa',
+        //year: 0,
+        //make: 'Nissan',
+        //model: 'Versa',
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
         skuSearchFailed: false,
@@ -250,6 +253,10 @@ class LotView extends React.Component {
 
   setVisibility = (value, opt_modalType, opt_currVehicleId) => {
     this.setModalVisibility(value, opt_modalType, opt_currVehicleId);
+  }
+  setModalId = (id) => {
+    console.log('Lot View Vehicle ID: ', id)
+    this.state.vehicleId !== id && this.setState({ vehicleId: id })
   }
 
   // Modal Visibility controls
@@ -349,7 +356,7 @@ class LotView extends React.Component {
       });
   }
 
-  setModalValues(modal_type, space_id, stock_number = 0, vehicle_id = 0, year = 0, make = 0, model = 0, extra = 0) {
+  setModalValues(modal_type, space_id, vehiclesArray) {
     // IF stall is empty only space_id needed
     if (modal_type == GlobalVariables.EMPTY_MODAL_TYPE) {
       if (!space_id) {
@@ -358,20 +365,21 @@ class LotView extends React.Component {
     }
     // IF stall is populated pass all data barring extra which is optional
     else {
-      if (extra == 0) {
+      if (vehiclesArray[0].extra == 0) {
         throw Error('The proper data wasn\'t delivered to display the modal');
       }
     }
 
     this.setState({
-      year: year,
-      make: make,
-      model: model,
+      //year: year,
+      //make: make,
+      //model: model,
       spaceId: space_id,
-      vehicleId: vehicle_id,
-      modalType: modal_type,
-      stockNumber: stock_number,
-      extraVehicleData: extra,
+      //vehicleId: vehiclesArray[0].id,
+      vehicles: vehiclesArray
+      //modalType: modal_type,
+      //stockNumber: stock_number,
+      //extraVehicleData: extra,
     });
   }
 
@@ -397,15 +405,16 @@ class LotView extends React.Component {
         this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
-      } else if (vehicleData && vehicleData['id']) {
-        console.log('Extra data not empty: ', vehicleData['id']);
-        let vehicle_id = vehicleData['id'];
-        let year = vehicleData['year'];
-        let make = vehicleData['make'];
-        let model = vehicleData['model'];
-        let stock_number = vehicleData['stock_number'];
+      } else if (vehicleData) {
+        console.log('Extra data not empty: ', vehicleData.length);
+        let vehiclesArray = vehicleData;
+        //let vehicle_id = vehicleData['id'];
+        //let year = vehicleData['year'];
+        //let make = vehicleData['make'];
+        //let model = vehicleData['model'];
+        //let stock_number = vehicleData['stock_number'];
 
-        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, stock_number, vehicle_id, year, make, model, vehicleData);
+        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehiclesArray);
         this.setModalVisibility(true);
       } else {
         console.log('DATA MISSING: ', vehicleData)
@@ -645,7 +654,6 @@ class LotView extends React.Component {
   _renderTagModal() {
     console.log('Render Tag Modal View: ', this.state.modalType);
     console.log('Modal Visible: ', this.state.modalVisible);
-    console.log('ModalVisibility', this.setVisibility)
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
       <Modal
@@ -656,16 +664,18 @@ class LotView extends React.Component {
         <TagModalView
           modalType={this.state.modalType}
           spaceId={this.state.spaceId}
-          vehicleId={this.state.vehicleId}
-          stockNumber={stockNumberToDisplay}
-          year={this.state.year}
-          make={this.state.make}
-          model={this.state.model}
-          extraVehicleData={this.state.extraVehicleData}
+          vehicles={this.state.vehicles}
+          //vehicleId={this.state.vehicleId}
+          //stockNumber={stockNumberToDisplay}
+          //year={this.state.year}
+          //make={this.state.make}
+          //model={this.state.model}
+          //extraVehicleData={this.state.extraVehicleData}
           style={styles.tagModalInnerView}
           modalStyling={styles.tagModalStyles}
           navigation={this.props.navigation}
           setModalVisibility={this.setVisibility}
+          setVehicleId={this.setModalId}
           updateLotAndDismissModal={this.updateLotAndDismissModal}
           setVehicleHighlight={this.setVehicleHighlight} />
       </Modal>
@@ -763,6 +773,17 @@ class LotView extends React.Component {
             type='used_vehicle'>
           </VehicleSpaceLayer>
 
+          <VehicleSpaceLayer
+            ids={this.state.duplicateSpaces}
+            style={lotLayerStyles.duplicate_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.duplicateSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            type='duplicates'>
+          </VehicleSpaceLayer>
+
           <VehicleHighlightLayer
             clickedStallPolygon={this.state.clickedStall}>
           </VehicleHighlightLayer>
@@ -846,8 +867,12 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
     fillOpacity: 0.75,
   },
   new_vehicle_occupied_spaces: {
-    fillColor: '#006699',
-    fillOpacity: 0.75,
+    fillColor: '#8DB6CA',
+    fillOpacity: 1,
+  },
+  duplicate_spaces: {
+    fillColor: '#FF0000',
+    fillOpacity: 1,
   },
   parking_lot: {
     fillColor: '#CCCCCC',
@@ -855,11 +880,11 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
   },
   parking_spaces: {
     fillColor: '#FFFFFF',
-    fillOpacity: 0.75,
+    fillOpacity: 0.75
   },
   used_vehicle_occupied_spaces: {
-    fillColor: '#66CC00',
-    fillOpacity: 0.75,
+    fillColor: '#B6DF8D',
+    fillOpacity: 1,
   },
 });
 
