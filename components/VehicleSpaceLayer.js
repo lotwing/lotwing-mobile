@@ -115,7 +115,6 @@ export default class VehicleSpaceLayer extends React.PureComponent {
     } else if (this.props.type == 'duplicates') {
       console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
       let vehicle_data = this.state.spaceVehicleMap[space_id];
-      //console.log(this.state.spaceVehicleMap)
       this.props.showAndPopulateModal([space_id, vehicle_data], payload);
     } else {
       this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE], payload);
@@ -127,7 +126,18 @@ export default class VehicleSpaceLayer extends React.PureComponent {
       let coordinatesObject = {};
 
       this.props.spaces.forEach((id) => {
-        coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
+        if (this.props.recent) {
+          const updatedAt = new Date(this.props.parkingShapes[id]["updated_at"])
+          const now = new Date();
+          const oneDay = 60*60*24*1000;
+          console.log('Time: ', now-updatedAt, 'One day: ', oneDay)
+          if ((now-updatedAt) < oneDay) {
+            console.log('New')
+            coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
+          }
+        } else {
+          coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
+        }
       });
       return coordinatesObject
     }
@@ -144,17 +154,16 @@ export default class VehicleSpaceLayer extends React.PureComponent {
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
 
       let featureCollection = this._createFeatureCollection(polygons);
-
       return (
         <Mapbox.ShapeSource
-          id={this.props.type}
-          key={this.props.type}
+          id={this.props.recent ? `${this.props.type}-recent` : this.props.type}
+          key={this.props.recent ? `${this.props.type}-recent` : this.props.type}
           onPress={this.onSourceLayerPress}
           shape={featureCollection}>
           <Mapbox.FillLayer
-            id ={'parking_space_fill' + '-' + this.props.type}
-            key={'parking_spaces_fill'+ '-' + this.props.type}
-            style={this.props.style} />
+            id={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
+            key={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
+            style={ this.props.style } />
         </Mapbox.ShapeSource>
       )
     }
@@ -163,6 +172,8 @@ export default class VehicleSpaceLayer extends React.PureComponent {
   }
 
   render() {
-  	return (this.renderParkingSpaces());
+  	return (
+      this.renderParkingSpaces()
+      );
   }
 }

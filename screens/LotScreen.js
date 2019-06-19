@@ -748,7 +748,8 @@ class LotView extends React.Component {
             setModalVisibility={this.setModalVisibility}
             sendMapCallback={this.getMapCallback}
             updateSpaceVehicleMap={false}
-            type='empty'>
+            type='empty'
+            recent={false}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -759,7 +760,20 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='new_vehicle'>
+            type='new_vehicle'
+            recent={false}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.newVehicleSpaces}
+            style={lotLayerStyles.new_vehicle_recent_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.newVehicleSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            type='new_vehicle'
+            recent={true}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -770,7 +784,20 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='used_vehicle'>
+            type='used_vehicle'
+            recent={false}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.usedVehicleSpaces}
+            style={lotLayerStyles.used_vehicle_recent_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.usedVehicleSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            type='used_vehicle'
+            recent={true}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -781,7 +808,8 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='duplicates'>
+            type='duplicates'
+            recent={false}>
           </VehicleSpaceLayer>
 
           <VehicleHighlightLayer
@@ -870,6 +898,10 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
     fillColor: '#8DB6CA',
     fillOpacity: 1,
   },
+  new_vehicle_recent_occupied_spaces: {
+    fillColor: '#006699',
+    fillOpacity: 1,
+  },
   duplicate_spaces: {
     fillColor: '#FF0000',
     fillOpacity: 1,
@@ -884,6 +916,10 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
   },
   used_vehicle_occupied_spaces: {
     fillColor: '#B6DF8D',
+    fillOpacity: 1,
+  },
+  used_vehicle_recent_occupied_spaces: {
+    fillColor: '#66CC00',
     fillOpacity: 1,
   },
 });

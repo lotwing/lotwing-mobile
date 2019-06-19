@@ -42,11 +42,17 @@ export default class TagModalView extends React.Component {
     this.state = {
       modalContent: this.props.modalType,
       arrayPosition: 0,
+      vehicle: {}
     }
   }
   componentWillMount() {
-    console.log('Modal Vehicle ID: ', this.props.vehicles[this.state.arrayPosition].id)
-    this.props.vehicleId !== this.props.vehicles[this.state.arrayPosition].id && this.props.setVehicleId(this.props.vehicles[this.state.arrayPosition].id)
+    if (this.props.modalType === 'base') {
+      console.log('Modal Vehicle ID: ', this.props.vehicles[this.state.arrayPosition].id)
+      this.props.vehicleId !== this.props.vehicles[this.state.arrayPosition].id && this.props.setVehicleId(this.props.vehicles[this.state.arrayPosition].id)
+      this.setState({vehicle: this.props.vehicles[this.state.arrayPosition] })
+    } else {
+      this.setState({vehicle: null })
+    }
   }
   dismissModal() {
     this.props.setVehicleHighlight(null);
@@ -64,7 +70,7 @@ export default class TagModalView extends React.Component {
   structureTagPayload(type, event_details) {
     // expects a valid type: tag, note, test_drive, fuel_vehicle, odometer_update
     let body = {
-      'tag': {'vehicle_id': this.props.vehicles[this.state.arrayPosition].id, 'shape_id': this.props.spaceId},
+      'tag': {'vehicle_id': this.state.vehicle !== null ? this.state.vehicle.id : null, 'shape_id': this.props.spaceId},
       'event': {'event_type': type, 'event_details': event_details ? event_details : ''}
     }
 
@@ -255,12 +261,12 @@ export default class TagModalView extends React.Component {
   }
 
   render() {
-    //console.log(this.props.vehicles[this.state.arrayPosition])
     let isBasicModal = this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE;
     let isOnMap = this.props.spaceId;
 
-    let vehicleUsageType = this.props.vehicles[this.state.arrayPosition].is_used ? 'Used' : 'New';
-    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + this.props.vehicles[this.state.arrayPosition].year + ' ' + this.props.vehicles[this.state.arrayPosition].make : 'Not in Stall' : ' ';
+    let vehicleUsageType = this.state.vehicle !== null && this.state.vehicle.is_used ? 'Used' : 'New';
+    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + this.state.vehicle.year + ' ' + this.state.vehicle.make : 'Not in Stall' : ' ';
+
 
     return (
       <KeyboardAvoidingView
@@ -277,13 +283,13 @@ export default class TagModalView extends React.Component {
         </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
-          { this.props.vehicles.length > 1 &&
+          { this.state.vehicle !== null && this.props.vehicles.length > 1 &&
             <View style={ styles.tagModalTabs }>
               { this.props.vehicles.map((vehicle, index) => {
                 return(
                   <TouchableOpacity key={index} onPress={()=> {
                     this.props.setVehicleId(this.props.vehicles[index].id)
-                    this.setState({arrayPosition: index }) }
+                    this.setState({arrayPosition: index, vehicle: this.props.vehicles[index] }) }
                   }><View style={[ styles.tagModalTab, index === this.state.arrayPosition &&  { backgroundColor: '#FFF' } ]}><Text style={[ index !== this.state.arrayPosition && {color: '#FFF' }]}>{ vehicle.stock_number}</Text></View></TouchableOpacity>
                 );
               })}
@@ -291,7 +297,7 @@ export default class TagModalView extends React.Component {
           }
           <View
             style={styles.tagModalStallBar}>
-            <Text style={styles.stallHeader}> {this.props.vehicles[this.state.arrayPosition].stock_number ? this.props.vehicles[this.state.arrayPosition].stock_number : '   - -'} </Text>
+            <Text style={styles.stallHeader}> {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'} </Text>
             <Text style={styles.stallHeader}>{modalTitle}</Text>
           </View>
 
