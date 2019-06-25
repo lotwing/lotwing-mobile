@@ -8,7 +8,7 @@ export default {
   structureTagPayload: function(type, props, event_details) {
     // expects a valid type: tag, change_stall, note, test_drive, fuel_vehicle, odometer_update, photo_update, mark_sold, write_up
     let body = {
-      'tag': {'vehicle_id': props.vehicleId, 'shape_id': props.spaceId}, 
+      'tag': {'vehicle_id': props.vehicleId, 'shape_id': props.spaceId},
       'event': {'event_type': type, 'event_details': event_details ? event_details : ''}
     }
 
@@ -34,7 +34,7 @@ export default {
         return responseJson
       })
       .catch(err => {
-        console.log('\nCAUHT ERROR: \n', err, err.name);
+        console.log('\nCAUGHT ERROR IN REGISTER PAYLOAD: \n', err, err.name);
         return err
       });
   },
@@ -56,12 +56,12 @@ export default {
       // nothing returned from this action...
     })
     .catch(err => {
-      console.log('\nCAUHT ERROR: \n', err, err.name);
+      console.log('\nCAUGHT ERROR IN END TIMEBOUND TAG ACTION: \n', err, err.name);
       return err
     })
   },
 
-  getEventId: function(spaceId) {
+  getEventId: function(spaceId, eventType) {
     console.log('GET EVENT ID: ', spaceId);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + spaceId, {
@@ -76,10 +76,17 @@ export default {
       return response.json();
     })
     .then((response) => {
-      return response['events'][0]['data']['id']
+      //console.log('GET EVENT ID RESPONSE:' , response.events[0])
+      const targetEvents = response.events[0].filter(event => event.data.attributes.event_type === eventType)
+      console.log('TARGET EVENTS: ', targetEvents)
+      let finalResponse = [];
+      targetEvents.forEach((event )=> {
+        finalResponse.push(event.data.id)
+      })
+      return finalResponse
     })
     .catch(err => {
-      console.log('\nCAUHT ERROR: \n', err, err.name);
+      console.log('\nCAUGHT ERROR IN GET EVENT ID: \n', err, err.name);
       return err
     })
   },
@@ -98,7 +105,7 @@ export default {
     return Object.keys(polygonObject)
         .map((ps_id) => this._createNewPolygon(polygonObject[ps_id]["geo_info"]["geometry"]["coordinates"], ps_id));
   },
-  
+
   _createNewPolygon: function(coordinates, id) {
     let empty_polygon_geojson = {
       "id": id,

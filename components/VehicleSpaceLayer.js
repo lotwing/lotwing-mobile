@@ -130,9 +130,9 @@ export default class VehicleSpaceLayer extends React.PureComponent {
           const updatedAt = new Date(this.props.parkingShapes[id]["updated_at"])
           const now = new Date();
           const oneDay = 60*60*24*1000;
-          console.log('Time: ', now-updatedAt, 'One day: ', oneDay)
+          //console.log('Time: ', now-updatedAt, 'One day: ', oneDay)
           if ((now-updatedAt) < oneDay) {
-            console.log('New')
+            //console.log('New')
             coordinatesObject[id] = this.props.parkingShapes[id]["geo_info"]["geometry"]["coordinates"];
           }
         } else {

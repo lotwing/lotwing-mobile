@@ -47,13 +47,12 @@ export default class DriveScreen extends React.Component {
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {
 				if (responseJson) {
-					console.log('RESPONSE: ', responseJson);
 					driveScreen.driveEventId = responseJson['event'] ? responseJson['event']['id']: null;
 			    	driveScreen.startTestDriveTimer();
 				}
 			})
 			.catch(err => {
-			    console.log('\nCAUHT ERROR: \n', err, err.name);
+			    console.log('\nCAUGHT ERROR IN START DRIVING ACTION: \n', err, err.name);
 			    return err
 			});
 	}
@@ -80,19 +79,21 @@ export default class DriveScreen extends React.Component {
 			}
 		} else {
 			endedPackage = {
-				acknowledged: shouldAcknowledgeAction,
+				acknowledged: true, //shouldAcknowledgeAction,
 				event_details: 'drive event ' + this.driveEventId + ' canceled'
 			}
 		}
 
-		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId);
+		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'test_drive');
 
 		eventIdPromise.then((event_id) => {
 			console.log('EVENT ID: ', event_id);
-			let driveEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, event_id);
-			driveEndPromise.then(() => {
-				LotActionHelper.backAction(driveScreen.props.navigation);
-			});
+			event_id.forEach((id) => {
+				LotActionHelper.endTimeboundTagAction(endedPackage, id);
+			})
+		}).then(() => {
+			this.props.navigation.navigate('Lot', { refresh: true });
+			//LotActionHelper.backAction(driveScreen.props.navigation);
 		});
 	}
 

@@ -100,8 +100,8 @@ export default class TagModalView extends React.Component {
         return response.json();
       })
       .then((responseJson) => {
-        this.dismissModal();
-        console.log('spaceData: ',responseJson)
+        this.updateLotAndDismissModal();
+        //console.log('spaceData: ',responseJson)
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);

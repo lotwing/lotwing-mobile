@@ -64,6 +64,8 @@ class LotView extends React.Component {
         usedVehicleSpaces: [],
         emptySpaces: [],
         duplicateSpaces: [],
+        driveEventSpaces: [],
+        fuelEventSpaces: [],
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
@@ -107,6 +109,13 @@ class LotView extends React.Component {
    * the associated state variables, triggering a reload of
    * the lotview.
    */
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.navigation.state && nextProps.navigation.state.params.refresh) {
+      console.log('REFRESHING LOT')
+      this.updateSpaceVehicleMap = true;
+      return this._loadLotView();
+    }
+  }
   _loadLotView() {
     var lotview = this;
     console.log('* * * * * LOAD LOT VIEW * * * * *');
@@ -126,7 +135,6 @@ class LotView extends React.Component {
        }
 
        GlobalVariables.LOT_DATA = responseJson;
-
        // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
        let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
        let lot_coords = lot_geometry["coordinates"][0];
@@ -136,6 +144,7 @@ class LotView extends React.Component {
          lotParkingSpaceMap[space["id"]] = space;
       });
       console.log('     resetting state: _loadLotView');
+      lotview._loadEvents();
       lotview._loadParkingSpaceMetadata({
         centerCoordinate: lotview._calculateCenter(lot_coords),
         parkingShapes: lotParkingSpaceMap,
@@ -146,7 +155,6 @@ class LotView extends React.Component {
       return err
     });
   }
-
   _loadParkingSpaceMetadata({ centerCoordinate, parkingShapes }) {
     var lotview = this;
 
@@ -160,7 +168,6 @@ class LotView extends React.Component {
     .then((response) => response.json())
     .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
       // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
-
       // console.log('     resetting state: _loadParkingSpaceMetadata');
       lotview.setState({
         newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
@@ -192,7 +199,25 @@ class LotView extends React.Component {
       this.updateSpaceVehicleMap = false;
     });
   }
+  _loadEvents() {
+    var lotview = this;
 
+    return fetch(GlobalVariables.BASE_ROUTE + Route.EVENTS , {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.log('Response: ', responseJson)
+      lotview.setState({
+        driveEventSpaces: responseJson["test_drive_events"].map((space) => Number(space.data.id)),
+        fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.id),
+      })
+    })
+  }
   _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {
     let center_coordinate = [];
 
@@ -319,6 +344,9 @@ class LotView extends React.Component {
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
       })
+    } else {
+      this.updateSpaceVehicleMap = true;
+      return this._loadLotView();
     }
 
   }
@@ -514,8 +542,11 @@ class LotView extends React.Component {
 
       vehiclePromise.then((vehicleData) => {
         if (vehicleData) {
+          console.log(vehicleData)
+          let tempVehicles = []
+          tempVehicles.push(vehicleData)
           this.dismissInput();
-          this.showAndPopulateModal([false, vehicleData]);
+          this.showAndPopulateModal([false, tempVehicles]);
         } else {
           // Display sku location failure text within search modal
           this.setState({
@@ -712,6 +743,7 @@ class LotView extends React.Component {
       // <View style={styles.container}>
       // not position
 
+    console.log('Drive Event Spaces: ', this.state.driveEventSpaces, '   newVehicleSpaces: ', this.state.newVehicleSpaces)
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
         <StatusBar

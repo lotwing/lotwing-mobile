@@ -69,7 +69,7 @@ export default class FuelScreen extends React.Component {
 		  	fuelScreen.startFuelTimer();
 		  })
 		  .catch(err => {
-		    console.log('\nCAUHT ERROR: \n', err, err.name);
+		    console.log('\nCAUGHT ERROR: \n', err, err.name);
 		    //TODO(adwoa): make save button clickable again
 		    return err
 		  });
@@ -93,21 +93,22 @@ export default class FuelScreen extends React.Component {
 			}
 		} else {
 			endedPackage = {
-				acknowledged: shouldAcknowledgeAction,
+				acknowledged: true, //shouldAcknowledgeAction,
 				event_details: 'fuel event ' + this.fuelEventId + ' canceled'
 			}
 		}
 
-		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId);
+		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'fuel_vehicle');
 
-		eventIdPromise.then((event_id) => {
-			console.log('EVENT ID: ', event_id);
-			let fuelEndPromise = LotActionHelper.endTimeboundTagAction(endedPackage, event_id);
-			fuelEndPromise.then(() => {
+		eventIdPromise
+			.then((event_id) => {
+				console.log('EVENT ID: ', event_id);
+				event_id.forEach((id) => {
+					LotActionHelper.endTimeboundTagAction(endedPackage, id);
+				})
+			}).then(() => {
 				fuelScreen.confirmTagRegistered();
 			});
-		});
-
 	}
 
 	// helper function for timer
@@ -130,8 +131,9 @@ export default class FuelScreen extends React.Component {
 	}
 
 	confirmTagRegistered() {
-		// push back to lotscreen
-		this.props.navigation.goBack();
+		// push back to lotscreen and refresh
+		this.props.navigation.navigate('Lot', { refresh: true });
+		//this.props.navigation.goBack();
 	}
 
 	_renderTimerOnStart(startTime) {
