@@ -23,6 +23,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
       super(props);
 
       this.state = {
+        loading: true,
         parking_space_geojson: {
           "id": "parking_spaces",
           "type": "Feature",
@@ -74,6 +75,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
         vehicleSpaceLayer.setState({
           spaceVehicleMap: spaceVehicleMapObject,
+          loading: false
         });
       })
     }
@@ -154,6 +156,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
         .map((ps_id) => this._createNewPolygon(ps_coord_obj[ps_id], ps_id));
 
       let featureCollection = this._createFeatureCollection(polygons);
+
       return (
         <Mapbox.ShapeSource
           id={this.props.recent ? `${this.props.type}-recent` : this.props.type}
@@ -163,7 +166,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
           <Mapbox.FillLayer
             id={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
             key={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
-            style={ this.props.style } />
+            style={[ this.state.loading ? { fillColor: '#dadada' } : this.props.style ]} />
         </Mapbox.ShapeSource>
       )
     }
@@ -174,6 +177,6 @@ export default class VehicleSpaceLayer extends React.PureComponent {
   render() {
   	return (
       this.renderParkingSpaces()
-      );
+    );
   }
 }

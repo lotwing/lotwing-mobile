@@ -50,10 +50,10 @@ const AuthStack = createStackNavigator({ Login: LoginScreen });
 const switchNav = createSwitchNavigator(
 	{
 		App: AppStack,
-  		Auth: AuthStack,
+  	Auth: AuthStack,
 		AuthLoading: AuthLoadingScreen,
-  	},
-  	{
+  },
+  {
 		initialRouteName: 'AuthLoading',
 	}
 );

@@ -21,6 +21,7 @@ import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
 import BuildingLayer from '../components/BuildingLayer';
+import EventsLayer from '../components/EventsLayer';
 import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
@@ -64,17 +65,16 @@ class LotView extends React.Component {
         usedVehicleSpaces: [],
         emptySpaces: [],
         duplicateSpaces: [],
+        loanerSpaces: [],
+        leaseSpaces: [],
+        wholesaleSpaces: [],
         driveEventSpaces: [],
         fuelEventSpaces: [],
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
         vehicles: [],
-        //stockNumber: 0,
         vehicleId: 0,
-        //year: 0,
-        //make: 'Nissan',
-        //model: 'Versa',
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
         skuSearchFailed: false,
@@ -82,7 +82,7 @@ class LotView extends React.Component {
         extraVehicleData: {},
         clickToPopulateStall: null,
         clickedStall: null,
-        feedbackText: 'Populating space...'
+        feedbackText: 'Populating space...',
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -92,6 +92,7 @@ class LotView extends React.Component {
           console.log('Routing back to login page!', this.props);
           this.props.navigation.navigate('Auth');
         }
+
       });
 
       this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
@@ -167,13 +168,14 @@ class LotView extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
-      // console.log('\nRETURNED SPACE METADATA\n     Number of spaces by type: new, used, empty\n       ', responseJson["new_vehicle_occupied_spaces"].length, responseJson["used_vehicle_occupied_spaces"].length, responseJson["empty_parking_spaces"].length);
-      // console.log('     resetting state: _loadParkingSpaceMetadata');
       lotview.setState({
         newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
         usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
         emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
         duplicateSpaces: responseJson["duplicate_parked_spaces"].map((space) => space["id"]),
+        loanerSpaces: responseJson["loaner_occupied_spaces"].map((space) => space["id"]),
+        leaseSpaces: responseJson["lease_return_occupied_spaces"].map((space) => space["id"]),
+        wholesaleSpaces: responseJson["wholesale_unit_occupied_spaces"].map((space) => space["id"]),
         centerCoordinate,
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
@@ -182,11 +184,7 @@ class LotView extends React.Component {
         spaceVehicleMap: {},
         spaceId: 0,
         vehicles: [],
-        //stockNumber: 0,
         vehicleId: 0,
-        //year: 0,
-        //make: 'Nissan',
-        //model: 'Versa',
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         skuCollectorVisible: false,
         skuSearchFailed: false,
@@ -194,7 +192,7 @@ class LotView extends React.Component {
         extraVehicleData: {},
         clickToPopulateStall: null,
         clickedStall: null,
-        feedbackText: ''
+        feedbackText: '',
       });
       this.updateSpaceVehicleMap = false;
     });
@@ -211,10 +209,9 @@ class LotView extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log('Response: ', responseJson)
       lotview.setState({
-        driveEventSpaces: responseJson["test_drive_events"].map((space) => Number(space.data.id)),
-        fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.id),
+        driveEventSpaces: responseJson["test_drive_events"].map((space) => space.data.attributes),
+        fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.attributes),
       })
     })
   }
@@ -450,7 +447,6 @@ class LotView extends React.Component {
       }
     } else {
       // Show Add Vehicle to highlighted space message
-      console.log('\n\nSpace Data: ' , data);
       this.populateStall(data[0]);
     }
   }
@@ -508,7 +504,6 @@ class LotView extends React.Component {
       stockNumberVehicleMap: snVehicleMap,
     });
   }
-
   // SKU Collector Visibility controls
   setSKUCollectorVisibility() {
     let visibile = !this.state.skuCollectorVisible;
@@ -542,7 +537,6 @@ class LotView extends React.Component {
 
       vehiclePromise.then((vehicleData) => {
         if (vehicleData) {
-          console.log(vehicleData)
           let tempVehicles = []
           tempVehicles.push(vehicleData)
           this.dismissInput();
@@ -684,7 +678,6 @@ class LotView extends React.Component {
 
   _renderTagModal() {
     console.log('Render Tag Modal View: ', this.state.modalType);
-    console.log('Modal Visible: ', this.state.modalVisible);
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
       <Modal
@@ -740,10 +733,6 @@ class LotView extends React.Component {
 
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
-      // <View style={styles.container}>
-      // not position
-
-    console.log('Drive Event Spaces: ', this.state.driveEventSpaces, '   newVehicleSpaces: ', this.state.newVehicleSpaces)
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
         <StatusBar
@@ -780,6 +769,7 @@ class LotView extends React.Component {
             setModalVisibility={this.setModalVisibility}
             sendMapCallback={this.getMapCallback}
             updateSpaceVehicleMap={false}
+            updateEvents={this.postLoadEvents}
             type='empty'
             recent={false}>
           </VehicleSpaceLayer>
@@ -828,8 +818,87 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
             type='used_vehicle'
             recent={true}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.loanerSpaces}
+            style={lotLayerStyles.loaner_recent_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.loanerSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='loaner_vehicle'
+            recent={true}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.loanerSpaces}
+            style={lotLayerStyles.loaner_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.loanerSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='loaner_vehicle'
+            recent={false}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.leaseSpaces}
+            style={lotLayerStyles.lease_recent_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.leaseSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='lease_vehicle'
+            recent={true}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.leaseSpaces}
+            style={lotLayerStyles.lease_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.leaseSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='lease_vehicle'
+            recent={false}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.wholesaleSpaces}
+            style={lotLayerStyles.wholesale_recent_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.wholesaleSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='wholesale_vehicle'
+            recent={true}>
+          </VehicleSpaceLayer>
+
+          <VehicleSpaceLayer
+            ids={this.state.wholesaleSpaces}
+            style={lotLayerStyles.wholesale_occupied_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.wholesaleSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='wholesale_vehicle'
+            recent={false}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -843,6 +912,15 @@ class LotView extends React.Component {
             type='duplicates'
             recent={false}>
           </VehicleSpaceLayer>
+
+          <EventsLayer
+            eventShapes={this.state.driveEventSpaces}
+            type='test_drive'>
+          </EventsLayer>
+          <EventsLayer
+            eventShapes={this.state.fuelEventSpaces}
+            type='fuel'>
+          </EventsLayer>
 
           <VehicleHighlightLayer
             clickedStallPolygon={this.state.clickedStall}>
@@ -927,8 +1005,8 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
     fillOpacity: 0.75,
   },
   new_vehicle_occupied_spaces: {
-    fillColor: '#8DB6CA',
-    fillOpacity: 1,
+    fillColor: '#006699',
+    fillOpacity: 0.4,
   },
   new_vehicle_recent_occupied_spaces: {
     fillColor: '#006699',
@@ -940,18 +1018,42 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
   },
   parking_lot: {
     fillColor: '#CCCCCC',
-   fillOpacity: 1,
+    fillOpacity: 1,
   },
   parking_spaces: {
     fillColor: '#FFFFFF',
     fillOpacity: 0.75
   },
   used_vehicle_occupied_spaces: {
-    fillColor: '#B6DF8D',
-    fillOpacity: 1,
+    fillColor: '#66CC00',
+    fillOpacity: 0.4,
   },
   used_vehicle_recent_occupied_spaces: {
     fillColor: '#66CC00',
+    fillOpacity: 1,
+  },
+  loaner_occupied_spaces: {
+    fillColor: '#E8F051',
+    fillOpacity: 0.4,
+  },
+  loaner_recent_occupied_spaces: {
+    fillColor: '#E8F051',
+    fillOpacity: 1,
+  },
+  lease_occupied_spaces: {
+    fillColor: '#D13CEA',
+    fillOpacity: 0.4,
+  },
+  lease_recent_occupied_spaces: {
+    fillColor: '#D13CEA',
+    fillOpacity: 1,
+  },
+  wholesale_occupied_spaces: {
+    fillColor: '#8D8C88',
+    fillOpacity: 0.4,
+  },
+  wholesale_recent_occupied_spaces: {
+    fillColor: '#8D8C88',
     fillOpacity: 1,
   },
 });

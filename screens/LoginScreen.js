@@ -25,15 +25,19 @@ export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { 
-      email: 'Email Address', 
-      pwd: 'Password', 
+    this.state = {
+      email: 'Email Address',
+      pwd: 'Password',
       buttonText: 'Login',
-      debug_email: 'adwoa@movementdash.com', 
-      debug_pwd: 'lot-mobile-view',
+      //debug_email: 'adwoa@movementdash.com',
+      //debug_pwd: 'lot-mobile-view',
+
+      debug_email: 'damien@damienmason.com',
+      debug_pwd: '5ngML5DI3mZq',
       debug_buttonText: 'Autologin',
     };
   }
+
 
   render() {
     return (
@@ -48,7 +52,7 @@ export default class LoginScreen extends React.Component {
               : require('../assets/images/lotwing-logo-white.png')
           }
           style={styles.logoSizing}/>
-        
+
         <View style={styles.inputContainer}>
           <TextInput
             autoCapitalize='none'
@@ -56,7 +60,7 @@ export default class LoginScreen extends React.Component {
             onChangeText={(email) => this.setState({email})}
             keyboardType='email-address'
             placeholder={this.state.email} />
-        
+
           <TextInput
             style={{height: 50, margin: 10, padding: 5, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white',}}
             onChangeText={(pwd) => this.setState({pwd})}
@@ -65,20 +69,20 @@ export default class LoginScreen extends React.Component {
 
         </View>
 
-        <LoginButton 
+        <LoginButton
           email={this.state.email}
           pwd={this.state.pwd}
           buttonText={this.state.buttonText}
-          callback={this.navigationCallback} 
+          callback={this.navigationCallback}
           navigation={this.props.navigation}
           style={[buttonStyles.activePrimaryModalButton, {marginLeft: 0, marginTop: 50, marginBottom: 20, width: '25%'}]}
           textColor={buttonStyles.activePrimaryTextColor}/>
 
-        <LoginButton 
+        <LoginButton
             email={this.state.debug_email}
             pwd={this.state.debug_pwd}
             buttonText={this.state.debug_buttonText}
-            callback={this.navigationCallback} 
+            callback={this.navigationCallback}
             navigation={this.props.navigation}
             textColor={buttonStyles.activeSecondaryTextColor}/>
 
@@ -109,7 +113,7 @@ class LoginButton extends React.Component {
           .then((responseJson) => {
             if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
               GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
-              
+
               console.log('\nLOT ACCESS TOKEN: ', GlobalVariables.LOTWING_ACCESS_TOKEN, '\n');
               AsyncStorage.setItem('userToken', '' + GlobalVariables.LOTWING_ACCESS_TOKEN);
 
