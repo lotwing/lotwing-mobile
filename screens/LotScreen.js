@@ -276,9 +276,9 @@ class LotView extends React.Component {
   setVisibility = (value, opt_modalType, opt_currVehicleId) => {
     this.setModalVisibility(value, opt_modalType, opt_currVehicleId);
   }
-  setModalId = (id) => {
+  setModalId = (id, vehicleArray) => {
     console.log('Lot View Vehicle ID: ', id)
-    this.state.vehicleId !== id && this.setState({ vehicleId: id })
+    this.state.vehicleId !== id && this.setState({ vehicleId: id, vehicles: vehicleArray })
   }
 
   // Modal Visibility controls
@@ -389,22 +389,10 @@ class LotView extends React.Component {
       }
     }
     // IF stall is populated pass all data barring extra which is optional
-    else {
-      if (vehiclesArray[0].extra == 0) {
-        throw Error('The proper data wasn\'t delivered to display the modal');
-      }
-    }
+
 
     this.setState({
-      //year: year,
-      //make: make,
-      //model: model,
       spaceId: space_id,
-      //vehicleId: vehiclesArray[0].id,
-      vehicles: vehiclesArray
-      //modalType: modal_type,
-      //stockNumber: stock_number,
-      //extraVehicleData: extra,
     });
   }
 
@@ -430,9 +418,9 @@ class LotView extends React.Component {
         this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
-      } else if (vehicleData) {
-        console.log('Extra data not empty: ', vehicleData.length);
-        let vehiclesArray = vehicleData;
+      } else if (vehicleData === null ) {
+        console.log('Extra data not empty: ', space_id);
+        let vehiclesArray = [];
         //let vehicle_id = vehicleData['id'];
         //let year = vehicleData['year'];
         //let make = vehicleData['make'];
@@ -447,7 +435,7 @@ class LotView extends React.Component {
       }
     } else {
       // Show Add Vehicle to highlighted space message
-      this.populateStall(data[0]);
+      this.populateStall(space_id);
     }
   }
 
