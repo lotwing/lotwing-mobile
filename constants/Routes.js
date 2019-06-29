@@ -9,8 +9,10 @@ export default {
 
 	LOGIN: '/api/auth/login',
 	AUTH_CHECK: '/api/auth/test',
-	VEHICLE: '/api/vehicle/',
+	VEHICLE: '/api/vehicles/',
 	VEHICLE_BY_SKU: '/api/vehicles/stock_numbers/',
+
+	KEY_BOARD_LOCATIONS: '/api/key_board_locations',
 
 	// POST REQUESTS
 	// - - - - - - - - - - - - - - - -

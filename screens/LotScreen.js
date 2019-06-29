@@ -389,7 +389,10 @@ class LotView extends React.Component {
       }
     }
     // IF stall is populated pass all data barring extra which is optional
-
+    if (space_id === null ) {
+      // special case where we don't have a space id
+      this.setState({ vehicles: vehiclesArray })
+    }
 
     this.setState({
       spaceId: space_id,
@@ -428,6 +431,9 @@ class LotView extends React.Component {
         //let stock_number = vehicleData['stock_number'];
 
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehiclesArray);
+        this.setModalVisibility(true);
+      } else if (space_id === null ) {
+        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehicleData);
         this.setModalVisibility(true);
       } else {
         console.log('DATA MISSING: ', vehicleData)
@@ -518,7 +524,7 @@ class LotView extends React.Component {
     if (vehicleData) {
       let space_id = vehicleData['shape_id'].toString();
       this.dismissInput();
-      this.showAndPopulateModal([space_id, vehicleData]);
+      this.showAndPopulateModal([space_id, null]);
     } else {
       console.log('Vehicle not currently on the map. Checking server...');
       let vehiclePromise = this._getVehicleBySKU(sku);
@@ -528,7 +534,7 @@ class LotView extends React.Component {
           let tempVehicles = []
           tempVehicles.push(vehicleData)
           this.dismissInput();
-          this.showAndPopulateModal([false, tempVehicles]);
+          this.showAndPopulateModal([null, tempVehicles]);
         } else {
           // Display sku location failure text within search modal
           this.setState({
@@ -677,12 +683,6 @@ class LotView extends React.Component {
           modalType={this.state.modalType}
           spaceId={this.state.spaceId}
           vehicles={this.state.vehicles}
-          //vehicleId={this.state.vehicleId}
-          //stockNumber={stockNumberToDisplay}
-          //year={this.state.year}
-          //make={this.state.make}
-          //model={this.state.model}
-          //extraVehicleData={this.state.extraVehicleData}
           style={styles.tagModalInnerView}
           modalStyling={styles.tagModalStyles}
           navigation={this.props.navigation}

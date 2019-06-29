@@ -6,6 +6,8 @@ import {
 
 import {
   Image,
+  TouchableOpacity,
+  Text
 } from 'react-native';
 
 import LoginScreen from '../screens/LoginScreen';

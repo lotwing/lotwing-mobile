@@ -68,16 +68,10 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
     console.log('\n\nSource layer pressed');
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
-    if (this.props.type == 'new_vehicle' || this.props.type == 'used_vehicle') {
-      console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
-      //let vehicle_data = this.state.spaceVehicleMap[space_id];
-      this.props.showAndPopulateModal([space_id, null], payload);
-    } else if (this.props.type == 'duplicates') {
-      console.log('\n\n- - - - - - \n CALLING SHOW AND POPULATE... \n - - - - - - \n');
-      //let vehicle_data = this.state.spaceVehicleMap[space_id];
-      this.props.showAndPopulateModal([space_id, null], payload);
-    } else {
+    if (this.props.type == 'empty') {
       this.props.showAndPopulateModal([space_id, GlobalVariables.EMPTY_MODAL_TYPE], payload);
+    } else {
+      this.props.showAndPopulateModal([space_id, null], payload);
     }
   }
 

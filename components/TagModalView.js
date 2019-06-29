@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   ActivityIndicator,
+  Dimensions
 } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';
@@ -44,25 +45,67 @@ export default class TagModalView extends React.Component {
       loading: true,
       modalContent: this.props.modalType,
       arrayPosition: 0,
-      vehicle: {},
-      vehicles: []
+      vehicle: null,
+      vehicles: [],
+      screen: 'default',
+      key_board_locations: [],
+      mileage: 0,
+      mileageOpen: false,
+      events: []
     }
   }
   componentWillMount() {
     this.loadVehicleData(this.props.spaceId)
-    /*if (this.props.modalType === 'base') {
-      console.log('Modal Vehicle ID: ', this.state.vehicles[this.state.arrayPosition].id)
-      this.props.vehicleId !== this.state.vehicles[this.state.arrayPosition].id && this.props.setVehicleId(this.state.vehicles[this.state.arrayPosition].id)
-      this.setState({vehicle: this.state.vehicles[this.state.arrayPosition] })
-    } else {
-      this.setState({vehicle: null })
-    }*/
   }
 
   loadVehicleData(space_id) {
-    console.log('MODAL: LOAD VEHICLE DATA', space_id);
-    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + space_id;
-    console.log(url)
+    if (space_id === null) {
+      if (this.props.vehicles.length) {
+        this.setState({
+          vehicles: this.props.vehicles,
+          vehicle: this.props.vehicles[this.state.arrayPosition],
+          mileage: this.props.vehicles[this.state.arrayPosition].mileage,
+          screen: 'default',
+          mileageOpen: false,
+          loading: false
+        })
+      }
+    } else {
+      let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + space_id;
+      console.log('MODAL: LOAD VEHICLE DATA: ', url);
+      return fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+      })
+      .then((response) => {
+          return response.json();
+      })
+      .then((result) => {
+        console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
+        if (result.vehicles.length) {
+          this.setState({
+            vehicles: result.vehicles,
+            vehicle: result.vehicles[this.state.arrayPosition],
+            mileage: result.vehicles[this.state.arrayPosition].mileage,
+            screen: 'default',
+            mileageOpen: false,
+            loading: false
+          });
+          this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
+        } else {
+          this.setState({vehicle: null, loading: false, modalContent: 'empty', mileage: null, mileageOpen: false })
+        }
+      })
+    }
+  }
+
+  loadKeyBoardData() {
+    this.setState({ loading: true });
+    let url = GlobalVariables.BASE_ROUTE + Route.KEY_BOARD_LOCATIONS;
+    console.log('MODAL: KEY BOARD LOCATION: ', url);
     return fetch(url, {
       method: 'GET',
       headers: {
@@ -74,16 +117,14 @@ export default class TagModalView extends React.Component {
         return response.json();
     })
     .then((result) => {
-      console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
-      if (result.vehicles.length) {
+      console.log('\nRETURNED KEY LOCATIONS DATA: ', result);
+      if (result.length) {
         this.setState({
-          vehicles: result.vehicles,
-          vehicle: result.vehicles[this.state.arrayPosition],
+          key_board_locations: result,
           loading: false
         });
-        this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
       } else {
-        this.setState({vehicle: null, loading: false, modalContent: 'empty' })
+        this.setState({loading: false })
       }
     })
   }
@@ -157,18 +198,85 @@ export default class TagModalView extends React.Component {
     }
   }
 
+  updateVehicle(object) {
+    this.setState({ loading: true });
+    url = GlobalVariables.BASE_ROUTE + Route.VEHICLE + this.state.vehicle.id
+    console.log('UPDATE VEHICLE: ', url, JSON.stringify(object))
+    return fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+      body: JSON.stringify(object),
+    })
+    .then((response) => {
+        console.log('RETURNED FROM UPDATE_VEHICLE', response);
+        this.loadVehicleData(this.props.spaceId)
+    })
+    .catch(err => {
+      console.log('\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n', err, err.name);
+      return err
+    })
+  }
   _renderAltActionView() { // either stallChange, info, or base
     // car features that can be displayed
     // spaceId, make, model, year, color, sku
     if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
       let vehicleColor = this.state.vehicles[this.state.arrayPosition].color ? this.state.vehicles[this.state.arrayPosition].color : '- -';
-
+      const { model, mileage, age_in_days, key_board_location_id } = this.state.vehicles[this.state.arrayPosition]
+      if (this.state.screen === 'keys') {
+        return(
+          <View style={[styles.tagModalMainBody, { borderLeftWidth: 0, borderRightWidth: 0}]}>
+            <View style={{ padding: 10, paddingLeft: 14, paddingRight: 14}}>
+              <Text style={styles.header}>SELECT A NEW LOCATION: </Text>
+            </View>
+            { this.state.key_board_locations.map((keylocation) => {
+              return(
+                <TouchableOpacity key={ keylocation.id} onPress={()=> this.updateVehicle({ key_board_location_name: keylocation.name })}>
+                  <View style={[{ padding: 10, paddingLeft: 14, paddingRight: 14 }, keylocation.name === this.state.vehicle.key_board_location_name && {backgroundColor: '#727272'} ]}>
+                    <Text style={styles.header}>{ keylocation.name }</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            <View style={{ marginTop: 10, marginRight: 14 }}>
+              <View style={pageStyles.rightButtonContainer}>
+                <TouchableOpacity
+                  style={buttonStyles.activeSecondaryModalButton}
+                  onPress={() => this.setState({ screen: 'default' })}>
+                  <Text style={buttonStyles.activeSecondaryTextColor}>
+                    CANCEL
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )
+      }
+      if (this.state.screen === 'events') {
+        return(
+          <View>
+            <Text>EVENT VIEW</Text>
+            <TouchableOpacity
+              style={buttonStyles.activeSecondaryModalButton}
+              onPress={() => this.setState({ screen: 'default' })}>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
+                CANCEL
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )
+      }
       return (
         <View
           style={styles.tagModalMainBody}>
 
           <Text style={styles.header}>
-            {this.state.vehicles[this.state.arrayPosition].model}, {vehicleColor} </Text>
+            { model }, {vehicleColor} </Text>
+          <Text style={styles.header}>
+            { mileage } Miles, { age_in_days } Days</Text>
           <View
             style={styles.tagButtonContainer}>
 
@@ -197,6 +305,14 @@ export default class TagModalView extends React.Component {
             style={pageStyles.rightButtonContainer}>
 
             <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }]}
+              onPress={() => this.setState({mileageOpen: !this.state.mileageOpen }) }>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
+                ODO UPDATE
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={buttonStyles.activeSecondaryModalButton}
               onPress={() => {this.showChooseSpaceView()}}>
               <Text style={buttonStyles.activeSecondaryTextColor}>
@@ -211,8 +327,36 @@ export default class TagModalView extends React.Component {
                 CONFIRM
               </Text>
             </TouchableOpacity>
-
           </View>
+            { this.state.mileageOpen &&
+              <View>
+                <TextInput
+                  multiline={false}
+                  style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
+                  value={ `${ this.state.mileage }` }
+                  keyboardType={'numeric'}
+                  onChangeText={(mileage) => this.setState({ mileage: mileage }) }
+                  autoFocus={true}
+                />
+                <View style={pageStyles.rightButtonContainer}>
+                  <TouchableOpacity
+                    style={buttonStyles.activeSecondaryModalButton}
+                    onPress={() => { this.setState({ mileageOpen: false, mileage: Number(this.state.vehicle.mileage) })}}>
+                    <Text style={buttonStyles.activeSecondaryTextColor}>
+                      CANCEL
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={buttonStyles.activePrimaryModalButton}
+                    onPress={()=> this.updateVehicle({ mileage: this.state.mileage }) }
+                  >
+                    <Text style={buttonStyles.activePrimaryTextColor}>
+                      UPDATE ODOMETER
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            }
         </View>
       )
 
@@ -299,7 +443,9 @@ export default class TagModalView extends React.Component {
     let isOnMap = this.props.spaceId;
 
     let vehicleUsageType = this.state.vehicle !== null && this.state.vehicle.is_used ? 'Used' : 'New';
-    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + this.state.vehicle.year + ' ' + this.state.vehicle.make : 'Not in Stall' : ' ';
+    let vehicleYear = this.state.vehicle !== null && this.state.vehicle.year ? this.state.vehicle.year : '';
+    let vehicleMake = this.state.vehicle !== null && this.state.vehicle.make ? this.state.vehicle.make : '';
+    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + vehicleYear + ' ' + vehicleMake : 'Not in Stall' : ' ';
 
     if (this.state.loading) {
       return(
@@ -352,8 +498,17 @@ export default class TagModalView extends React.Component {
               })}
             </View>
           }
-          <View
-            style={styles.tagModalStallBar}>
+          <View style={[styles.tagModalStallBar, { borderBottomWidth: 0, height: 'auto'}]}>
+          { this.state.vehicle !== null && this.state.vehicle.key_board_location_name &&
+            <TouchableOpacity onPress={()=> {
+              this.loadKeyBoardData();
+              this.setState({screen: 'keys'})
+            }}>
+              <View style={{ marginLeft: -5, marginRight: -5, width: Dimensions.get('window').width, padding: 5, backgroundColor: '#727272'}}><Text style={[styles.stallHeader, { fontSize: 16}]}>Key Location: { this.state.vehicle.key_board_location_name }</Text></View>
+            </TouchableOpacity>
+          }
+          </View>
+          <View style={[styles.tagModalStallBar, { borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
             <Text style={styles.stallHeader}> {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'} </Text>
             <Text style={styles.stallHeader}>{modalTitle}</Text>
           </View>
