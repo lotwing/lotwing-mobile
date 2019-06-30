@@ -65,7 +65,6 @@ export default class VehicleSpaceLayer extends React.PureComponent {
   onSourceLayerPress(e) {
     let payload = e.nativeEvent.payload;
     const space_id = payload['id'];
-
     console.log('\n\nSource layer pressed');
     console.log('\n\nPressed Feature ID: ', space_id, '  - type ', this.props.type);
     if (this.props.type == 'empty') {
@@ -117,7 +116,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
           <Mapbox.FillLayer
             id={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
             key={this.props.recent ? `parking_spaces_fill-${this.props.type}-recent` : `parking_spaces_fill-${this.props.type}`}
-            style={[ this.state.loading ? { fillColor: '#dadada' } : this.props.style ]} />
+            style={[ this.props.blank ? { fillColor: '#dadada' } : this.props.style ]} />
         </Mapbox.ShapeSource>
       )
     }

@@ -15,6 +15,7 @@ import LotScreen from '../screens/LotScreen';
 import FuelScreen from '../screens/FuelScreen';
 import DriveScreen from '../screens/DriveScreen';
 import NoteScreen from '../screens/NoteScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
@@ -36,6 +37,7 @@ const AppStack = createStackNavigator(
 	Fuel: FuelScreen,
 	Drive: DriveScreen,
 	Note: NoteScreen,
+  History: HistoryScreen,
 },
 {
 	navigationOptions: {

@@ -27,6 +27,8 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 /**
  *
  * Lot shapes include:
@@ -51,7 +53,7 @@ export default class TagModalView extends React.Component {
       key_board_locations: [],
       mileage: 0,
       mileageOpen: false,
-      events: []
+      events: [],
     }
   }
   componentWillMount() {
@@ -84,7 +86,7 @@ export default class TagModalView extends React.Component {
           return response.json();
       })
       .then((result) => {
-        console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
+        //console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
         if (result.vehicles.length) {
           this.setState({
             vehicles: result.vehicles,
@@ -132,6 +134,7 @@ export default class TagModalView extends React.Component {
   dismissModal() {
     this.props.setVehicleHighlight(null);
     this.props.setModalVisibility(false);
+
   }
 
   showChooseSpaceView() {
@@ -176,7 +179,6 @@ export default class TagModalView extends React.Component {
       })
       .then((responseJson) => {
         this.updateLotAndDismissModal();
-        //console.log('spaceData: ',responseJson)
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
@@ -189,12 +191,14 @@ export default class TagModalView extends React.Component {
 
     if (page_name == 'drive') {
       this.props.navigation.navigate('Drive', { props: this.props, position: this.state.arrayPosition});
-    } else if (page_name == 'fuel') {
+    } else if (page_name === 'fuel') {
       this.props.navigation.navigate('Fuel', { props: this.props, position: this.state.arrayPosition});
-    } else if (page_name == 'camera') {
+    } else if (page_name === 'camera') {
 
-    } else if (page_name == 'note') {
+    } else if (page_name === 'note') {
       this.props.navigation.navigate('Note', { props: this.props, position: this.state.arrayPosition});
+    } else if (page_name === 'history') {
+      this.props.navigation.navigate('History', { space_id: this.props.spaceId, vehicle: this.state.vehicle, position: this.state.arrayPosition});
     }
   }
 
@@ -255,28 +259,21 @@ export default class TagModalView extends React.Component {
           </View>
         )
       }
-      if (this.state.screen === 'events') {
-        return(
-          <View>
-            <Text>EVENT VIEW</Text>
-            <TouchableOpacity
-              style={buttonStyles.activeSecondaryModalButton}
-              onPress={() => this.setState({ screen: 'default' })}>
-              <Text style={buttonStyles.activeSecondaryTextColor}>
-                CANCEL
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )
-      }
       return (
         <View
           style={styles.tagModalMainBody}>
-
-          <Text style={styles.header}>
-            { model }, {vehicleColor} </Text>
-          <Text style={styles.header}>
-            { mileage } Miles, { age_in_days } Days</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.header}>{ model }, {vehicleColor} </Text>
+              <Text style={styles.header}>{ mileage } Miles, { age_in_days } Days</Text>
+            </View>
+            <View style={{ flex: 0 }}>
+              <TouchableOpacity onPress={()=> this.launchPage('history') }>
+                <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons type='ionicon' name={ 'ios-information-circle'} size={ 25 } style={{ color: '#FFF' }} /></View>
+              </TouchableOpacity>
+            </View>
+          </View>
           <View
             style={styles.tagButtonContainer}>
 
@@ -328,6 +325,7 @@ export default class TagModalView extends React.Component {
               </Text>
             </TouchableOpacity>
           </View>
+
             { this.state.mileageOpen &&
               <View>
                 <TextInput
@@ -469,6 +467,40 @@ export default class TagModalView extends React.Component {
           </View>
         </View>
       </KeyboardAvoidingView>
+      )
+    }
+    // In the case of showing a blank map with one highlight
+    if (this.props.findingOnMap) {
+      return(
+        <KeyboardAvoidingView
+        style={styles.tagModalOverlay} behavior="padding" enabled>
+
+          <TouchableWithoutFeedback
+            onPress={() => {
+              this.props.findOnMap(false);
+            }}>
+            <View
+              style={styles.tagModalBlankSpace}>
+            </View>
+          </TouchableWithoutFeedback>
+
+          <View style={styles.modalBottomContainer}>
+            <View style={styles.tagModalMainBody}>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+                  <Text style={[styles.stallHeader, { marginRight: 10 }]}>
+                  {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'}</Text>
+                  <Text style={styles.stallHeader}>{modalTitle}</Text>
+                </View>
+                <View style={{ flex: 0 }}>
+                  <TouchableOpacity style={buttonStyles.activePrimaryModalButton} onPress={()=> this.props.findOnMap(false)}>
+                    <Text style={buttonStyles.activePrimaryTextColor}>OKAY</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       )
     }
     return (

@@ -58,6 +58,7 @@ class LotView extends React.Component {
 
       this.state = {
         centerCoordinate:[0, 0],
+        zoomLevel: 17,
         lotShapes: null,
         errorLoading: false,
         modalVisible: false,
@@ -83,6 +84,7 @@ class LotView extends React.Component {
         clickToPopulateStall: null,
         clickedStall: null,
         feedbackText: 'Populating space...',
+        findingOnMap: false
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -111,7 +113,16 @@ class LotView extends React.Component {
    * the lotview.
    */
   componentWillReceiveProps(nextProps) {
-    if (nextProps.navigation.state && nextProps.navigation.state.params.refresh) {
+    if (nextProps.navigation.state.params && nextProps.navigation.state.params.showModal) {
+      setVisibility(true)
+    }
+    if (nextProps.navigation.state.params && nextProps.navigation.state.params.findingOnMap) {
+      const { space_coords } = nextProps.navigation.state.params
+      console.log('COORDS: ', space_coords)
+      centerCoordinate = this._calculateCenter(space_coords.geometry.coordinates[0])
+      this.setState({findingOnMap: true, modalVisible: true, centerCoordinate: centerCoordinate, zoomLevel: 18.5, clickedStall: space_coords });
+    }
+    if (nextProps.navigation.state.params && nextProps.navigation.state.params.refresh) {
       console.log('REFRESHING LOT')
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
@@ -403,6 +414,10 @@ class LotView extends React.Component {
     this.setState({clickedStall: polygonClicked});
   }
 
+  findOnMap = (boolean) => {
+    this.setState({ findingOnMap: boolean })
+  }
+
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
 
@@ -689,7 +704,9 @@ class LotView extends React.Component {
           setModalVisibility={this.setVisibility}
           setVehicleId={this.setModalId}
           updateLotAndDismissModal={this.updateLotAndDismissModal}
-          setVehicleHighlight={this.setVehicleHighlight} />
+          setVehicleHighlight={this.setVehicleHighlight}
+          findOnMap={this.findOnMap}
+          findingOnMap={this.state.findingOnMap} />
       </Modal>
       )
   }
@@ -734,7 +751,7 @@ class LotView extends React.Component {
           showUserLocation={true}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          zoomLevel={17}>
+          zoomLevel={this.state.zoomLevel}>
 
           <Mapbox.ShapeSource
             id='parking_lot'
@@ -771,7 +788,8 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='new_vehicle'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -783,7 +801,8 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='new_vehicle'
-            recent={true}>
+            recent={true}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -795,7 +814,8 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='used_vehicle'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -808,7 +828,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='used_vehicle'
-            recent={true}>
+            recent={true}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -821,7 +842,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='loaner_vehicle'
-            recent={true}>
+            recent={true}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -834,7 +856,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='loaner_vehicle'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -847,7 +870,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='lease_vehicle'
-            recent={true}>
+            recent={true}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -860,7 +884,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='lease_vehicle'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -873,7 +898,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='wholesale_vehicle'
-            recent={true}>
+            recent={true}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -886,7 +912,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
             type='wholesale_vehicle'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <VehicleSpaceLayer
@@ -898,7 +925,8 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type='duplicates'
-            recent={false}>
+            recent={false}
+            blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
           <EventsLayer
