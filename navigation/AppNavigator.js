@@ -2,13 +2,16 @@ import React from 'react';
 import {
 	createStackNavigator,
 	createSwitchNavigator,
+  createAppContainer
 } from 'react-navigation';
 
 import {
   Image,
   TouchableOpacity,
-  Text
+  Text,
+  View
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
@@ -31,23 +34,44 @@ class NavigationMenu extends React.Component {
   }
 }
 
-const AppStack = createStackNavigator(
-{
-	Lot: LotScreen,
-	Fuel: FuelScreen,
-	Drive: DriveScreen,
-	Note: NoteScreen,
-  History: HistoryScreen,
-},
-{
-	navigationOptions: {
-		headerStyle: {
-			backgroundColor: '#BE1E2D',
-		},
-		headerTitle: <NavigationMenu />,
-		headerTintColor: 'white',
-	},
+const navigationOptions = ({ navigation }) => {
+  return {
+    headerLeft: (
+      <TouchableOpacity onPress={() => navigation.navigate('Lot', { extras: navigation.getParam("extras", {}), showModal: true, findingOnMap: false })}>
+        <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons type='ionicon' name={ 'ios-arrow-back'} size={ 25 } style={{ color: '#FFF' }} />
+        </View>
+      </TouchableOpacity>
+    )
+  }
+}
 
+const AppStack = createStackNavigator({
+	Lot: LotScreen,
+	Fuel: {
+    screen: FuelScreen,
+    navigationOptions: navigationOptions,
+  },
+	Drive:  {
+    screen: DriveScreen,
+    navigationOptions: navigationOptions,
+  },
+	Note:  {
+    screen: NoteScreen,
+    navigationOptions: navigationOptions,
+  },
+  History:  {
+    screen: HistoryScreen,
+    navigationOptions: navigationOptions,
+  },
+},{
+  defaultNavigationOptions: {
+    headerStyle: {
+      backgroundColor: '#BE1E2D',
+    },
+    headerTitle: <NavigationMenu />,
+    headerTintColor: 'white',
+  }
 });
 const AuthStack = createStackNavigator({ Login: LoginScreen });
 
@@ -63,8 +87,6 @@ const switchNav = createSwitchNavigator(
 );
 
 
-export default switchNav;
+const lotwingAppContainer = createAppContainer(switchNav);
 
-// TODO(adwoa): IF and WHEN we update the react-navigation dependency to version
-// 3.0 we should use createAppContainer
-// const lotwingAppContainer = createAppContainer(switchNav);
+export default lotwingAppContainer

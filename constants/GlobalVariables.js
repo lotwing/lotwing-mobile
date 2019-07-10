@@ -17,6 +17,7 @@ export default {
 	INFO_MODAL_TYPE: 'info',
 	STALL_ENTRY_MODAL_TYPE: 'stall_change',
 	ACTION_FEEDBACK_MODAL_TYPE: 'action_feedback',
+	CREATE_MODAL_TYPE: 'create_vehicle',
 
 	// VEHICLE ACTIONS
 

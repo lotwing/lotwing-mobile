@@ -40,7 +40,7 @@ export default {
   },
 
   endTimeboundTagAction: function(actionPayload, eventId) {
-    console.log('END TAG DATA: ', actionPayload, eventId);
+    //console.log('END TAG DATA: ', actionPayload, eventId);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.COMPLETE_TIMED_TAG_EVENT + eventId, {
       method: 'PUT',
@@ -52,7 +52,7 @@ export default {
       body: JSON.stringify(actionPayload),
     })
     .then((response) => {
-      console.log('RETURNED FROM COMPLETE_TIMED_TAG_EVENT', response);
+      //console.log('RETURNED FROM COMPLETE_TIMED_TAG_EVENT', response);
       // nothing returned from this action...
     })
     .catch(err => {
@@ -78,7 +78,7 @@ export default {
     .then((response) => {
       //console.log('GET EVENT ID RESPONSE:' , response.events[0])
       const targetEvents = response.events[0].filter(event => event.data.attributes.event_type === eventType)
-      console.log('TARGET EVENTS: ', targetEvents)
+      //console.log('TARGET EVENTS: ', targetEvents)
       let finalResponse = [];
       targetEvents.forEach((event )=> {
         finalResponse.push(event.data.id)

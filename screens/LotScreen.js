@@ -57,7 +57,7 @@ class LotView extends React.Component {
       super(props);
 
       this.state = {
-        centerCoordinate:[0, 0],
+        centerCoordinate:null,
         zoomLevel: 17,
         lotShapes: null,
         errorLoading: false,
@@ -77,6 +77,7 @@ class LotView extends React.Component {
         vehicles: [],
         vehicleId: 0,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
+        sku: '',
         skuCollectorVisible: false,
         skuSearchFailed: false,
         stockNumberVehicleMap: {},
@@ -84,7 +85,11 @@ class LotView extends React.Component {
         clickToPopulateStall: null,
         clickedStall: null,
         feedbackText: 'Populating space...',
-        findingOnMap: false
+        findingOnMap: false,
+        modalReopen: false,
+        modalReopenTarget: 0,
+        modalReopenHighlight: null,
+        leaseRt: false
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -106,27 +111,85 @@ class LotView extends React.Component {
       this.updateSpaceVehicleMap = false;
 
   }
-
   /**
    * Loads all of the data associated with a lot and updates
    * the associated state variables, triggering a reload of
    * the lotview.
    */
   componentWillReceiveProps(nextProps) {
-    if (nextProps.navigation.state.params && nextProps.navigation.state.params.showModal) {
-      setVisibility(true)
-    }
-    if (nextProps.navigation.state.params && nextProps.navigation.state.params.findingOnMap) {
-      const { space_coords } = nextProps.navigation.state.params
-      console.log('COORDS: ', space_coords)
+    if (nextProps.navigation.state.params.findingOnMap === true) {
+      // if the navigation 'findingOnMap' param is true (from History screen)
+      const { space_coords, findingOnMap } = nextProps.navigation.state.params
+      console.log('Finding on map Event. COORDS: ', space_coords)
       centerCoordinate = this._calculateCenter(space_coords.geometry.coordinates[0])
-      this.setState({findingOnMap: true, modalVisible: true, centerCoordinate: centerCoordinate, zoomLevel: 18.5, clickedStall: space_coords });
+      this.setState({findingOnMap: findingOnMap, modalVisible: true, centerCoordinate: centerCoordinate, zoomLevel: 18.5, clickedStall: space_coords });
+    } else if (nextProps.navigation.state.params) {
+      if (nextProps.navigation.state.params.extras) {
+        // If the navigation contains an "extras" param (End fuelling or test drive)
+        const { extras } = nextProps.navigation.state.params
+        console.log('extras', extras)
+        // cancel fuelling event
+        if (extras.fuelEventId) {
+          console.log('Fuelling Event', extras );
+          const { fuelEventId, spaceId } = extras;
+          this.cancelFuel(fuelEventId, spaceId);
+        // cancel fuelling event
+        } else if (extras.driveEventId) {
+          console.log('Driving Event', extras );
+          const { driveEventId, spaceId } = extras;
+          this.cancelDrive(driveEventId, spaceId);
+        // update location
+        } else if ( extras.updateLocation && extras.updateLocation === true ) {
+          console.log('Update Location Event')
+          this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE)
+        } else {
+          this.setState({findingOnMap: false, modalVisible: true })
+        }
+      } else {
+        this.setState({findingOnMap: false, modalVisible: true })
+      }
+    } else {
+      this.setState({findingOnMap: false, modalVisible: true })
     }
     if (nextProps.navigation.state.params && nextProps.navigation.state.params.refresh) {
       console.log('REFRESHING LOT')
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
+  }
+  cancelFuel(fuelEventId, spaceId) {
+    endedPackage = {
+      acknowledged: true,
+      event_details: 'fuel event ' + fuelEventId + ' canceled'
+    }
+
+    let eventIdPromise = LotActionHelper.getEventId(spaceId, 'fuel_vehicle');
+    eventIdPromise
+      .then((event_id) => {
+        console.log('FUEL EVENT CANCELLED - EVENT ID: ', event_id);
+        event_id.forEach((id) => {
+          LotActionHelper.endTimeboundTagAction(endedPackage, id);
+        })
+      })
+      .then( this.setState({findingOnMap: false, modalVisible: true }) )
+      .catch((e) => console.log('FUEL EVENT ERROR: ', e));
+  }
+  cancelDrive(driveEventId, spaceId) {
+    endedPackage = {
+      acknowledged: true,
+      event_details: 'drive event ' + driveEventId + ' canceled'
+    }
+
+    let eventIdPromise = LotActionHelper.getEventId(spaceId, 'test_drive');
+    eventIdPromise
+      .then((event_id) => {
+        console.log('DRIVE EVENT CANCELLED - EVENT ID: ', event_id);
+        event_id.forEach((id) => {
+          LotActionHelper.endTimeboundTagAction(endedPackage, id);
+        })
+      })
+      .then( this.setState({findingOnMap: false, modalVisible: true }) )
+      .catch((e) => console.log('DRIVE EVENT ERROR: ', e));
   }
   _loadLotView() {
     var lotview = this;
@@ -157,8 +220,9 @@ class LotView extends React.Component {
       });
       console.log('     resetting state: _loadLotView');
       lotview._loadEvents();
+
       lotview._loadParkingSpaceMetadata({
-        centerCoordinate: lotview._calculateCenter(lot_coords),
+        centerCoordinate: this.state.centerCoordinate === null ? lotview._calculateCenter(lot_coords) : this.state.centerCoordinate,
         parkingShapes: lotParkingSpaceMap,
       })
     })
@@ -191,21 +255,27 @@ class LotView extends React.Component {
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
         errorLoading: false,
-        modalVisible: false,
+        //modalVisible: false,
         spaceVehicleMap: {},
-        spaceId: 0,
+        //spaceId: 0,
         vehicles: [],
         vehicleId: 0,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
+        sku: '',
         skuCollectorVisible: false,
         skuSearchFailed: false,
         stockNumberVehicleMap: {},
         extraVehicleData: {},
         clickToPopulateStall: null,
-        clickedStall: null,
+        //clickedStall: null,
         feedbackText: '',
+        leaseRt: false,
       });
       this.updateSpaceVehicleMap = false;
+      if (this.state.modalReopen) {
+        this.showAndPopulateModal([this.state.modalReopenTarget, null], this.state.modalReopenHighlight)
+        this.setState({modalReopen: false })
+      }
     });
   }
   _loadEvents() {
@@ -300,8 +370,10 @@ class LotView extends React.Component {
     if (modalType !== null) {
       let textToShow = null
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
+        Keyboard.dismiss();
+        this.setState({ skuCollectorVisible: false });
         textToShow = 'Choose the stall to populate...';
-        console.log('Should populate VEHICLE ', this.state.vehicleId);
+        console.log('Should populate VEHICLE ', vehicleId);
       } else if (modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE && visibility == false && opt_basic_modal_action_fb_msg) {
         textToShow = opt_basic_modal_action_fb_msg;
       }
@@ -319,16 +391,13 @@ class LotView extends React.Component {
   updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
     // 1. Remove Vehicle  Highlight
     console.log('updateLotAndDismissModal')
+    const tempHighlight = this.state.clickedStall
     this.setVehicleHighlight(null);
 
     // 2. Dismiss Modal & Show Loading Feedback
     this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, opt_feedbackMsg);
 
     // 3. Update Stall Number & Fetch Updated Lot
-    // TODO(adwoa): make this process faster. We should be
-    // doing single space updates and listening for other
-    // parking space change actions continuously so that this
-    // does not require an entire lot reload
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
@@ -345,12 +414,21 @@ class LotView extends React.Component {
       let vehiclePromise = this._getVehicleBySKU(sku_number);
 
       vehiclePromise.then((vehicleData) => {
-        return this.updateStallNumber(new_stall, vehicleData['id'])
+        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
+        if (vehicleData.vehicle === null ) {
+          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
+          this.setVehicleHighlight(tempHighlight)
+        } else {
+          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
+        }
       }).then((result) => {
+
         console.log('STALL UPDATE RESULT: ', result);
         // 3. Re-render lot by updating state
-        this.updateSpaceVehicleMap = true;
-        return this._loadLotView();
+        if (result !== undefined) {
+          this.updateSpaceVehicleMap = true;
+          return this._loadLotView();
+        }
       })
     } else {
       this.updateSpaceVehicleMap = true;
@@ -358,12 +436,15 @@ class LotView extends React.Component {
     }
 
   }
-
+  updateLotAndReopenModal = (space_id) => {
+    const tempHighlight = this.state.clickedStall;
+    this.setState({ modalReopen: true, modalReopenTarget: space_id, modalReopenHighlight: tempHighlight })
+    this.updateLotAndDismissModal(null, null, null, 'Updating Lot...')
+  }
   updateStallNumber(new_stall, vehicleId) {
     let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
     let space_data = LotActionHelper.structureTagPayload('change_stall', newSpaceData, 'Moved vehicle to stall ' + new_stall);
-
-    console.log('\n\nSPACE DATA: ', space_data);
+    this.setState({ vehicleId: vehicleId })
     console.log('vehicle id: ', vehicleId,' == ', this.state.vehicleId);
     console.log('old space id: ', this.state.spaceId);
     console.log('new space id: ', new_stall);
@@ -420,7 +501,7 @@ class LotView extends React.Component {
 
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
-
+    console.log(space_id)
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
     if (polygonClicked) {
@@ -430,6 +511,7 @@ class LotView extends React.Component {
     }
     // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
+      this.setState({leaseRt: false })
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
         console.log('\n\nEmpty Modal');
         // show empty modal
@@ -439,15 +521,10 @@ class LotView extends React.Component {
       } else if (vehicleData === null ) {
         console.log('Extra data not empty: ', space_id);
         let vehiclesArray = [];
-        //let vehicle_id = vehicleData['id'];
-        //let year = vehicleData['year'];
-        //let make = vehicleData['make'];
-        //let model = vehicleData['model'];
-        //let stock_number = vehicleData['stock_number'];
 
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehiclesArray);
         this.setModalVisibility(true);
-      } else if (space_id === null ) {
+      } else if (space_id !== null && vehicleData !== null ) {
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehicleData);
         this.setModalVisibility(true);
       } else {
@@ -467,19 +544,16 @@ class LotView extends React.Component {
       console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
       console.log('VEHICLE ID: ', this.state.vehicleId);
       // 2. Update Stall Number & Fetch updated lot
-      // TODO(adwoa): make this process faster. We should be
-      // doing single space updates and listening for other
-      // parking space change actions continuously so that this
-      // does not require an entier lot reload
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
         let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
 
         stallUpdatedPromise.then((result) => {
-          //console.log('STALL UPDATE RESULT: ', result);
           // 3. Re-render lot by updating state
-          this.updateSpaceVehicleMap = true;
-          return this._loadLotView();
+          this.updateLotAndReopenModal(space_id)
+          //this.updateSpaceVehicleMap = true;
+          //return this._loadLotView();
+
         })
       }
 
@@ -527,57 +601,54 @@ class LotView extends React.Component {
   }
 
   locateVehicleBySKU() {
-    // 1. Get the stall where the vehicle is located
-    // 2. Navigate the map to that position (mvp optional) TODO (adwoa): add this functionality
-    // 3. Open the modal for that stall
-
     let sku = this.getSKUFromInput();
-    let vehicleData = this.state.stockNumberVehicleMap[sku];
+    this.setVehicleHighlight(null);
+    console.log('\n\nChecking Server for SKU: ', sku);
+    let vehiclePromise = this._getVehicleBySKU(sku);
 
-    console.log('\n\nSKU: ', sku, '\nKeys: ', Object.keys(this.state.stockNumberVehicleMap));
-
-    if (vehicleData) {
-      let space_id = vehicleData['shape_id'].toString();
-      this.dismissInput();
-      this.showAndPopulateModal([space_id, null]);
-    } else {
-      console.log('Vehicle not currently on the map. Checking server...');
-      let vehiclePromise = this._getVehicleBySKU(sku);
-
-      vehiclePromise.then((vehicleData) => {
-        if (vehicleData) {
-          let tempVehicles = []
-          tempVehicles.push(vehicleData)
-          this.dismissInput();
-          this.showAndPopulateModal([null, tempVehicles]);
-        } else {
-          // Display sku location failure text within search modal
-          this.setState({
-            skuSearchFailed: true,
-          });
-        }
-      });
-    }
+    vehiclePromise.then((response) => {
+      const { space_id, polygon, vehicle } = response;
+    console.log('Returned Vehicle Info')
+    console.log('SPACE ID: ', space_id)
+    console.log('SHAPE', polygon)
+    console.log('VEHICLE', vehicle)
+      if (space_id) {
+        this.dismissInput();
+        this.showAndPopulateModal([space_id, null], polygon);
+        this.setState({spaceId: space_id})
+      } else if (space_id === null && vehicle ) {
+        console.log('Pulling car from server: ', vehicle.id)
+        this.setState({ vehicleId: vehicle.id, spaceId: null })
+        this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE, vehicle.id)
+      } else {
+        // Display sku location failure text within search modal
+        this.dismissInput();
+        this.setState({ vehicleId: null, spaceId: null })
+        this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
+      }
+    });
   }
 
   _getVehicleBySKU(stock_number) {
+    this.setState({ sku: stock_number })
     // console.log('Stock Number Entered: ', stock_number);
     // console.log('HITTING ENDPOINT: ', GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number);
     return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number , {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-          },
-      })
-      .then((response) => response.json())
-          .then((responseJson) => {
-            console.log('VEHICLE PULLED FROM STORE: ', responseJson['vin']);
-            return responseJson
-          })
-          .catch(err => {
-            return false
-          })
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+      const { current_parking_space, vehicle } = responseJson;
+      return { space_id: current_parking_space !== null ? current_parking_space.id : null, polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall, vehicle: vehicle }
+    })
+    .catch(err => {
+      return false
+    })
   }
 
   getLot() {
@@ -635,8 +706,7 @@ class LotView extends React.Component {
             <View
               style={styles.floatingTextInputArea}>
               <Text
-                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>
-                Stock Number</Text>
+                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>{ this.state.leaseRt ? 'LAST 5 VIN' : 'STOCK NUMBER'}</Text>
               <TextInput
                 autoCapitalize='characters'
                 multiline={false}
@@ -652,6 +722,13 @@ class LotView extends React.Component {
 
               <View
                 style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
+                <TouchableOpacity
+                  style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }]}
+                  onPress={() => this.setState({leaseRt: !this.state.leaseRt })}>
+                  <Text style={buttonStyles.activeSecondaryTextColor}>
+                    { this.state.leaseRt ? 'BACK' : 'LEASE RT'}
+                  </Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={buttonStyles.activeSecondaryModalButton}
@@ -704,9 +781,12 @@ class LotView extends React.Component {
           setModalVisibility={this.setVisibility}
           setVehicleId={this.setModalId}
           updateLotAndDismissModal={this.updateLotAndDismissModal}
+          updateLotAndReopenModal={this.updateLotAndReopenModal}
           setVehicleHighlight={this.setVehicleHighlight}
           findOnMap={this.findOnMap}
-          findingOnMap={this.state.findingOnMap} />
+          findingOnMap={this.state.findingOnMap}
+          sku={this.state.sku}
+          leaseRt={this.state.leaseRt} />
       </Modal>
       )
   }

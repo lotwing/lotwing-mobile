@@ -25,7 +25,7 @@ export default class FuelScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params.props;
-		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
+		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
 		this.startOrStopAction = this.startOrStopAction.bind(this);
 
 		this.endFueling = this.endFueling.bind(this);
@@ -39,9 +39,10 @@ export default class FuelScreen extends React.Component {
 			startStopButtonText: 'START FUELING',
 		};
 
-		console.log('NAVIGATION DATA: ', this.props.navigation.state);
 	}
-
+	componentDidMount() {
+		this.props.navigation.setParams({ extras: { } })
+	}
 	startFuelingAction() {
 		console.log('\nstartFuelingAction called');
 		console.log('\nFuel Time: ', this.state.fuelTime);
@@ -78,13 +79,17 @@ export default class FuelScreen extends React.Component {
 	startFuelTimer() {
 		this.setState({
 			isStopButtonVisible: true,
-			startStopButtonText: 'STOP FUELING',
+			startStopButtonText: 'END IN SAME LOCATION',
 		});
+		this.props.navigation.setParams({extras: { fuelEventId: this.fuelEventId,  spaceId: this.details.spaceId }})
+
 	}
 
-	endFueling(shouldAcknowledgeAction) {
+	endFueling(shouldAcknowledgeAction, updateLocation) {
 		let fuelScreen = this;
 		let endedPackage = {};
+
+		this.props.navigation.setParams({extras: { updateLocation: updateLocation, spaceId: this.details.spaceId }})
 
 		if (shouldAcknowledgeAction) {
 			endedPackage = {
@@ -132,7 +137,7 @@ export default class FuelScreen extends React.Component {
 
 	confirmTagRegistered() {
 		// push back to lotscreen and refresh
-		this.props.navigation.navigate('Lot', { refresh: true });
+		this.props.navigation.navigate('Lot', { extras: this.props.navigation.getParam("extras", {}), modalVisible: true, refresh: true, findingOnMap: false });
 		//this.props.navigation.goBack();
 	}
 
@@ -154,82 +159,44 @@ export default class FuelScreen extends React.Component {
 	}
 
 	_renderProperFuelActionView() {
-		if (this.state.isFuelActionVisible) {
-			let startTime = Date.now();
-			return (
-				<View
-					style={{flex:7}}>
-					<View
-		  				style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
-		  				{this._renderTimerOnStart(startTime)}
-		  			</View>
+		let startTime = Date.now();
+		return (
+			<View
+				style={{flex:7}}>
+				<View style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
+					{this._renderTimerOnStart(startTime)}
+				</View>
 
-
-		  			<View style={
-		  				[
-		  					pageStyles.row,
-		  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
-		  				]}>
-			  			<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activeSecondaryModalButton,
-			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={this.startOrStopAction}>
-			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					{this.state.startStopButtonText}
-			  				</Text>
-			  			</TouchableOpacity>
-		  			</View>
-		  		</View>
-	  			);
-
-		} else {
-
-			return (
-				<View
-	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-
-	  				<View
-	  					style={[pageStyles.noteCard, {height:'40%'}]}>
-		  				<Text
-		  					style={textStyles.actionSummaryHeader}>
-		  					Summary
-		  				</Text>
-		  				<Text
-		  					style={[textStyles.actionSummaryText, {marginTop: 15}]}>
-		  					Vehicle fueled for {this.state.fuelTime}
-		  				</Text>
-		  			</View>
-
-		  			<View
-		  				style={{flexDirection:'row', marginTop: 40}}>
-			  			<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activeSecondaryModalButton,
-			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={() => {this.endFueling(false)}}>
-			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					CANCEL
-			  				</Text>
-			  			</TouchableOpacity>
-
-				  		<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activePrimaryModalButton,
-			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={() => {this.endFueling(true)}}>
-			  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					SAVE
-			  				</Text>
-			  			</TouchableOpacity>
-			  		</View>
-
-	  			</View>
-	  			);
-		}
+				{ this.state.isStopButtonVisible?
+					<View style={{flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: 30}}>
+				  	<TouchableOpacity
+				  		style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginLeft: 0 } ]}
+				 			onPress={() => {this.endFueling(true, false)}}>
+				 			<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+				 				END IN SAME LOCATION
+				 			</Text>
+				 		</TouchableOpacity>
+				  	<TouchableOpacity
+				  		style={[ buttonStyles.activeSecondaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 30 } ]}
+				 			onPress={() => {this.endFueling(true, true)}}>
+				 			<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+				 				END: UPDATE LOCATION
+				 			</Text>
+				 		</TouchableOpacity>
+			 		</View>
+			 	:
+					<View style={[ pageStyles.row, {flex:1, justifyContent: 'center', alignItems: 'center', margin: 30} ]}>
+			 			<TouchableOpacity
+			 				style={[ buttonStyles.activeSecondaryModalButton, {width: '90%', paddingTop: 15, paddingBottom: 15}]}
+			 				onPress={this.startOrStopAction}>
+			 				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+			 					START FUELLING
+			 				</Text>
+			 			</TouchableOpacity>
+					</View>
+				}
+			</View>
+	  );
 	}
 
 

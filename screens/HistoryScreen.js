@@ -95,7 +95,7 @@ export default class HistoryScreen extends React.Component {
 				<View style={{ flex: 0, padding: 14 }}>
 					<TouchableOpacity
             style={buttonStyles.activeSecondaryModalButton}
-            onPress={() => this.props.navigation.navigate('Lot', { findingOnMap: true, space_coords: this.state.space_coords }) }>
+            onPress={() => this.props.navigation.navigate('Lot', { findingOnMap: true, space_coords: this.state.space_coords, refresh: false }) }>
             <Text style={buttonStyles.activeSecondaryTextColor}>
               SHOW ON MAP
             </Text>

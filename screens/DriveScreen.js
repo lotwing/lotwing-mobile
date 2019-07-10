@@ -25,7 +25,7 @@ export default class DriveScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params.props;
-		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
+		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
 
 		this.startOrStopAction = this.startOrStopAction.bind(this);
@@ -39,6 +39,10 @@ export default class DriveScreen extends React.Component {
 			driveTime: '0:01',
 			startStopButtonText: 'START TEST DRIVE',
 		};
+	}
+
+	componentDidMount() {
+		this.props.navigation.setParams({ extras: { } })
 	}
 
 	startDrivingAction() {
@@ -62,15 +66,18 @@ export default class DriveScreen extends React.Component {
 			isStopButtonVisible: true,
 			startStopButtonText: 'STOP TEST DRIVE',
 		});
+		this.props.navigation.setParams({extras: { driveEventId: this.driveEventId,  spaceId: this.details.spaceId }})
 	}
 
 	setDriveTime = (timeDisplayed) => {
 		this.setState({driveTime: timeDisplayed});
 	}
 
-	endTestDrive(shouldAcknowledgeAction) {
+	endTestDrive(shouldAcknowledgeAction, updateLocation) {
 		let driveScreen = this;
 		let endedPackage = {};
+
+		this.props.navigation.setParams({extras: { updateLocation: updateLocation,  spaceId: this.details.spaceId }})
 
 		if (shouldAcknowledgeAction) {
 			endedPackage = {
@@ -92,7 +99,7 @@ export default class DriveScreen extends React.Component {
 				LotActionHelper.endTimeboundTagAction(endedPackage, id);
 			})
 		}).then(() => {
-			this.props.navigation.navigate('Lot', { refresh: true });
+			this.props.navigation.navigate('Lot', { extras: this.props.navigation.getParam("extras", {}), modalVisible: true, refresh: true, findingOnMap: false });
 			//LotActionHelper.backAction(driveScreen.props.navigation);
 		});
 	}
@@ -127,79 +134,42 @@ export default class DriveScreen extends React.Component {
 	}
 
 	_renderProperDriveActionView() {
-		if (this.state.isDriveActionVisible) {
-			let startTime = Date.now();
+		let startTime = Date.now();
 			return (
-				<View
-					style={{flex:7}}>
-					<View
-						style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
+				<View style={{flex:7}}>
+					<View style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
 						{this._renderTimerOnStart(startTime)}
-		  			</View>
-		  			<View style={
-			  				[
-			  					pageStyles.row,
-			  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
-			  				]}>
-			  			<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activeSecondaryModalButton,
-			  					{width: '90%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={this.startOrStopAction}>
-			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					{this.state.startStopButtonText}
-			  				</Text>
-			  			</TouchableOpacity>
-		  			</View>
 		  		</View>
-  			);
-		} else {
-			return (
-				<View
-	  				style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
-
-	  				<View
-	  					style={[pageStyles.noteCard, {height:'40%'}]}>
-		  				<Text
-		  					style={textStyles.actionSummaryHeader}>
-		  					Summary
-		  				</Text>
-		  				<Text
-		  					style={[textStyles.actionSummaryText, {marginTop: 15}]}>
-		  					Vehicle driven for {this.state.driveTime}
-		  				</Text>
-		  			</View>
-
-		  			<View
-		  				style={{flexDirection:'row', marginTop: 40}}>
-			  			<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activeSecondaryModalButton,
-			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={() => {this.endTestDrive(false)}}>
-			  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					CANCEL
-			  				</Text>
-			  			</TouchableOpacity>
-
-				  		<TouchableOpacity style={
-			  				[
-			  					buttonStyles.activePrimaryModalButton,
-			  					{width: '40%', paddingTop: 15, paddingBottom: 15}
-			  				]}
-			  				onPress={() => {this.endTestDrive(true)}}>
-			  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-			  					SAVE
-			  				</Text>
-			  			</TouchableOpacity>
-			  		</View>
-
-	  			</View>
-	  			);
-		}
-
+		  		{ this.state.isStopButtonVisible?
+					<View style={{flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: 30}}>
+				  	<TouchableOpacity
+				  		style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginLeft: 0 } ]}
+				 			onPress={() => {this.endTestDrive(true, false)}}>
+				 			<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+				 				END IN SAME LOCATION
+				 			</Text>
+				 		</TouchableOpacity>
+				  	<TouchableOpacity
+				  		style={[ buttonStyles.activeSecondaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 30 } ]}
+				 			onPress={() => {this.endTestDrive(true, true)}}>
+				 			<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+				 				END: UPDATE LOCATION
+				 			</Text>
+				 		</TouchableOpacity>
+			 		</View>
+			 	:
+					<View style={[ pageStyles.row, {flex:1, justifyContent: 'center', alignItems: 'center', margin: 30} ]}>
+			 			<TouchableOpacity
+			 				style={[ buttonStyles.activeSecondaryModalButton, {width: '90%', paddingTop: 15, paddingBottom: 15}]}
+			 				onPress={this.startOrStopAction}>
+			 				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
+			 					START TEST DRIVE
+			 				</Text>
+			 			</TouchableOpacity>
+					</View>
+				}
+		  </View>
+  	);
 	}
 
 	render() {
