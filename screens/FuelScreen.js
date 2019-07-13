@@ -26,6 +26,7 @@ export default class FuelScreen extends React.Component {
 		super(props);
 		this.details = this.props.navigation.state.params.props;
 		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
+		this.showSaveTagViews = this.showSaveTagViews.bind(this);
 		this.startOrStopAction = this.startOrStopAction.bind(this);
 
 		this.endFueling = this.endFueling.bind(this);
@@ -44,36 +45,20 @@ export default class FuelScreen extends React.Component {
 		this.props.navigation.setParams({ extras: { } })
 	}
 	startFuelingAction() {
-		console.log('\nstartFuelingAction called');
-		console.log('\nFuel Time: ', this.state.fuelTime);
-
-		//TODO(adwoa): make save button unclickable, process this action
-		let space_data = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting to fuel');
 		let fuelScreen = this;
-		console.log('TAG DATA: ', space_data);
+		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: fuelScreen.vehicle.id, spaceId: fuelScreen.details.spaceId }, 'starting to fuel');
 
-		return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
-		    method: 'POST',
-		    headers: {
-		      'Accept': 'application/json',
-		      'Content-Type': 'application/json',
-		      'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-		    },
-		    body: JSON.stringify(space_data),
-		  })
-		  .then((response) => {
-		    return response.json();
-		  })
-		  .then((responseJson) => {
-		  	console.log(responseJson);
-		  	this.fuelEventId = responseJson['event'] ? responseJson['event']['id'] : null;
-		  	fuelScreen.startFuelTimer();
-		  })
-		  .catch(err => {
-		    console.log('\nCAUGHT ERROR: \n', err, err.name);
-		    //TODO(adwoa): make save button clickable again
-		    return err
-		  });
+		LotActionHelper.registerTagAction(payload)
+			.then((responseJson) => {
+				if (responseJson) {
+					fuelScreen.fuelEventId = responseJson['event'] ? responseJson['event']['id']: null;
+			    	fuelScreen.startFuelTimer();
+				}
+			})
+			.catch(err => {
+			    console.log('\nCAUGHT ERROR IN START DRIVING ACTION: \n', err, err.name);
+			    return err
+			});
 	}
 
 	startFuelTimer() {
@@ -105,15 +90,15 @@ export default class FuelScreen extends React.Component {
 
 		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'fuel_vehicle');
 
-		eventIdPromise
-			.then((event_id) => {
-				console.log('EVENT ID: ', event_id);
+		eventIdPromise.then((event_id) => {
+			console.log('EVENT ID: ', event_id);
 				event_id.forEach((id) => {
-					LotActionHelper.endTimeboundTagAction(endedPackage, id);
-				})
-			}).then(() => {
-				fuelScreen.confirmTagRegistered();
-			});
+				LotActionHelper.endTimeboundTagAction(endedPackage, id);
+			})
+		}).then(() => {
+			// fuelScreen.confirmTagRegistered();
+			this.props.navigation.navigate('Lot', { extras: this.props.navigation.getParam("extras", {}), modalVisible: true, refresh: true, findingOnMap: false });
+		});
 	}
 
 	// helper function for timer
