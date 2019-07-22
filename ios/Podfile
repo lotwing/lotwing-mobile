@@ -94,7 +94,7 @@ target 'lotwing-mobile' do
     :inhibit_warnings => true
 
   # Mapbox SDK used for lot rendering
-  pod 'react-native-mapbox-gl', 
+  pod 'react-native-mapbox-gl',
     :path => "../node_modules/@mapbox/react-native-mapbox-gl"
 
   pod 'DoubleConversion',
@@ -129,7 +129,7 @@ target 'lotwing-mobile' do
       target.native_target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'EX_DETACHED=1'
-        
+
         # needed for GoogleMaps 2.x
         config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= []
         config.build_settings['FRAMEWORK_SEARCH_PATHS'] << '${PODS_ROOT}/GoogleMaps/Base/Frameworks'
@@ -154,7 +154,7 @@ target 'lotwing-mobile' do
 
     # remove bitcode to allow installation in physical device
     #target.remove_from_project
-    
+
     #set bitcode to no on React pod
     if target.pod_name == 'React'
       target.native_target.build_configurations.each do |config|
@@ -162,7 +162,7 @@ target 'lotwing-mobile' do
       end
     end
 
-    #target.native_target.build_configurations.each do |config| 
+    #target.native_target.build_configurations.each do |config|
     #   config.build_settings['ENABLE_BITCODE'] = 'NO'
     # end
 
@@ -180,4 +180,4 @@ target 'lotwing-mobile' do
 
     end
   end
-end  
+end

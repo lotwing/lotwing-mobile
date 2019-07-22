@@ -12,10 +12,12 @@ import {
   ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Keyboard,
   KeyboardAvoidingView,
   ActivityIndicator,
   Dimensions
 } from 'react-native';
+import { Constants } from 'expo';
 
 import buttonStyles from '../constants/ButtonStyles';
 
@@ -61,28 +63,41 @@ export default class TagModalView extends React.Component {
     }
   }
   componentWillMount() {
+    console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType)
     if (this.props.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
-      this.loadVehicleData(this.props.spaceId);
+      console.log('CALL LOAD VEHICLE from MOUNT')
+      this.loadVehicleData(this.props);
     } else {
-      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false })
+      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false, modalContent: this.props.modalType })
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log('Next Props Modal Type: ', nextProps.modalType)
+    if (nextProps.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
+      console.log('CALL LOAD VEHICLE from RECEIVEPROPS')
+      this.loadVehicleData(nextProps);
+    } else {
+      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false, modalContent: nextProps.modalType })
     }
   }
 
-  loadVehicleData(space_id) {
-    if (space_id === null) {
-      if (this.props.vehicles.length) {
+  loadVehicleData(props) {
+    const { spaceId, vehicles } = props
+    if (spaceId === null) {
+      if (vehicles.length) {
         this.setState({
-          vehicles: this.props.vehicles,
-          vehicle: this.props.vehicles[this.state.arrayPosition],
-          mileage: this.props.vehicles[this.state.arrayPosition].mileage,
+          vehicles: vehicles,
+          vehicle: vehicles[this.state.arrayPosition],
+          mileage: vehicles[this.state.arrayPosition].mileage,
           screen: 'default',
           mileageOpen: false,
           loading: false,
-          reopenOnDismiss: false
+          reopenOnDismiss: false,
+          modalContent: GlobalVariables.BASIC_MODAL_TYPE
         })
       }
     } else {
-      let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + space_id;
+      let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + spaceId;
       console.log('MODAL: LOAD VEHICLE DATA: ', url);
       return fetch(url, {
         method: 'GET',
@@ -103,10 +118,12 @@ export default class TagModalView extends React.Component {
             mileage: result.vehicles[this.state.arrayPosition].mileage,
             screen: 'default',
             mileageOpen: false,
-            loading: false
+            loading: false,
+            modalContent: GlobalVariables.BASIC_MODAL_TYPE
           });
           this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
         } else {
+          console.log('load vehicle data: ', props.modalContent)
           this.setState({vehicle: null, loading: false, modalContent: 'empty', mileage: null, mileageOpen: false })
         }
       })
@@ -143,10 +160,13 @@ export default class TagModalView extends React.Component {
   dismissModal() {
     //this.props.setVehicleHighlight(null);
     this.props.setModalVisibility(false);
+    //Keyboard.dismiss()
   }
   tapOutsideModal() {
+    console.log('tap outside modal')
     this.props.setVehicleHighlight(null);
     this.props.setModalVisibility(false);
+    //Keyboard.dismiss()
   }
 
   showChooseSpaceView() {
@@ -155,6 +175,7 @@ export default class TagModalView extends React.Component {
 
   updateLotAndDismissModal() {
     this.props.updateLotAndDismissModal();
+    //Keyboard.dismiss()
   }
 
   structureTagPayload(type, event_details) {
@@ -168,6 +189,7 @@ export default class TagModalView extends React.Component {
   }
 
   makeAltViewVisible(contentType) {
+    console.log('makeAltViewVisible: ', contentType)
     this.setState({modalContent: contentType});
   }
 
@@ -204,7 +226,7 @@ export default class TagModalView extends React.Component {
   }
 
   launchPage(page_name) {
-    this.dismissModal();
+    //this.dismissModal();
     console.log('Vehicle: ',this.state.vehicles[this.state.arrayPosition])
     if (page_name == 'drive') {
       this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
@@ -234,7 +256,9 @@ export default class TagModalView extends React.Component {
     })
     .then((response) => {
         console.log('RETURNED FROM UPDATE_VEHICLE', response);
-        this.loadVehicleData(this.props.spaceId)
+
+        console.log('CALL LOAD VEHICLE from UPDATE VEHICLE')
+        this.loadVehicleData(this.props)
     })
     .catch(err => {
       console.log('\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n', err, err.name);
@@ -393,10 +417,12 @@ export default class TagModalView extends React.Component {
               source={require('../assets/images/fuel-white.png')}
               onPress={() => {this.launchPage('fuel')}}/>
 
+            {/*
             <ButtonWithImageAndLabel
               text={'Camera'}
               source={require('../assets/images/camera-white.png')}
               onPress={() => {this.launchPage('camera')}}/>
+            */}
 
             <ButtonWithImageAndLabel
               text={'Note'}
@@ -539,7 +565,7 @@ export default class TagModalView extends React.Component {
             autoFocus={true}/>
         </View>
       )
-    } else if ( this.state.modalContent == GlobalVariables.CREATE_MODAL_TYPE) {
+    } else if ( this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE) {
       if (this.state.createView) {
         console.log('Vehicle Type: ', this.state.vehicleType)
         return(
@@ -575,8 +601,9 @@ export default class TagModalView extends React.Component {
   }
 
   render() {
-    let isBasicModal = this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE;
-    let isCreateModal = this.state.modalContent == GlobalVariables.CREATE_MODAL_TYPE
+    let isBasicModal = this.state.modalContent === GlobalVariables.BASIC_MODAL_TYPE;
+    let isCreateModal = this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
+    console.log('Render modal content: ' , this.state.modalContent)
     let isOnMap = this.props.spaceId;
 
     let vehicleUsageType = this.state.vehicle !== null && this.state.vehicle.is_used ? 'Used' : 'New';
@@ -597,7 +624,7 @@ export default class TagModalView extends React.Component {
     if (this.state.loading) {
       return(
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
 
         <TouchableWithoutFeedback
           onPress={() => {
@@ -622,7 +649,7 @@ export default class TagModalView extends React.Component {
     if (this.props.findingOnMap) {
       return(
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
 
           <TouchableWithoutFeedback
             onPress={() => {
@@ -654,7 +681,7 @@ export default class TagModalView extends React.Component {
     }
     return (
       <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
 
         <TouchableWithoutFeedback
           onPress={() => {

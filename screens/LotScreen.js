@@ -14,7 +14,10 @@ import {
   Text,
   TextInput,
   View,
+  Dimensions
 } from 'react-native';
+import posed from 'react-native-pose';
+import { Constants } from 'expo';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -50,6 +53,13 @@ export default class LotScreen extends React.Component {
   	);
   }
 }
+
+
+
+const VehicleInfo = posed.View({
+  closed: { y: Dimensions.get('window').height, transition: { type: 'spring', stiffness: 300 } },
+  open: { y: 0, transition: { ease: 'easeOut', duration: 300 } }
+});
 
 class LotView extends React.Component {
 
@@ -403,7 +413,7 @@ class LotView extends React.Component {
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
 
       stallUpdatedPromise.then((result) => {
-        console.log('STALL UPDATE RESULT: ', result);
+        console.log('STALL UPDATE RESULT from vehicle ID: ', result);
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
@@ -422,15 +432,18 @@ class LotView extends React.Component {
           return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
         }
       }).then((result) => {
-
-        console.log('STALL UPDATE RESULT: ', result);
+        console.log('STALL UPDATE RESULT from SKU: ', result);
         // 3. Re-render lot by updating state
         if (result !== undefined) {
+          console.log('result is not undefined')
           this.updateSpaceVehicleMap = true;
           return this._loadLotView();
+        } else {
+          console.log('result is undefined', this.state.modalType)
         }
       })
     } else {
+      console.log('nog vehicleID or sku_number')
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
@@ -694,7 +707,8 @@ class LotView extends React.Component {
               width: '100%',
               alignItems: 'center',
               justifyContent: 'center'}}
-          enabled>
+          enabled
+          keyboardVerticalOffset={Constants.statusBarHeight + 40}>
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
@@ -766,11 +780,15 @@ class LotView extends React.Component {
     console.log('Render Tag Modal View: ', this.state.modalType);
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={this.state.modalVisible}>
-
+      <VehicleInfo
+        pose={ this.state.modalVisible? 'open' : 'closed' }
+        style={{ flex: 1,
+          width: Dimensions.get('window').width,
+          height: Dimensions.get('window').height - Constants.statusBarHeight - 40,
+          position: 'absolute',
+          zIndex: 10,
+          backgroundColor: 'transparent'}}
+      >
         <TagModalView
           modalType={this.state.modalType}
           spaceId={this.state.spaceId}
@@ -787,7 +805,7 @@ class LotView extends React.Component {
           findingOnMap={this.state.findingOnMap}
           sku={this.state.sku}
           leaseRt={this.state.leaseRt} />
-      </Modal>
+        </VehicleInfo>
       )
   }
 
@@ -819,12 +837,12 @@ class LotView extends React.Component {
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
     return (
-      <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
+      <KeyboardAvoidingView behavior="padding" style={styles.container} enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
         <StatusBar
           barStyle='light-content'
           backgroundColor='#BE1E2D'/>
 
-        {this._renderTagModal()}
+        { this.state.modalVisible && this._renderTagModal() }
 
         <Mapbox.MapView
           centerCoordinate={this.state.centerCoordinate}

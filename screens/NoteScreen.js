@@ -11,7 +11,13 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   View,
+  ScrollView,
+  Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
+
+import { Camera, Permissions, FileSystem, Constants } from 'expo';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -32,9 +38,52 @@ export default class NoteScreen extends React.Component {
 
 		this.state = {
 			isNoteActionVisible: true,
-			placeholderText: 'Write your vehicle note here.'
+			placeholderText: 'Write your vehicle note here.',
+			//cameraOpen: false,
+			//hasCameraPermission: null,
+    	//type: Camera.Constants.Type.back,
+    	//photos: []
 		}
 	}
+	/*
+	componentDidMount() {
+    FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'LotWing').catch(e => {
+      console.log(e, 'Directory exists');
+    });
+	}
+
+	async askCameraPermissions() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' });
+  }
+
+  takePicture = () => {
+    if (this.camera) {
+      this.camera.takePictureAsync({ base64: true, onPictureSaved: this.onPictureSaved });
+    }
+    console.log('Photo taken')
+	};
+
+	onPictureSaved = async photo => {
+    await FileSystem.moveAsync({
+      from: photo.uri,
+      to: `${FileSystem.documentDirectory}LotWing/${Date.now()}.jpg`,
+    })
+    this.setState({ cameraOpen: false});
+    this.addPhoto(photo)
+    //console.log(photo.base64);
+    //this.setState({ newPhotos: true });
+	}
+
+	addPhoto(object) {
+		const tempPhotos = []
+		this.state.photos.forEach((photo) => {
+			tempPhotos.push(photo)
+		})
+		tempPhotos.push(object)
+		this.setState({ photos: tempPhotos })
+	}
+	*/
 
 	showSaveTagViews() {
 		this.setState({isNoteActionVisible: false});
@@ -74,38 +123,50 @@ export default class NoteScreen extends React.Component {
 	_renderProperNoteActionView() {
 		if (this.state.isNoteActionVisible) {
 			return (
+					<KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={Constants.statusBarHeight + 40} enabled style={{ flex: 1}}>
 				<TouchableWithoutFeedback
 					onPress={() => {Keyboard.dismiss()}}
 					accessible={false}>
-					<View
-						style={{flex:7, alignItems: 'center', justifyContent: 'center'}}>
+					<View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
 
-						<View style={[pageStyles.noteCard, {marginTop: '20%', height:'40%'}]}>
-			  				<TextInput
+						<View style={[pageStyles.noteCard, { flex: 1, width: Dimensions.get('window').width - 40, margin: 20}]}>
+			  			<TextInput
+			  				style={{ flex: 1 }}
 								editable={true}
 								multiline={true}
 								onChangeText={(placeholderText) => this.setState({placeholderText})}
 			 					placeholder={this.state.placeholderText} />
+			  		</View>
+			  			{/*
+			  			<View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+				  			{ this.state.photos.map((photo) => { return <Text>{ photo.uri }</Text> })
+				  			}
 			  			</View>
-
-			  			<View style={
-				  				[
-				  					pageStyles.row,
-				  					{flex:1, justifyContent: 'center', alignItems: 'center', margin: 30}
-				  				]}>
+			  		*/}
+			  			<View style={{flex:0, width: Dimensions.get('window').width - 40, justifyContent: 'center', alignItems: 'center', margin: 20, flexDirection: 'column' }}>
 				  			<TouchableOpacity style={
 				  				[
 				  					buttonStyles.activeSecondaryModalButton,
-				  					{width: '90%', paddingTop: 15, paddingBottom: 15}
+				  					{width: '100%', paddingTop: 15, paddingBottom: 15, marginRight: 0}
 				  				]}
 				  				onPress={this.sendNoteData}>
 				  				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 				  					SAVE NOTE
 				  				</Text>
 				  			</TouchableOpacity>
-			  			</View>
-			  		</View>
+
+				  			{ /*
+				  				<TouchableOpacity style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 15, marginLeft: 0 }]}
+			  				onPress={() => this.setState({cameraOpen: true })}>
+				  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>CAMERA</Text>
+				  			</TouchableOpacity>
+				  		*/}
+				  		</View>
+				  		</View>
+
+
 		  		</TouchableWithoutFeedback>
+			  		</KeyboardAvoidingView>
 	  			);
 
 		} else {
@@ -161,7 +222,42 @@ export default class NoteScreen extends React.Component {
 	}
 
 	render() {
-		console.log(this.vehicle.stockNumber)
+		//console.log('Camera Open: ', this.state.cameraOpen, 'Camera has Permissions: ', this.state.hasCameraPermission)
+		/*
+		if (this.state.cameraOpen) {
+			if (this.state.hasCameraPermission === null) {
+				this.askCameraPermissions();
+				return <View />
+			} else {
+				console.log('should show camera')
+				return (
+					<View style={{ flex: 1 }}>
+						<Camera style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }} type={this.state.type} ref={ref => this.camera = ref }>
+							<View style={{ width:40, height: 40, justifyContent: 'center', alignItems: 'center', margin: 20  }}>
+								<TouchableOpacity
+				          onPress={()=> this.setState({ cameraOpen: false})}
+				          style={{ flex: 1 }}
+				        >
+				        	<View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20 }}>
+				           <Text style={{ color: '#FFF', fontSize: 30, fontWeight: 'bold', lineHeight: 40 }}>×</Text>
+				          </View>
+								</TouchableOpacity>
+							</View>
+							<View style={{ width: Dimensions.get('window').width, height: 60, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+								<TouchableOpacity
+				          onPress={this.takePicture}
+				          style={{ flex: 1 }}
+				        >
+				        	<View style={{ width: 60, height: 60, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+				          <Ionicons type='ionicon' name={ 'ios-radio-button-on'} size={40} style={{ color: '#FFF' }} />
+				          </View>
+								</TouchableOpacity>
+							</View>
+						</Camera>
+					</View>
+				)
+			}
+		}*/
   	return (
   		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
 	  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
