@@ -60,6 +60,7 @@ export default class TagModalView extends React.Component {
       createView: false,
       vehicleType: null,
       reopenOnDismiss: false,
+      drive: { event_id: null, started_at: null }
     }
   }
   componentWillMount() {
@@ -111,7 +112,17 @@ export default class TagModalView extends React.Component {
       })
       .then((result) => {
         //console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
+        console.log(result)
         if (result.vehicles.length) {
+
+          let drive = {};
+          result.events!== null && result.events[0].forEach((event) => {
+            console.log('EVENT: ', event.data)
+            const { event_type, started_at, ended_at, id } = event.data.attributes
+            if (event_type === 'test_drive' && started_at !== null && ended_at === null ) {
+              drive = { event_id: id, started_at: started_at }
+            }
+          })
           this.setState({
             vehicles: result.vehicles,
             vehicle: result.vehicles[this.state.arrayPosition],
@@ -119,7 +130,9 @@ export default class TagModalView extends React.Component {
             screen: 'default',
             mileageOpen: false,
             loading: false,
-            modalContent: GlobalVariables.BASIC_MODAL_TYPE
+            events: result.events,
+            modalContent: GlobalVariables.BASIC_MODAL_TYPE,
+            drive: drive
           });
           this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
         } else {
@@ -227,9 +240,9 @@ export default class TagModalView extends React.Component {
 
   launchPage(page_name) {
     //this.dismissModal();
-    console.log('Vehicle: ',this.state.vehicles[this.state.arrayPosition])
+    //console.log('Vehicle: ',this.state.vehicles[this.state.arrayPosition])
     if (page_name == 'drive') {
-      this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
+      this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.drive.event_id, started_at: this.state.drive.started_at});
     } else if (page_name === 'fuel') {
       this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
     } else if (page_name === 'camera') {
@@ -410,7 +423,8 @@ export default class TagModalView extends React.Component {
             <ButtonWithImageAndLabel
               text={'Test Drive'}
               source={require('../assets/images/car-white.png')}
-              onPress={() => {this.launchPage('drive')}}/>
+              onPress={() => {this.launchPage('drive')}}
+              active={ this.state.drive.event_id !== null && this.state.drive.event_id !== undefined } />
 
             <ButtonWithImageAndLabel
               text={'Fuel Vehicle'}
@@ -611,7 +625,7 @@ export default class TagModalView extends React.Component {
     let vehicleMake = this.state.vehicle !== null && this.state.vehicle.make ? this.state.vehicle.make : '';
     let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + vehicleYear + ' ' + vehicleMake : 'Not in Stall' : ' ';
     if (this.state.vehicle!== null && this.state.vehicle.creation_source === 'user_created') {
-      console.log(this.state.vehicle)
+      //console.log(this.state.vehicle)
       let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
       modalTitle = ''
       if (usageType === 'is_new') { modalTitle = 'New'}
@@ -752,7 +766,7 @@ class ButtonWithImageAndLabel extends React.Component {
             source={this.props.source}
             style={buttonStyles.icon}
             resizeMode={"contain"}/>
-          <Text style={[buttonStyles.label, {marginTop: 5}]}>{this.props.text}</Text>
+          <Text style={[buttonStyles.label, {marginTop: 5}, this.props.active && { fontWeight: 'bold' }]}>{this.props.text}</Text>
         </View>
       </TouchableOpacity>
     )

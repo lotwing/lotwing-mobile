@@ -620,11 +620,35 @@ class LotView extends React.Component {
     let vehiclePromise = this._getVehicleBySKU(sku);
 
     vehiclePromise.then((response) => {
-      const { space_id, polygon, vehicle } = response;
-    console.log('Returned Vehicle Info')
-    console.log('SPACE ID: ', space_id)
-    console.log('SHAPE', polygon)
-    console.log('VEHICLE', vehicle)
+      const { space_id, polygon, vehicle, events } = response;
+      //console.log('Returned Vehicle Info')
+      //console.log('SPACE ID: ', space_id)
+      //console.log('SHAPE', polygon)
+      //console.log('VEHICLE', vehicle)
+      //console.log('EVENTS', events)
+      let eventsList = [];
+      events!== null && events.forEach((event) => {
+        //console.log(event.data)
+        const { event_type, started_at, ended_at, id } = event.data.attributes
+        if (event_type === 'test_drive' && started_at !== null && ended_at === null ) {
+          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at})
+        }
+      })
+      let navTarget = null;
+      let navIndex = 0;
+      if (eventsList.length > 0) {
+        console.log('Length', eventsList.length)
+        eventsList.forEach((event, index) => {
+          if (event.event_type === 'test_drive' && navTarget === null) {
+            navTarget = 'test_drive'
+            navIndex = index
+          }
+        })
+      }
+      if (navTarget === 'test_drive') {
+        console.log('Should navigate', this.props.navigation)
+        this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at })
+      }
       if (space_id) {
         this.dismissInput();
         this.showAndPopulateModal([space_id, null], polygon);
@@ -656,8 +680,8 @@ class LotView extends React.Component {
     .then((response) => response.json())
     .then((responseJson) => {
       console.log('VEHICLE PULLED FROM STORE: ', responseJson);
-      const { current_parking_space, vehicle } = responseJson;
-      return { space_id: current_parking_space !== null ? current_parking_space.id : null, polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall, vehicle: vehicle }
+      const { current_parking_space, vehicle, events } = responseJson;
+      return { space_id: current_parking_space !== null ? current_parking_space.id : null, polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall, vehicle: vehicle, events: events }
     })
     .catch(err => {
       return false

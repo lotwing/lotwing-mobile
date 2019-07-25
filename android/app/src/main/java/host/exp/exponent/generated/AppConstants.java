@@ -33,10 +33,12 @@ public class AppConstants {
         
         
         
+        
+        
         // ADD EMBEDDED RESPONSES HERE
         // START EMBEDDED RESPONSES
-        embeddedResponses.add(new Constants.EmbeddedResponse("https://exp.host/@gooddog/lotwing-mobile", "assets://shell-app-manifest.json", "application/json"));
-        embeddedResponses.add(new Constants.EmbeddedResponse("https://d1wp6m56sqw74a.cloudfront.net/%40gooddog%2Flotwing-mobile%2F1.0.0%2F88ad9c2be71fb28e614fb940d369b6ec-31.0.0-android.js", "assets://shell-app.bundle", "application/javascript"));
+        embeddedResponses.add(new Constants.EmbeddedResponse("https://exp.host/@damienmason/lotwing-mobile", "assets://shell-app-manifest.json", "application/json"));
+        embeddedResponses.add(new Constants.EmbeddedResponse("https://d1wp6m56sqw74a.cloudfront.net/%40damienmason%2Flotwing-mobile%2F1.0.0%2F3136d4f95e2967d90ee59956e599e2f1-31.0.0-android.js", "assets://shell-app.bundle", "application/javascript"));
         // END EMBEDDED RESPONSES
     EMBEDDED_RESPONSES = embeddedResponses;
   }
