@@ -69,16 +69,7 @@ export default class TagModalView extends React.Component {
       console.log('CALL LOAD VEHICLE from MOUNT')
       this.loadVehicleData(this.props);
     } else {
-      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false, modalContent: this.props.modalType })
-    }
-  }
-  componentWillReceiveProps(nextProps) {
-    console.log('Next Props Modal Type: ', nextProps.modalType)
-    if (nextProps.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
-      console.log('CALL LOAD VEHICLE from RECEIVEPROPS')
-      this.loadVehicleData(nextProps);
-    } else {
-      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false, modalContent: nextProps.modalType })
+      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false})
     }
   }
 

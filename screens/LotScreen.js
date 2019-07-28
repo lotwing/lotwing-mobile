@@ -99,7 +99,8 @@ class LotView extends React.Component {
         modalReopen: false,
         modalReopenTarget: 0,
         modalReopenHighlight: null,
-        leaseRt: false
+        leaseRt: false,
+        postLoadAction: ''
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -145,13 +146,17 @@ class LotView extends React.Component {
           this.cancelFuel(fuelEventId, spaceId);
         // cancel fuelling event
         } else if (extras.driveEventId) {
-          console.log('Driving Event', extras );
+          console.log('Driving Event started, REFRESHING ', extras );
           const { driveEventId, spaceId } = extras;
-          this.cancelDrive(driveEventId, spaceId);
+          this.setVehicleHighlight(null);
+          this.updateSpaceVehicleMap = true;
+          return this._loadLotView();
+          //this.cancelDrive(driveEventId, spaceId);
         // update location
         } else if ( extras.updateLocation && extras.updateLocation === true ) {
           console.log('Update Location Event')
-          this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE)
+          this.setVehicleHighlight(null);
+          this.setState({ postLoadAction: 'chooseEmptySpace', modalVisible: false})
         } else {
           this.setState({findingOnMap: false, modalVisible: true })
         }
@@ -204,6 +209,7 @@ class LotView extends React.Component {
   _loadLotView() {
     var lotview = this;
     console.log('* * * * * LOAD LOT VIEW * * * * *');
+    this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, 'Updating Lot...');
     return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT , {
       method: 'GET',
       headers: {
@@ -265,11 +271,11 @@ class LotView extends React.Component {
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
         errorLoading: false,
-        //modalVisible: false,
+        modalVisible: false,
         spaceVehicleMap: {},
         //spaceId: 0,
-        vehicles: [],
-        vehicleId: 0,
+        //vehicles: [],
+        //vehicleId: 0,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
         sku: '',
         skuCollectorVisible: false,
@@ -282,6 +288,11 @@ class LotView extends React.Component {
         leaseRt: false,
       });
       this.updateSpaceVehicleMap = false;
+      if (this.state.postLoadAction === 'chooseEmptySpace') {
+        this.setVehicleHighlight(null);
+        this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE)
+        this.setState({postLoadAction: ''})
+      }
       if (this.state.modalReopen) {
         this.showAndPopulateModal([this.state.modalReopenTarget, null], this.state.modalReopenHighlight)
         this.setState({modalReopen: false })
