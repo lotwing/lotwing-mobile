@@ -12,6 +12,8 @@ export default {
 	VEHICLE: '/api/vehicles/',
 	VEHICLE_BY_SKU: '/api/vehicles/stock_numbers/',
 
+	SALES: '/api/deals/',
+
 	KEY_BOARD_LOCATIONS: '/api/key_board_locations',
 
 	// POST REQUESTS

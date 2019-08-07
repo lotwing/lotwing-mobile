@@ -31,6 +31,7 @@ import textStyles from '../constants/TextStyles';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import LotActionHelper from '../helpers/LotActionHelper';
 /**
  *
  * Lot shapes include:
@@ -60,7 +61,8 @@ export default class TagModalView extends React.Component {
       createView: false,
       vehicleType: null,
       reopenOnDismiss: false,
-      drive: { event_id: null, started_at: null }
+      drive: { event_id: null, started_at: null },
+      fuel: { event_id: null, started_at: null }
     }
   }
   componentWillMount() {
@@ -103,15 +105,19 @@ export default class TagModalView extends React.Component {
       })
       .then((result) => {
         //console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
-        console.log(result)
+        //console.log(result)
         if (result.vehicles.length) {
 
           let drive = {};
+          let fuel = {};
           result.events!== null && result.events[0].forEach((event) => {
-            console.log('EVENT: ', event.data)
+            //console.log('EVENT: ', event.data)
             const { event_type, started_at, ended_at, id } = event.data.attributes
-            if (event_type === 'test_drive' && started_at !== null && ended_at === null ) {
+            if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
               drive = { event_id: id, started_at: started_at }
+            }
+            if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
+              fuel = { event_id: id, started_at: started_at }
             }
           })
           this.setState({
@@ -123,7 +129,8 @@ export default class TagModalView extends React.Component {
             loading: false,
             events: result.events,
             modalContent: GlobalVariables.BASIC_MODAL_TYPE,
-            drive: drive
+            drive: drive,
+            fuel: fuel
           });
           this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
         } else {
@@ -235,9 +242,7 @@ export default class TagModalView extends React.Component {
     if (page_name == 'drive') {
       this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.drive.event_id, started_at: this.state.drive.started_at});
     } else if (page_name === 'fuel') {
-      this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
-    } else if (page_name === 'camera') {
-
+      this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.fuel.event_id, started_at: this.state.fuel.started_at});
     } else if (page_name === 'note') {
       this.props.navigation.navigate('Note', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
     } else if (page_name === 'history') {
@@ -270,6 +275,23 @@ export default class TagModalView extends React.Component {
     })
   }
 
+  updateOdo(val) {
+    this.setState({ loading: true });
+    let payload = {
+      'tag': {'vehicle_id': this.state.vehicle !== null ? this.state.vehicle.id : null, 'shape_id': this.props.spaceId},
+      'event': {'event_type': GlobalVariables.ODO_UPDATE, 'event_details': val }
+    }
+    LotActionHelper.registerTagAction(payload)
+      .then((response) => {
+        console.log('RETURNED FROM updateOdo', response);
+        console.log('CALL LOAD VEHICLE from updateOdo')
+        this.loadVehicleData(this.props)
+      })
+      .catch(err => {
+          console.log('\nCAUGHT ERROR IN ODOMETER UPDATE: \n', err, err.name);
+          return err
+      });
+  }
   createVehicle(sku, type) {
     console.log('Location:', this.props.spaceId)
     const vehicle =  {model: 'User created vehicle', stock_number: sku, creation_source: 'user_created', usage_type: type }
@@ -420,7 +442,8 @@ export default class TagModalView extends React.Component {
             <ButtonWithImageAndLabel
               text={'Fuel Vehicle'}
               source={require('../assets/images/fuel-white.png')}
-              onPress={() => {this.launchPage('fuel')}}/>
+              onPress={() => {this.launchPage('fuel')}}
+              active={ this.state.fuel.event_id !== null && this.state.fuel.event_id !== undefined }/>
 
             {/*
             <ButtonWithImageAndLabel
@@ -483,7 +506,7 @@ export default class TagModalView extends React.Component {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={buttonStyles.activePrimaryModalButton}
-                    onPress={()=> this.updateVehicle({ mileage: this.state.mileage }) }
+                    onPress={()=> this.updateOdo( this.state.mileage ) }
                   >
                     <Text style={buttonStyles.activePrimaryTextColor}>
                       UPDATE ODOMETER
@@ -629,7 +652,7 @@ export default class TagModalView extends React.Component {
     if (this.state.loading) {
       return(
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
         <TouchableWithoutFeedback
           onPress={() => {
@@ -654,7 +677,7 @@ export default class TagModalView extends React.Component {
     if (this.props.findingOnMap) {
       return(
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
           <TouchableWithoutFeedback
             onPress={() => {
@@ -686,7 +709,7 @@ export default class TagModalView extends React.Component {
     }
     return (
       <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
+        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
         <TouchableWithoutFeedback
           onPress={() => {

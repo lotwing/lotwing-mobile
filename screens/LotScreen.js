@@ -144,6 +144,9 @@ class LotView extends React.Component {
           console.log('Fuelling Event', extras );
           const { fuelEventId, spaceId } = extras;
           this.cancelFuel(fuelEventId, spaceId);
+          this.setVehicleHighlight(null);
+          this.updateSpaceVehicleMap = true;
+          return this._loadLotView();
         // cancel fuelling event
         } else if (extras.driveEventId) {
           console.log('Driving Event started, REFRESHING ', extras );
@@ -641,7 +644,10 @@ class LotView extends React.Component {
       events!== null && events.forEach((event) => {
         //console.log(event.data)
         const { event_type, started_at, ended_at, id } = event.data.attributes
-        if (event_type === 'test_drive' && started_at !== null && ended_at === null ) {
+        if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
+          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at})
+        }
+        if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
           eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at})
         }
       })
@@ -650,15 +656,23 @@ class LotView extends React.Component {
       if (eventsList.length > 0) {
         console.log('Length', eventsList.length)
         eventsList.forEach((event, index) => {
-          if (event.event_type === 'test_drive' && navTarget === null) {
-            navTarget = 'test_drive'
+          if (event.event_type === GlobalVariables.BEGIN_FUELING && navTarget === null) {
+            navTarget = GlobalVariables.BEGIN_FUELING
+            navIndex = index
+          }
+          if (event.event_type === GlobalVariables.BEGIN_DRIVE && navTarget === null) {
+            navTarget = GlobalVariables.BEGIN_DRIVE
             navIndex = index
           }
         })
       }
-      if (navTarget === 'test_drive') {
+      if (navTarget === GlobalVariables.BEGIN_DRIVE) {
         console.log('Should navigate', this.props.navigation)
         this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at })
+      }
+      if (navTarget === GlobalVariables.BEGIN_FUELING) {
+        console.log('Should navigate', this.props.navigation)
+        this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at })
       }
       if (space_id) {
         this.dismissInput();
@@ -819,8 +833,9 @@ class LotView extends React.Component {
         pose={ this.state.modalVisible? 'open' : 'closed' }
         style={{ flex: 1,
           width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height - Constants.statusBarHeight - 40,
+          height: Dimensions.get('window').height - Constants.statusBarHeight - 40 - 50,
           position: 'absolute',
+          bottom: 0,
           zIndex: 10,
           backgroundColor: 'transparent'}}
       >

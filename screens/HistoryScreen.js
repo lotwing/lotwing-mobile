@@ -80,8 +80,9 @@ export default class HistoryScreen extends React.Component {
 					<View style={{ paddingTop: 14, paddingBottom: 14 }}>
 						{ this.state.events.map((event)=> {
 							const { id, summary } = event.data.attributes
+              console.log(id, summary)
 							const time = summary.substring(summary.indexOf('<strong>')+9, summary.indexOf('</strong>') )
-							const description = summary.substring(summary.indexOf('<br>')+5, summary.length)
+							const description = summary.substring(summary.indexOf('16px;')+7, summary.indexOf('</span>'))
 							console.log('Time: ',time)
 							return(
 								<View key={ id } style={{ paddingTop: 5,  paddingBottom: 5 }}>

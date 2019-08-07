@@ -26,125 +26,114 @@ export default class FuelScreen extends React.Component {
 		super(props);
 		this.details = this.props.navigation.state.params.props;
 		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
-		this.showSaveTagViews = this.showSaveTagViews.bind(this);
-		this.startOrStopAction = this.startOrStopAction.bind(this);
+		this.eventId = this.props.navigation.state.params.eventId;
+		this.startedAt = this.props.navigation.state.params.started_at;
 
-		this.endFueling = this.endFueling.bind(this);
+		//this.showSaveTagViews = this.showSaveTagViews.bind(this);
+		//this.startOrStopAction = this.startOrStopAction.bind(this);
 
-		this.fuelEventId = null;
+		//this.endFueling = this.endFueling.bind(this);
+
+		//this.fuelEventId = null;
 
 		this.state = {
-			isFuelActionVisible: true,
-			isStopButtonVisible: false,
+			eventRunning: false,
+			//isFuelActionVisible: true,
+			//isStopButtonVisible: false,
 			fuelTime: '0:01',
-			startStopButtonText: 'START FUELING',
+			eventId: 0
+			//startStopButtonText: 'START FUELING',
 		};
 
 	}
 	componentDidMount() {
+		console.log('Event ID: ', this.eventId)
 		this.props.navigation.setParams({ extras: { } })
+		if (this.eventId !== null && this.eventId !== undefined) {
+			this.setState({ eventRunning: true, eventId: this.eventId })
+		}
 	}
-	startFuelingAction() {
-		let fuelScreen = this;
-		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: fuelScreen.vehicle.id, spaceId: fuelScreen.details.spaceId }, 'starting to fuel');
 
+	// create event tag and retrieve id
+	startFuelingAction() {
+		this.props.navigation.setParams({extras: { fuelEventId: this.eventId,  spaceId: this.details.spaceId }})
+		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting to fuel');
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {
 				if (responseJson) {
-					fuelScreen.fuelEventId = responseJson['event'] ? responseJson['event']['id']: null;
-			    	fuelScreen.startFuelTimer();
+					this.eventId = responseJson['event'] ? responseJson['event']['id']: null;
+			    this.startEvent(this.eventId);
 				}
 			})
 			.catch(err => {
-			    console.log('\nCAUGHT ERROR IN START DRIVING ACTION: \n', err, err.name);
+			    console.log('\nCAUGHT ERROR IN START FUELLING ACTION: \n', err, err.name);
 			    return err
 			});
 	}
+	// send the started_at time to the server, and start animation
+	startEvent(eventId) {
+		//let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'test_drive');
+		const startPackage = {
+			started_at: this.formatDate(Date.now())
+		}
+		console.log('start package', startPackage)
+		let eventIdPromise = LotActionHelper.endTimeboundTagAction(startPackage, eventId)
 
-	startFuelTimer() {
-		this.setState({
-			isStopButtonVisible: true,
-			startStopButtonText: 'END IN SAME LOCATION',
+		eventIdPromise.then(() => {
+			this.setState({ eventRunning: true, eventId: eventId })
 		});
-		this.props.navigation.setParams({extras: { fuelEventId: this.fuelEventId,  spaceId: this.details.spaceId }})
-
 	}
 
-	endFueling(shouldAcknowledgeAction, updateLocation) {
-		let fuelScreen = this;
-		let endedPackage = {};
+	endFueling(shouldAcknowledgeAction) {
+		this.props.navigation.setParams({extras: { updateLocation: true }})
 
-		this.props.navigation.setParams({extras: { updateLocation: updateLocation, spaceId: this.details.spaceId }})
-
-		if (shouldAcknowledgeAction) {
-			endedPackage = {
-				acknowledged: shouldAcknowledgeAction,
-				event_details: 'fueled in ' + fuelScreen.state.fuelTime
-			}
-		} else {
-			endedPackage = {
-				acknowledged: true, //shouldAcknowledgeAction,
-				event_details: 'fuel event ' + this.fuelEventId + ' canceled'
-			}
+		const endPackage = {
+			ended_at: this.formatDate(Date.now()),
+			acknowledged: true, // shouldAcknowledgeAction
+			event_details: shouldAcknowledgeAction ? 'fuel event for ' + this.state.fuelTime : 'fuel event ' + this.eventId + ' canceled'
 		}
 
-		let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'fuel_vehicle');
-
-		eventIdPromise.then((event_id) => {
-			console.log('EVENT ID: ', event_id);
-				event_id.forEach((id) => {
-				LotActionHelper.endTimeboundTagAction(endedPackage, id);
-			})
-		}).then(() => {
-			// fuelScreen.confirmTagRegistered();
+		let eventIdPromise = LotActionHelper.endTimeboundTagAction(endPackage, this.eventId).then(() => {
 			this.props.navigation.navigate('Lot', { extras: this.props.navigation.getParam("extras", {}), modalVisible: true, refresh: true, findingOnMap: false });
+
 		});
 	}
+
+	formatDate(date) {
+		const d = new Date(date)
+		const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+		const hours = d.getUTCHours()<10 ? `0${d.getUTCHours()}` : `${d.getUTCHours()}`
+		const minutes = d.getUTCMinutes()<10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`
+		const seconds = d.getUTCSeconds()<10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`
+		return `${ days[d.getUTCDay()] }, ${ d.getUTCDate() } ${ months[d.getUTCMonth()] } ${ d.getUTCFullYear() } ${ hours }:${ minutes }:${ seconds } +0000`
+	}
+
 
 	// helper function for timer
 	setFuelTime = (timeDisplayed) => {
 		this.setState({fuelTime: timeDisplayed});
 	}
 
-	showSaveTagViews() {
-		this.setState({
-			isFuelActionVisible: false,
-		});
-	}
-
-	startOrStopAction() {
-		if (!this.state.isStopButtonVisible) {
-			this.startFuelingAction();
-		} else {
-			this.showSaveTagViews();
-		}
-	}
-
-	confirmTagRegistered() {
-		// push back to lotscreen and refresh
-		this.props.navigation.navigate('Lot', { extras: this.props.navigation.getParam("extras", {}), modalVisible: true, refresh: true, findingOnMap: false });
-		//this.props.navigation.goBack();
-	}
 
 	_renderTimerOnStart(startTime) {
-		if (this.state.isStopButtonVisible) {
+		if (this.state.eventRunning) {
 			return (
 				<Timer
-  					startTime={startTime}
-  					fuelTime={this.setFuelTime}>
-  				</Timer>
-  				)
-		} else {
-			return (
-				<Text style={textStyles.timer}>
-	            	00:00:00
-	            </Text>
-	        )
+  				startTime={startTime}
+  				fuelTime={this.setFuelTime}>
+  			</Timer>
+  		)
 		}
+		return <Text style={textStyles.timer}>00:00:00</Text>
 	}
 
 	_renderProperFuelActionView() {
 		let startTime = Date.now();
+		if (this.startedAt !== null && this.startedAt !== undefined) {
+			console.log(this.startedAt)
+			startTime = Date.parse(this.startedAt)
+		}
 		return (
 			<View
 				style={{flex:7}}>
@@ -152,20 +141,20 @@ export default class FuelScreen extends React.Component {
 					{this._renderTimerOnStart(startTime)}
 				</View>
 
-				{ this.state.isStopButtonVisible?
+				{ this.state.eventRunning?
 					<View style={{flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: 30}}>
 				  	<TouchableOpacity
 				  		style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginLeft: 0 } ]}
-				 			onPress={() => {this.endFueling(true, false)}}>
+				 			onPress={() => {this.endFueling(false)}}>
 				 			<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-				 				END IN SAME LOCATION
+				 				CANCEL
 				 			</Text>
 				 		</TouchableOpacity>
 				  	<TouchableOpacity
 				  		style={[ buttonStyles.activeSecondaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 30 } ]}
-				 			onPress={() => {this.endFueling(true, true)}}>
+				 			onPress={() => {this.endFueling(true)}}>
 				 			<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-				 				END: UPDATE LOCATION
+				 				END FUELLING
 				 			</Text>
 				 		</TouchableOpacity>
 			 		</View>
@@ -173,7 +162,7 @@ export default class FuelScreen extends React.Component {
 					<View style={[ pageStyles.row, {flex:1, justifyContent: 'center', alignItems: 'center', margin: 30} ]}>
 			 			<TouchableOpacity
 			 				style={[ buttonStyles.activeSecondaryModalButton, {width: '90%', paddingTop: 15, paddingBottom: 15}]}
-			 				onPress={this.startOrStopAction}>
+			 				onPress={() => this.startFuelingAction()}>
 			 				<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 			 					START FUELLING
 			 				</Text>

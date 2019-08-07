@@ -46,7 +46,7 @@ export default class DriveScreen extends React.Component {
 
 	// create event tag and retrieve id
 	startDrivingAction() {
-		this.props.navigation.setParams({extras: { driveEventId: this.driveEventId,  spaceId: this.details.spaceId }})
+		this.props.navigation.setParams({extras: { driveEventId: this.eventId,  spaceId: this.details.spaceId }})
 		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting test drive');
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {

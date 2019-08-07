@@ -78,13 +78,15 @@ export default class LoginScreen extends React.Component {
           style={[buttonStyles.activePrimaryModalButton, {marginLeft: 0, marginTop: 50, marginBottom: 20, width: '25%'}]}
           textColor={buttonStyles.activePrimaryTextColor}/>
 
-        <LoginButton
+
+        {/*<LoginButton
             email={this.state.debug_email}
             pwd={this.state.debug_pwd}
             buttonText={this.state.debug_buttonText}
             callback={this.navigationCallback}
             navigation={this.props.navigation}
             textColor={buttonStyles.activeSecondaryTextColor}/>
+*/}
 
       </View>
     );
@@ -117,7 +119,7 @@ class LoginButton extends React.Component {
               console.log('\nLOT ACCESS TOKEN: ', GlobalVariables.LOTWING_ACCESS_TOKEN, '\n');
               AsyncStorage.setItem('userToken', '' + GlobalVariables.LOTWING_ACCESS_TOKEN);
 
-              this.props.navigation.navigate('Lot');
+              this.props.navigation.navigate('App', { user: this.props.email });
             } else {
               // TODO(adwoa): display error message
               console.log('There was an error with login', responseJson);

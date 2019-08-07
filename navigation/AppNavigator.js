@@ -2,6 +2,7 @@ import React from 'react';
 import {
 	createStackNavigator,
 	createSwitchNavigator,
+  createBottomTabNavigator,
   createAppContainer
 } from 'react-navigation';
 
@@ -12,9 +13,12 @@ import {
   View
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Tabs from './Tabs';
 
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
+import SalesScreen from '../screens/SalesScreen';
+import VMScreen from '../screens/VMScreen';
 import FuelScreen from '../screens/FuelScreen';
 import DriveScreen from '../screens/DriveScreen';
 import NoteScreen from '../screens/NoteScreen';
@@ -24,12 +28,14 @@ import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
 class NavigationMenu extends React.Component {
   render() {
+    const { navigation } = this.props;
     return (
-      <Image
-        source={
-          require('../assets/images/menu-wing.png')
-        }
-        style={{width: 43, height: 25, marginLeft: 20}}/>
+      <TouchableOpacity onPress={()=> navigation.navigate('Sales')}>
+        <Image
+          source={ require('../assets/images/menu-wing.png') }
+          style={{width: 43, height: 25, marginLeft: 20}}
+        />
+      </TouchableOpacity>
     )
   }
 }
@@ -46,7 +52,7 @@ const navigationOptions = ({ navigation }) => {
   }
 }
 
-const AppStack = createStackNavigator({
+const LotStack = createStackNavigator({
 	Lot: LotScreen,
 	Fuel: {
     screen: FuelScreen,
@@ -65,19 +71,36 @@ const AppStack = createStackNavigator({
     navigationOptions: navigationOptions,
   },
 },{
-  defaultNavigationOptions: {
-    headerStyle: {
-      backgroundColor: '#BE1E2D',
-    },
-    headerTitle: <NavigationMenu />,
-    headerTintColor: 'white',
-  }
+  defaultNavigationOptions: ({navigation }) => ({
+      headerStyle: {
+        backgroundColor: '#BE1E2D',
+      },
+      headerTitle: <NavigationMenu navigation={ navigation } />,
+      headerTintColor: 'white',
+    })
 });
 const AuthStack = createStackNavigator({ Login: LoginScreen });
 
+const AppTabs = createBottomTabNavigator({
+  LotStack: {
+    screen: LotStack,
+    params: { tabBarLabel: 'Lot View' }
+  },
+  Sales: SalesScreen,
+  VehicleManager: {
+    screen: VMScreen,
+    params: { tabBarLabel: 'Vehicle Manager' }
+  },
+}, {
+  initialRouteName: 'Sales',
+  defaultNavigationOptions: {
+    tabBarComponent: props => <Tabs {...props} />,
+  }
+});
+
 const switchNav = createSwitchNavigator(
 	{
-		App: AppStack,
+		App: AppTabs,
   	Auth: AuthStack,
 		AuthLoading: AuthLoadingScreen,
   },
