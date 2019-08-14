@@ -32,7 +32,7 @@ class VMScreen extends Component {
         return response.json();
     })
     .then((result) => {
-      console.log(result)
+      //console.log(result)
       this.setState({loading: false, vehicles_data: result })
     })
   }

@@ -127,6 +127,9 @@ class LotView extends React.Component {
    * the associated state variables, triggering a reload of
    * the lotview.
    */
+   componentWillMount() {
+    this.props.navigation.setParams({ section: 'lot', onPress: () => this.refresh() })
+   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.navigation.state.params.findingOnMap === true) {
       // if the navigation 'findingOnMap' param is true (from History screen)
@@ -174,6 +177,10 @@ class LotView extends React.Component {
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
+  }
+  refresh() {
+    this.updateSpaceVehicleMap = true;
+    return this._loadLotView();
   }
   cancelFuel(fuelEventId, spaceId) {
     endedPackage = {
@@ -833,7 +840,7 @@ class LotView extends React.Component {
         pose={ this.state.modalVisible? 'open' : 'closed' }
         style={{ flex: 1,
           width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height - Constants.statusBarHeight - 40 - 50,
+          height: Dimensions.get('window').height - Constants.statusBarHeight - 40,
           position: 'absolute',
           bottom: 0,
           zIndex: 10,

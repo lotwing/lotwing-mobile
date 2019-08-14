@@ -7,7 +7,7 @@ import Route from '../constants/Routes';
 
 
 class SalesScreen extends Component {
-  state = { loading: true, mtd_data: [], today_data: [] }
+  state = { loading: true, mtd_data: [], today_data: [], dealership_data: [] }
 
   componentWillMount() {
     this.loadSalesData();
@@ -50,7 +50,25 @@ class SalesScreen extends Component {
         return response.json();
     })
     .then((result) => {
-      this.setState({loading: false, mtd_data: mtd_data, today_data: result })
+      this.loadDealershipData(mtd_data, result)
+    })
+  }
+
+  loadDealershipData(mtd_data, today_data) {
+    let url = GlobalVariables.BASE_ROUTE + Route.DEALERSHIP;
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+    })
+    .then((response) => {
+        return response.json();
+    })
+    .then((result) => {
+      console.log(result)
+      this.setState({loading: false, mtd_data: mtd_data, today_data: today_data, dealership_data: result })
     })
   }
 
@@ -67,6 +85,17 @@ class SalesScreen extends Component {
     navigation.navigate('Auth')
   }
 
+
+  formatDate(date) {
+    const d = new Date(date)
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const hours = d.getUTCHours()<10 ? `0${d.getUTCHours()}` : `${d.getUTCHours()}`
+    const minutes = d.getUTCMinutes()<10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`
+    const seconds = d.getUTCSeconds()<10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`
+    return `${ days[d.getUTCDay()] }, ${ d.getUTCDate() } ${ months[d.getUTCMonth()] } ${ d.getUTCFullYear() } ${ hours }:${ minutes }:${ seconds } +0000`
+  }
+
   render() {
     const { navigation } = this.props;
     const { params } = navigation.state;
@@ -75,8 +104,11 @@ class SalesScreen extends Component {
     let mtd_new = [];
     let mtd_used = [];
     this.state.mtd_data.forEach((sale) => {
-      if (!reps.includes(sale.sales_rep)) {
-        reps.push(sale.sales_rep)
+      if (!reps.some(rep => rep.name === sale.sales_rep)) {
+        reps.push({name: sale.sales_rep, newSales: 0, usedSales: 0, totalSales: 0 })
+      }
+      if (!reps.some(rep => rep.name === sale.split_rep) && sale.split_rep !== '') {
+        reps.push({name: sale.split_rep, newSales: 0, usedSales: 0, totalSales: 0 })
       }
       if (sale.is_used) {
         mtd_used.push(sale)
@@ -85,7 +117,37 @@ class SalesScreen extends Component {
         mtd_new.push(sale)
       }
     })
-    console.log(this.state.mtd_data)
+    reps.forEach((rep) => {
+      let usedSales = 0;
+      let newSales = 0;
+      mtd_used.forEach((sale) => {
+        if (sale.sales_rep === rep.name) {
+          if (sale.split_rep === '') {
+            usedSales += 1
+          } else {
+            usedSales += 0.5
+          }
+        } else if (sale.split_rep === rep.name) {
+          usedSales += 0.5
+        }
+      })
+      mtd_new.forEach((sale) => {
+        if (sale.sales_rep === rep.name) {
+          if (sale.split_rep === '') {
+            newSales += 1
+          } else {
+            newSales += 0.5
+          }
+        } else if (sale.split_rep === rep.name) {
+          newSales += 0.5
+        }
+      })
+      rep.newSales = newSales;
+      rep.usedSales = usedSales;
+      rep.totalSales = newSales + usedSales;
+    });
+    reps.sort((a, b) => b.totalSales - a.totalSales)
+    console.log('REPS: ', reps)
     if (this.state.loading) {
       return(
         <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
@@ -128,18 +190,18 @@ class SalesScreen extends Component {
                 </View>
               </View>
             </View>
-            {/*<View style={{ paddingTop: 10 }}>
-              <Text style={[t, { fontStyle: 'italic' }]}>New start date: 07.02.19</Text>
-            </View>*/}
+            <View style={{ paddingTop: 10 }}>
+              <Text style={[t, { fontStyle: 'italic' }]}>New start date: { this.state.dealership_data.custom_mtd_start_date }</Text>
+            </View>
           </View>
           <View style={{ padding: 20}}>
             <Text style={ h }>Reps</Text>
             { reps.map((rep) => {
               return(
                 <View style={ row }>
-                  <View style={[ cell, { flex: 2 }]}><Text style={t}>{ this.toCamelCase(rep) }</Text></View>
-                  <View style={ cell }><Text style={t}>{ mtd_new.filter(sale => sale.sales_rep === rep).length } new</Text></View>
-                  <View style={ cell }><Text style={t}>{ mtd_used.filter(sale => sale.sales_rep === rep).length } Used</Text></View>
+                  <View style={[ cell, { flex: 2 }]}><Text style={t}>{ this.toCamelCase(rep.name) }</Text></View>
+                  <View style={ cell }><Text style={t}>{ rep.newSales } New</Text></View>
+                  <View style={ cell }><Text style={t}>{ rep.usedSales } Used</Text></View>
                 </View>
               );
             })}

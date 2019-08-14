@@ -43,9 +43,9 @@ class NavigationMenu extends React.Component {
 const navigationOptions = ({ navigation }) => {
   return {
     headerLeft: (
-      <TouchableOpacity onPress={() => navigation.navigate('Lot', { extras: navigation.getParam("extras", {}), showModal: true, findingOnMap: false })}>
+      <TouchableOpacity onPress={ navigation.getParam('section') === 'lot' ? navigation.getParam('onPress') : () => navigation.navigate('Lot', { extras: navigation.getParam("extras", {}), showModal: true, findingOnMap: false })}>
         <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons type='ionicon' name={ 'ios-arrow-back'} size={ 25 } style={{ color: '#FFF' }} />
+          <Ionicons type='ionicon' name={ navigation.getParam('section') === 'lot' ? 'md-refresh' : 'ios-arrow-back'} size={ 25 } style={{ color: '#FFF' }} />
         </View>
       </TouchableOpacity>
     )
@@ -53,7 +53,10 @@ const navigationOptions = ({ navigation }) => {
 }
 
 const LotStack = createStackNavigator({
-	Lot: LotScreen,
+	Lot: {
+    screen: LotScreen,
+    navigationOptions: navigationOptions,
+  },
 	Fuel: {
     screen: FuelScreen,
     navigationOptions: navigationOptions,
@@ -84,7 +87,10 @@ const AuthStack = createStackNavigator({ Login: LoginScreen });
 const AppTabs = createBottomTabNavigator({
   LotStack: {
     screen: LotStack,
-    params: { tabBarLabel: 'Lot View' }
+    params: { tabBarLabel: 'Lot View' },
+    navigationOptions: {
+      tabBarVisible: false
+    }
   },
   Sales: SalesScreen,
   VehicleManager: {

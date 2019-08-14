@@ -1,6 +1,7 @@
 export default {
 	// GET REQUESTS
 	// - - - - - - - - - - - - - - - -
+	DEALERSHIP: '/api/dealership',
 	FULL_LOT: '/api/shapes',
 	EVENTS: '/api/events',
 	VEHICLE_BY_SPACE: '/api/shapes/',

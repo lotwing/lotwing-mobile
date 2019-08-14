@@ -79,14 +79,14 @@ export default class LoginScreen extends React.Component {
           textColor={buttonStyles.activePrimaryTextColor}/>
 
 
-        {/*<LoginButton
+        {/**/}<LoginButton
             email={this.state.debug_email}
             pwd={this.state.debug_pwd}
             buttonText={this.state.debug_buttonText}
             callback={this.navigationCallback}
             navigation={this.props.navigation}
             textColor={buttonStyles.activeSecondaryTextColor}/>
-*/}
+
 
       </View>
     );
