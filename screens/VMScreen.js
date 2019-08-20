@@ -7,7 +7,7 @@ import Route from '../constants/Routes';
 
 
 class VMScreen extends Component {
-  state = { loading: true, vehicles_data: [] }
+  state = { loading: true, vehicles_data: [], type: 'is_new' }
 
   componentWillMount() {
     this.loadVehicleData();
@@ -42,10 +42,10 @@ class VMScreen extends Component {
 
   render() {
     const { navigation } = this.props;
-    const { t, h } = styles;
+    const { t, h, pill } = styles;
     let models = [];
-    const newVehicles = this.state.vehicles_data.filter(vehicle => vehicle.usage_type === 'is_new')
-    newVehicles.forEach((vehicle) => {
+    const vehicles = this.state.vehicles_data.filter(vehicle => vehicle.usage_type === this.state.type)
+    vehicles.forEach((vehicle) => {
       if (!models.includes(vehicle.model)) {
         models.push(vehicle.model)
       }
@@ -70,33 +70,23 @@ class VMScreen extends Component {
           </View>
           <View style={{ padding: 20}}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              { this.count('is_new') > 0 &&
-                <View style={{ backgroundColor: '#006699', borderRadius: 5, padding: 5, margin: 3 }}>
+                <View style={[{ backgroundColor: '#006699'}, pill, this.state.type === 'is_new' && { borderColor: '#BE1E2D'} ]}>
                   <Text style={ t }>New: { this.count('is_new') }</Text>
                 </View>
-              }
-              { this.count('is_used') > 0 &&
-                <View style={{ backgroundColor: '#66CC00', borderRadius: 5, padding: 5, margin: 3 }}>
+                <View style={[{ backgroundColor: '#66CC00'}, pill, this.state.type === 'is_used' && { borderColor: '#FFF'} ]}>
                   <Text style={ t }>Used: { this.count('is_used') }</Text>
                 </View>
-              }
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              { this.count('loaner') > 0 &&
-                <View style={{ backgroundColor: '#E8F051', borderRadius: 5, padding: 5, margin: 3 }}>
+                <View style={[{ backgroundColor: '#E8F051'}, pill, this.state.type === 'loaner' && { borderColor: '#FFF'} ]}>
                   <Text>Loaner: { this.count('loaner') }</Text>
                 </View>
-              }
-              { this.count('wholesale_unit') > 0 &&
-                <View style={{ backgroundColor: '#8D8C88', borderRadius: 5, padding: 5, margin: 3 }}>
+                <View style={[{ backgroundColor: '#8D8C88'}, pill, this.state.type === 'wholesale_unit' && { borderColor: '#FFF'} ]}>
                   <Text style={ t }>Wholesale: { this.count('wholesale_unit') }</Text>
                 </View>
-              }
-              { this.count('lease_return') > 0 &&
-                <View style={{ backgroundColor: '#D13CEA', borderRadius: 5, padding: 5, margin: 3 }}>
+                <View style={[{ backgroundColor: '#D13CEA'}, pill, this.state.type === 'lease_return' && { borderColor: '#FFF'} ]}>
                   <Text style={ t }>Lease Return: { this.count('lease_return') }</Text>
                 </View>
-              }
             </View>
           </View>
           <View style={{ paddingLeft: 40, paddingRight: 40 }}>
@@ -104,7 +94,7 @@ class VMScreen extends Component {
             models.map((model) => {
               return(
                 <View style={{ paddingBottom: 5 }}>
-                  <Text style={t}>{`${ model } (${ newVehicles.filter(vehicle => vehicle.model === model).length })`}</Text>
+                  <Text style={t}>{`${ model } (${ vehicles.filter(vehicle => vehicle.model === model).length })`}</Text>
                 </View>
               );
             })
@@ -123,6 +113,13 @@ const styles = {
   },
   t: {
     color: '#FFF'
+  },
+  pill: {
+    borderRadius: 8,
+    padding: 7,
+    margin: 3,
+    borderWidth: 2,
+    borderColor: '#BE1E2D',
   }
 }
 export default VMScreen;

@@ -22,20 +22,6 @@ export default class VehicleSpaceLayer extends React.PureComponent {
   constructor(props) {
       super(props);
 
-      this.state = {
-        loading: false,
-        parking_space_geojson: {
-          "id": "parking_spaces",
-          "type": "Feature",
-          "properties": {},
-          "geometry": {
-            "coordinates": [],
-            "type": "MultiPolygon"
-          },
-        },
-        spaceVehicleMap: {},
-      }
-
       this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 

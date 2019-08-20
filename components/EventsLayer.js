@@ -18,13 +18,30 @@ export default class EventsLayer extends React.PureComponent {
 
   constructor(props) {
       super(props);
+      this.state = { loading: true }
       this.renderEvents = this.renderEvents.bind(this);
   }
+  componentWillReceiveProps(nextProps) {
+    this.setState({loading: false})
+  }
   _createNewPolygon(coordinates, id) {
-    const horizontalCoords = coordinates[0][0][0] + ((coordinates[0][1][0] - coordinates[0][0][0])/2)
-    const verticalCoords = coordinates[0][2][1] + ((coordinates[0][0][1] - coordinates[0][2][1])/2)
-    const updatedCoordinates = [horizontalCoords, verticalCoords]
-    const generatedCoordinates = circle(updatedCoordinates, 0.0007, {steps: 30, units: 'kilometers'})
+    const size = this.props.type === 'note' ? 0.0007 : 0.0007
+    let left = coordinates[0][0][0]
+    let right = coordinates[0][0][0]
+    let top = coordinates[0][0][1]
+    let bottom = coordinates[0][0][1]
+
+    coordinates[0].forEach((pair) => {
+      if (pair[0] < left) { left = pair[0] };
+      if (pair[0] > right) { right = pair[0] };
+      if (pair[1] < bottom) { bottom = pair[1] };
+      if (pair[1] > top) { top = pair[1] };
+    })
+    //console.log(left, right, top, bottom)
+    const h = left + ((right - left)/2)
+    const v = bottom + ((top - bottom)/2)
+    const updatedCoordinates = [h, v]
+    const generatedCoordinates = circle(updatedCoordinates, size, {steps: 30, units: 'kilometers'})
     const empty_polygon_geojson = {
       "id": id,
       "type": "Feature",
@@ -70,19 +87,25 @@ export default class EventsLayer extends React.PureComponent {
         <Mapbox.FillExtrusionLayer
           id={`fill_${this.props.type}`}
           key={`fill_${this.props.type}`}
-          style={lotLayerStyles.events}
+          style={this.props.type === 'note' ? lotLayerStyles.noteEvent : lotLayerStyles.events}
         />
       </Mapbox.ShapeSource>
     )
   }
 
   render() {
-    return ( this.renderEvents() )
+    if (!this.state.loading) {
+      return ( this.renderEvents() )
+    }
+    return null
   }
 }
 
 const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
   events: {
     fillExtrusionColor: '#FFFF00'
+  },
+  noteEvent: {
+    fillExtrusionColor:'#A0291E'
   },
 });

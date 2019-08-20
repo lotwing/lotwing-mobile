@@ -61,8 +61,8 @@ export default class TagModalView extends React.Component {
       createView: false,
       vehicleType: null,
       reopenOnDismiss: false,
-      drive: { event_id: null, started_at: null },
-      fuel: { event_id: null, started_at: null }
+      drive: { event_id: null, started_at: null, user_id: null },
+      fuel: { event_id: null, started_at: null, user_id: null }
     }
   }
   componentWillMount() {
@@ -111,7 +111,7 @@ export default class TagModalView extends React.Component {
           let drive = {};
           let fuel = {};
           result.events!== null && result.events[0].forEach((event) => {
-            //console.log('EVENT: ', event.data)
+            console.log('EVENT: ', event.data)
             const { event_type, started_at, ended_at, id } = event.data.attributes
             if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
               drive = { event_id: id, started_at: started_at }
@@ -633,8 +633,16 @@ export default class TagModalView extends React.Component {
     let isCreateModal = this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
     console.log('Render modal content: ' , this.state.modalContent)
     let isOnMap = this.props.spaceId;
-
-    let vehicleUsageType = this.state.vehicle !== null && this.state.vehicle.is_used ? 'Used' : 'New';
+    console.log(this.state.vehicle)
+    let vehicleUsageType = ''
+    if (this.state.vehicle !== null) {
+      let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
+      if (usageType === 'is_new') { vehicleUsageType = 'New'}
+      if (usageType === 'is_used') { vehicleUsageType = 'Used'}
+      if (usageType === 'loaner') { vehicleUsageType = 'Loaner'}
+      if (usageType === 'wholesale_unit') { vehicleUsageType = 'Wholesale Unit'}
+      if (usageType === 'lease_return') { vehicleUsageType = 'Lease Return'}
+    }
     let vehicleYear = this.state.vehicle !== null && this.state.vehicle.year ? this.state.vehicle.year : '';
     let vehicleMake = this.state.vehicle !== null && this.state.vehicle.make ? this.state.vehicle.make : '';
     let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + vehicleYear + ' ' + vehicleMake : 'Not in Stall' : ' ';

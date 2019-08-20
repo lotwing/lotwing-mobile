@@ -148,6 +148,17 @@ class SalesScreen extends Component {
     });
     reps.sort((a, b) => b.totalSales - a.totalSales)
     console.log('REPS: ', reps)
+
+    let models = [];
+    const vehicles = mtd_new.filter(vehicle => vehicle.usage_type === this.state.type)
+    mtd_new.forEach((sale) => {
+      if (!models.some(model => model.name === sale.model)) {
+        models.push({name: sale.model, total: mtd_new.filter(saleTotal => saleTotal.model === sale.model).length })
+      }
+    })
+
+    models.sort((a, b) => b.total - a.total)
+    console.log('MODELS', models)
     if (this.state.loading) {
       return(
         <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
@@ -206,8 +217,20 @@ class SalesScreen extends Component {
               );
             })}
           </View>
+          <View style={{ padding: 20}}>
+            <Text style={ h }>New by Model</Text>
+            {
+            models.map((model) => {
+              return(
+                <View style={row}>
+                  <Text style={t}>{`${ model.name } (${ model.total })`}</Text>
+                </View>
+              );
+            })
+          }
+          </View>
         </ScrollView>
-        <View style={{ flex: 0, padding: 10, alignItems: 'flex-end' }}>
+        <View style={{ flex: 0, padding: 10, alignItems: 'flex-end', position: 'absolute', right: 0, bottom: 0 }}>
           <TouchableOpacity onPress={()=> this.logOut()}>
             <View style={{ padding: 10, backgroundColor: '#000', borderRadius: 5 }}>
               <Text style={t}>Log out</Text>

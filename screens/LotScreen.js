@@ -25,6 +25,8 @@ import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
 import BuildingLayer from '../components/BuildingLayer';
 import EventsLayer from '../components/EventsLayer';
+import NoteLayer from '../components/NoteLayer';
+import DuplicatesLayer from '../components/DuplicatesLayer';
 import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
@@ -81,6 +83,7 @@ class LotView extends React.Component {
         wholesaleSpaces: [],
         driveEventSpaces: [],
         fuelEventSpaces: [],
+        noteEventSpaces: [],
         parkingShapes: {},
         spaceVehicleMap: {},
         spaceId: 0,
@@ -245,7 +248,7 @@ class LotView extends React.Component {
          lotParkingSpaceMap[space["id"]] = space;
       });
       console.log('     resetting state: _loadLotView');
-      lotview._loadEvents();
+
 
       lotview._loadParkingSpaceMetadata({
         centerCoordinate: this.state.centerCoordinate === null ? lotview._calculateCenter(lot_coords) : this.state.centerCoordinate,
@@ -297,7 +300,9 @@ class LotView extends React.Component {
         feedbackText: '',
         leaseRt: false,
       });
+
       this.updateSpaceVehicleMap = false;
+      lotview._loadEvents();
       if (this.state.postLoadAction === 'chooseEmptySpace') {
         this.setVehicleHighlight(null);
         this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE)
@@ -311,7 +316,6 @@ class LotView extends React.Component {
   }
   _loadEvents() {
     var lotview = this;
-
     return fetch(GlobalVariables.BASE_ROUTE + Route.EVENTS , {
       method: 'GET',
       headers: {
@@ -321,9 +325,11 @@ class LotView extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
+      console.log(responseJson)
       lotview.setState({
         driveEventSpaces: responseJson["test_drive_events"].map((space) => space.data.attributes),
         fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.attributes),
+        noteEventSpaces: responseJson["note_events"].map((space) => space.data.attributes),
       })
     })
   }
@@ -906,7 +912,10 @@ class LotView extends React.Component {
           showUserLocation={true}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          zoomLevel={this.state.zoomLevel}>
+          zoomLevel={this.state.zoomLevel}
+          ref={'_map'}
+          onRegionIsChanging={() => console.log(this.refs._map.getZoom() )}
+        >
 
           <Mapbox.ShapeSource
             id='parking_lot'
@@ -1071,6 +1080,7 @@ class LotView extends React.Component {
             blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
+          {/*
           <VehicleSpaceLayer
             ids={this.state.duplicateSpaces}
             style={lotLayerStyles.duplicate_spaces}
@@ -1083,6 +1093,20 @@ class LotView extends React.Component {
             recent={false}
             blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
+          */}
+
+          <DuplicatesLayer
+            ids={this.state.duplicateSpaces}
+            style={lotLayerStyles.duplicate_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.duplicateSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            type='duplicates'
+            recent={false}
+            blank={this.state.findingOnMap}>
+          </DuplicatesLayer>
 
           <EventsLayer
             eventShapes={this.state.driveEventSpaces}
@@ -1092,7 +1116,16 @@ class LotView extends React.Component {
             eventShapes={this.state.fuelEventSpaces}
             type='fuel'>
           </EventsLayer>
-
+          <EventsLayer
+            eventShapes={this.state.noteEventSpaces}
+            type='note'>
+          </EventsLayer>
+          <NoteLayer
+            eventShapes={this.state.noteEventSpaces}
+            type='noteText'
+            text='1'
+            zoom={this.state.zoomLevel}>
+          </NoteLayer>
           <VehicleHighlightLayer
             clickedStallPolygon={this.state.clickedStall}>
           </VehicleHighlightLayer>

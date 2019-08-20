@@ -16,8 +16,8 @@ repositories {
 }
 
 android {
-  compileSdkVersion 27
-  buildToolsVersion '27.0.3'
+  compileSdkVersion 28
+  buildToolsVersion '28.0.3'
 
   defaultConfig {
     applicationId 'com.lotwing.app'
@@ -104,7 +104,7 @@ dependencies {
 
   // Our dependencies
   implementation 'com.android.support:appcompat-v7:27.1.1'
-
+  implementation project(':mapbox-react-native-mapbox-gl')
   // Our dependencies from ExpoView
   // DON'T ADD ANYTHING HERE THAT ISN'T IN EXPOVIEW. ONLY COPY THINGS FROM EXPOVIEW TO HERE.
   implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -174,13 +174,13 @@ dependencies {
   testImplementation 'com.android.support.test:runner:1.0.2-alpha1'
   testImplementation 'com.android.support.test:rules:1.0.2-alpha1'
 
-  
+
   implementation('host.exp.exponent:expoview:31.0.0@aar') {
     transitive = true
     exclude group: 'com.squareup.okhttp3', module: 'okhttp'
     exclude group: 'com.squareup.okhttp3', module: 'okhttp-urlconnection'
   }
-  
+
 
 }
 

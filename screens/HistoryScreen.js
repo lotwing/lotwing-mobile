@@ -107,12 +107,13 @@ export default class HistoryScreen extends React.Component {
 	}
 
 	render() {
+    console.log(this.state.vehicle)
   	return (
   		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
 	  		{ this.state.vehicle !== {} &&
 	  			<View style={[pageStyles.darkBody, pageStyles.column ]}>
 						<Text style={textStyles.header}>{this.state.vehicle.year} {this.state.vehicle.make} {this.state.vehicle.model}</Text>
-		         <Text style={textStyles.subtitle}>SKU {this.state.vehicle.stockNumber}</Text>
+		         <Text style={textStyles.subtitle}>SKU {this.state.vehicle.stock_number}</Text>
 		       </View>
 		     }
   			{this._renderHistory()}

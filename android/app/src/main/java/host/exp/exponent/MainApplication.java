@@ -12,6 +12,8 @@ import expolib_v1.okhttp3.OkHttpClient;
 // import com.facebook.react.ReactApplication;
 import com.oblador.vectoricons.VectorIconsPackage;
 
+import com.mapbox.rctmgl.RCTMGLPackage;
+
 public class MainApplication extends ExpoApplication {
 
   @Override
@@ -27,7 +29,8 @@ public class MainApplication extends ExpoApplication {
 
         // Needed for `react-native link`
         // new MainReactPackage(),
-            new VectorIconsPackage()
+            new VectorIconsPackage(),
+            new RCTMGLPackage()
     );
   }
 
