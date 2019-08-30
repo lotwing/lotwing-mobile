@@ -183,6 +183,14 @@ PODS:
   - lottie-ios (2.5.3)
   - React (0.57.1):
     - React/Core (= 0.57.1)
+  - react-native-camera (3.3.0):
+    - React
+    - react-native-camera/RCT (= 3.3.0)
+    - react-native-camera/RN (= 3.3.0)
+  - react-native-camera/RCT (3.3.0):
+    - React
+  - react-native-camera/RN (3.3.0):
+    - React
   - react-native-mapbox-gl (6.1.3):
     - React
   - React/ART (0.57.1):
@@ -279,6 +287,7 @@ DEPENDENCIES:
   - EXSMS (from `../node_modules/expo-sms/ios`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - react-native-camera (from `../node_modules/react-native-camera`)
   - "react-native-mapbox-gl (from `../node_modules/@mapbox/react-native-mapbox-gl`)"
   - React/ART (from `../node_modules/react-native`)
   - React/Core (from `../node_modules/react-native`)
@@ -398,6 +407,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
     :path: "../node_modules/react-native"
+  react-native-camera:
+    :path: "../node_modules/react-native-camera"
   react-native-mapbox-gl:
     :path: "../node_modules/@mapbox/react-native-mapbox-gl"
   RNVectorIcons:
@@ -467,11 +478,12 @@ SPEC CHECKSUMS:
   JKBigInteger2: e91672035c42328c48b7dd015b66812ddf40ca9b
   lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
   React: 1fe0eb13d90b625d94c3b117c274dcfd2e760e11
+  react-native-camera: 9c50d7def800895e7991ccda6203929553ceec9c
   react-native-mapbox-gl: b42480060cdcc515dfa3d8e403fb4dd32466a1b9
   RNVectorIcons: 66af4d5c8ff4f584c7b7cd9c4b0780920f27fce2
   Stripe: 76c203e21555089b708e6cbe972a3e3baf1ab4d8
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: 9b3d170b7459d200179d14087094f78aba81b067
+PODFILE CHECKSUM: 20622b9a230cf938d2350c3e62c431a19cb61454
 
 COCOAPODS: 1.5.3

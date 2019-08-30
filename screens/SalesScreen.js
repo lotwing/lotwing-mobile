@@ -147,7 +147,7 @@ class SalesScreen extends Component {
       rep.totalSales = newSales + usedSales;
     });
     reps.sort((a, b) => b.totalSales - a.totalSales)
-    console.log('REPS: ', reps)
+    //console.log('REPS: ', reps)
 
     let models = [];
     const vehicles = mtd_new.filter(vehicle => vehicle.usage_type === this.state.type)
@@ -158,7 +158,7 @@ class SalesScreen extends Component {
     })
 
     models.sort((a, b) => b.total - a.total)
-    console.log('MODELS', models)
+    //console.log('MODELS', models)
     if (this.state.loading) {
       return(
         <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>

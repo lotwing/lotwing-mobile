@@ -12,6 +12,7 @@ export default {
 	AUTH_CHECK: '/api/auth/test',
 	VEHICLE: '/api/vehicles/',
 	VEHICLE_BY_SKU: '/api/vehicles/stock_numbers/',
+	VEHICLE_BY_VIN: '/api/vehicles/vin_search/',
 
 	SALES: '/api/deals/',
 

@@ -18,6 +18,8 @@ import {
   Dimensions
 } from 'react-native';
 import { Constants } from 'expo';
+import { RNCamera } from 'react-native-camera';
+import BarcodeMask from 'react-native-barcode-mask';
 
 import buttonStyles from '../constants/ButtonStyles';
 
@@ -61,8 +63,10 @@ export default class TagModalView extends React.Component {
       createView: false,
       vehicleType: null,
       reopenOnDismiss: false,
-      drive: { event_id: null, started_at: null, user_id: null },
-      fuel: { event_id: null, started_at: null, user_id: null }
+      drive: { event_id: null, started_at: null, summary: '' },
+      fuel: { event_id: null, started_at: null, summary: '' },
+      sku: this.props.sku,
+      barcodeOpen: false
     }
   }
   componentWillMount() {
@@ -104,7 +108,7 @@ export default class TagModalView extends React.Component {
           return response.json();
       })
       .then((result) => {
-        //console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
+        console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
         //console.log(result)
         if (result.vehicles.length) {
 
@@ -112,12 +116,12 @@ export default class TagModalView extends React.Component {
           let fuel = {};
           result.events!== null && result.events[0].forEach((event) => {
             console.log('EVENT: ', event.data)
-            const { event_type, started_at, ended_at, id } = event.data.attributes
+            const { event_type, started_at, ended_at, id, summary } = event.data.attributes
             if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-              drive = { event_id: id, started_at: started_at }
+              drive = { event_id: id, started_at: started_at, summary: summary }
             }
             if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-              fuel = { event_id: id, started_at: started_at }
+              fuel = { event_id: id, started_at: started_at, summary: summary }
             }
           })
           this.setState({
@@ -240,9 +244,9 @@ export default class TagModalView extends React.Component {
     //this.dismissModal();
     //console.log('Vehicle: ',this.state.vehicles[this.state.arrayPosition])
     if (page_name == 'drive') {
-      this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.drive.event_id, started_at: this.state.drive.started_at});
+      this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.drive.event_id, started_at: this.state.drive.started_at, summary: this.state.drive.summary});
     } else if (page_name === 'fuel') {
-      this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.fuel.event_id, started_at: this.state.fuel.started_at});
+      this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.fuel.event_id, started_at: this.state.fuel.started_at, summary: this.state.fuel.summary});
     } else if (page_name === 'note') {
       this.props.navigation.navigate('Note', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
     } else if (page_name === 'history') {
@@ -294,7 +298,7 @@ export default class TagModalView extends React.Component {
   }
   createVehicle(sku, type) {
     console.log('Location:', this.props.spaceId)
-    const vehicle =  {model: 'User created vehicle', stock_number: sku, creation_source: 'user_created', usage_type: type }
+    const vehicle =  { model: 'User created vehicle', stock_number: sku, creation_source: 'user_created', usage_type: type, vin: this.props.vin }
     console.log(vehicle)
     this.setState({ loading: true });
     url = GlobalVariables.BASE_ROUTE + Route.VEHICLE
@@ -339,7 +343,7 @@ export default class TagModalView extends React.Component {
           <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <TouchableOpacity
               style={[buttonStyles.activeSecondaryModalButton, { flex: 1, margin: 5 }]}
-              onPress={() => this.createVehicle( this.props.sku, 'lease_return' ) }
+              onPress={() => this.createVehicle( this.state.sku, 'lease_return' ) }
             >
               <Text style={buttonStyles.activeSecondaryTextColor}>CREATE LEASE RT</Text>
             </TouchableOpacity>
@@ -353,25 +357,25 @@ export default class TagModalView extends React.Component {
         <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <TouchableOpacity
             style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
-            onPress={() => this.createVehicle( this.props.sku, 'is_new' ) }
+            onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
           >
             <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
-            onPress={() => this.createVehicle( this.props.sku, 'is_used' ) }
+            onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
           >
             <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
-            onPress={() => this.createVehicle( this.props.sku, 'loaner' ) }
+            onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
           >
             <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
-            onPress={() => this.createVehicle( this.props.sku, 'wholesale_unit' ) }
+            onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
           >
             <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
           </TouchableOpacity>
@@ -581,16 +585,25 @@ export default class TagModalView extends React.Component {
           style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
           <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
             Populate Empty Space</Text>
-          <TextInput
-            autoCapitalize='characters'
-            multiline={false}
-            style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
-            placeholder='Stock Number'
-            placeholderTextColor='rgba(237, 235, 232, 0.5)'
-            onChangeText={(stockNumber) => {this.newStockNumber = stockNumber}}
-            onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text, 'Attempting to Populate Empty Space...')}
-            returnKeyType='send'
-            autoFocus={true}/>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                autoCapitalize='characters'
+                multiline={false}
+                style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
+                placeholder='Stock Number'
+                placeholderTextColor='rgba(237, 235, 232, 0.5)'
+                onChangeText={(stockNumber) => {this.newStockNumber = stockNumber}}
+                onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text, null, 'Attempting to Populate Empty Space...')}
+                returnKeyType='send'
+                autoFocus={true}/>
+              </View>
+            <TouchableOpacity onPress={()=> this.setState({ barcodeOpen: true })}>
+              <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                <Ionicons type='ionicon' name={ 'md-barcode'} size={ 25 } style={{ color: '#FFF' }} />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       )
     } else if ( this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE) {
@@ -599,9 +612,20 @@ export default class TagModalView extends React.Component {
         return(
           <View style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0 }]}>
             <View style={{ borderBottomWidth: 1, borderBottomColor: '#FFF', paddingBottom: 5 }}>
-              <Text style={[styles.stallHeader, {textAlign: 'center', fontSize: 50, fontWeight: 'bold' }]}>{ this.props.sku }</Text>
+              { this.props.vin === null ?
+                <Text style={[styles.stallHeader, {textAlign: 'center', fontSize: 50, fontWeight: 'bold' }]}>{ this.state.sku }</Text>
+              :
+                <TextInput
+                  multiline={false}
+                  style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center', borderBottomWidth: 0, marginBottom: 0 }]}
+                  value={ this.state.sku !== null ? `${ this.state.sku }` : '' }
+                  keyboardType={'default'}
+                  onChangeText={(sku) => this.setState({ sku: sku }) }
+                  autoFocus={true}
+                />
+              }
             </View>
-            { this.createVehicleButtons() }
+            { this.state.sku !== null && this.state.sku !== '' && this.createVehicleButtons() }
           </View>
         )
       }
@@ -633,7 +657,7 @@ export default class TagModalView extends React.Component {
     let isCreateModal = this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
     console.log('Render modal content: ' , this.state.modalContent)
     let isOnMap = this.props.spaceId;
-    console.log(this.state.vehicle)
+    //console.log(this.state.vehicle)
     let vehicleUsageType = ''
     if (this.state.vehicle !== null) {
       let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
@@ -662,15 +686,14 @@ export default class TagModalView extends React.Component {
         <KeyboardAvoidingView
         style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
-        <TouchableWithoutFeedback
-          onPress={() => {
-            console.log('TOUCHING --OUTER-- VIEW');
-            this.dismissModal();
-          }}>
-          <View
-            style={styles.tagModalBlankSpace}>
-          </View>
-        </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              this.props.findOnMap(false);
+            }}>
+            <View
+              style={styles.tagModalBlankSpace}>
+            </View>
+          </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
           <View style={styles.tagModalStallBar}><Text style={styles.stallHeader}>LOADING...</Text></View>
@@ -681,20 +704,51 @@ export default class TagModalView extends React.Component {
       </KeyboardAvoidingView>
       )
     }
+    if (this.state.barcodeOpen) {
+      return(
+        <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+          <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
+            <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
+            <TouchableOpacity onPress={()=>this.setState({barcodeOpen: false})}>
+              <View style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons type='ionicon' name={ 'md-close'} size={ 25 } />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <RNCamera
+            onStatusChange={(cameraStatus) => console.log('Camera Status: ', cameraStatus)}
+            onMountError={(e) => console.log('Camera mount error: ', e)}
+            onBarCodeRead={(e) => {
+              console.log('Barcode: ', e.data);
+              this.setState({barcodeOpen: false })
+              this.props.updateLotAndDismissModal(this.props.spaceId, null, null, e.data, 'Attempting to Populate Empty Space...')
+            }}
+            type={RNCamera.Constants.Type.back}
+            autoFocus={RNCamera.Constants.AutoFocus.on}
+            defaultTouchToFocus
+            mirrorImage={false}
+            permissionDialogTitle={'Permission to use camera'}
+            permissionDialogMessage={'We need your permission to use your camera phone'}
+            style={{flex: 1}}>
+            <BarcodeMask showAnimatedLine={false} />
+          </RNCamera>
+        </View>
+      );
+    }
     // In the case of showing a blank map with one highlight
     if (this.props.findingOnMap) {
       return(
         <KeyboardAvoidingView
         style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
-          <TouchableWithoutFeedback
-            onPress={() => {
-              this.props.findOnMap(false);
-            }}>
-            <View
-              style={styles.tagModalBlankSpace}>
-            </View>
-          </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                this.props.findOnMap(false);
+              }}>
+              <View
+                style={styles.tagModalBlankSpace}>
+              </View>
+            </TouchableWithoutFeedback>
 
           <View style={styles.modalBottomContainer}>
             <View style={styles.tagModalMainBody}>
@@ -719,15 +773,15 @@ export default class TagModalView extends React.Component {
       <KeyboardAvoidingView
         style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={Constants.statusBarHeight+40}>
 
-        <TouchableWithoutFeedback
-          onPress={() => {
-            console.log('TOUCHING --OUTER-- VIEW');
-            this.tapOutsideModal();
-          }}>
-          <View
-            style={styles.tagModalBlankSpace}>
-          </View>
-        </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              console.log('TOUCHING --OUTER-- VIEW');
+              this.tapOutsideModal();
+            }}>
+            <View
+              style={styles.tagModalBlankSpace}>
+            </View>
+          </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
           { this.state.vehicle !== null && this.state.vehicles.length > 1 &&
@@ -754,7 +808,7 @@ export default class TagModalView extends React.Component {
           </View>
           { isCreateModal ?
             <View style={[styles.tagModalStallBar, { borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
-              <Text style={styles.stallHeader}> Vehicle not found: { this.props.sku }</Text>
+              <Text style={styles.stallHeader}> Vehicle not found: { this.props.vin === null && this.state.sku } { this.props.vin !== null && `VIN: ${this.props.vin}` }</Text>
             </View>
           :
             <View style={[styles.tagModalStallBar, { borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>

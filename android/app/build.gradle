@@ -97,6 +97,7 @@ apply from: 'expo.gradle'
 
 
 dependencies {
+    compile project(':react-native-camera')
     compile project(':react-native-vector-icons')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 

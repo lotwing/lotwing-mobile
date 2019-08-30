@@ -28,6 +28,7 @@ export default class DriveScreen extends React.Component {
 		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
 		this.eventId = this.props.navigation.state.params.eventId;
 		this.startedAt = this.props.navigation.state.params.started_at;
+		this.summary = this.props.navigation.state.params.summary;
 
 		this.state = {
 			eventRunning: false,
@@ -118,11 +119,16 @@ export default class DriveScreen extends React.Component {
 	_renderProperDriveActionView() {
 		let startTime = Date.now();
 		if (this.startedAt !== null && this.startedAt !== undefined) {
-			console.log(this.startedAt)
+			//console.log(this.startedAt)
 			startTime = Date.parse(this.startedAt)
 		}
 		return (
 			<View style={{flex:7}}>
+				{ this.state.eventRunning && this.summary !== null && this.summary !== undefined && this.summary !== '' &&
+					<View style={{ flex: 0, padding: 14, paddingLeft: 30, paddingRight: 30 }}>
+						<Text style={[ textStyles.actionSummaryHeader, { color: '#828282'} ]}>Started by: { this.summary.substring(this.summary.indexOf('<strong>')+9, this.summary.indexOf('</strong>') ) }</Text>
+					</View>
+				}
 				<View style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
 					{ this._renderTimerOnStart(startTime) }
 		  	</View>

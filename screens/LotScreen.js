@@ -18,6 +18,9 @@ import {
 } from 'react-native';
 import posed from 'react-native-pose';
 import { Constants } from 'expo';
+import { RNCamera } from 'react-native-camera';
+import BarcodeMask from 'react-native-barcode-mask';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -90,7 +93,8 @@ class LotView extends React.Component {
         vehicles: [],
         vehicleId: 0,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
-        sku: '',
+        sku: null,
+        vin: null,
         skuCollectorVisible: false,
         skuSearchFailed: false,
         stockNumberVehicleMap: {},
@@ -103,7 +107,8 @@ class LotView extends React.Component {
         modalReopenTarget: 0,
         modalReopenHighlight: null,
         leaseRt: false,
-        postLoadAction: ''
+        postLoadAction: '',
+        barcodeOpen: false
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -119,8 +124,8 @@ class LotView extends React.Component {
       this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
       this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
       this.dismissInput = this.dismissInput.bind(this);
-      this.locateVehicleBySKU = this.locateVehicleBySKU.bind(this);
       this.skuEntered = 0;
+      this.vinEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
       this.updateSpaceVehicleMap = false;
 
@@ -167,7 +172,8 @@ class LotView extends React.Component {
           this.setVehicleHighlight(null);
           this.setState({ postLoadAction: 'chooseEmptySpace', modalVisible: false})
         } else {
-          this.setState({findingOnMap: false, modalVisible: true })
+          console.log('NAVIGATION: extras exist')
+          this.setState({findingOnMap: false, modalType: GlobalVariables.BASIC_MODAL_TYPE, modalVisible: false })
         }
       } else {
         this.setState({findingOnMap: false, modalVisible: true })
@@ -290,7 +296,8 @@ class LotView extends React.Component {
         //vehicles: [],
         //vehicleId: 0,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
-        sku: '',
+        sku: null,
+        vin: null,
         skuCollectorVisible: false,
         skuSearchFailed: false,
         stockNumberVehicleMap: {},
@@ -325,7 +332,7 @@ class LotView extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log(responseJson)
+      //console.log(responseJson)
       lotview.setState({
         driveEventSpaces: responseJson["test_drive_events"].map((space) => space.data.attributes),
         fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.attributes),
@@ -425,7 +432,7 @@ class LotView extends React.Component {
   }
 
 
-  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, opt_feedbackMsg = null) => {
+  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, vin = null, opt_feedbackMsg = null) => {
     // 1. Remove Vehicle  Highlight
     console.log('updateLotAndDismissModal')
     const tempHighlight = this.state.clickedStall
@@ -448,7 +455,10 @@ class LotView extends React.Component {
 
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
-      let vehiclePromise = this._getVehicleBySKU(sku_number);
+      this.skuEntered = sku_number;
+      this.vinEntered = null;
+      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
+      let vehiclePromise = this._getVehicleByType('sku');
 
       vehiclePromise.then((vehicleData) => {
         console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
@@ -469,6 +479,32 @@ class LotView extends React.Component {
           console.log('result is undefined', this.state.modalType)
         }
       })
+    } else if (vin) {
+      console.log('VIN ENTERED: updating');
+      this.vinEntered = vin;
+      this.skuEntered = null;
+      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
+      let vehiclePromise = this._getVehicleByType('vin');
+
+      vehiclePromise.then((vehicleData) => {
+        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
+        if (vehicleData.vehicle === null ) {
+          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
+          this.setVehicleHighlight(tempHighlight)
+        } else {
+          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
+        }
+      }).then((result) => {
+        console.log('STALL UPDATE RESULT from VIN: ', result);
+        // 3. Re-render lot by updating state
+        if (result !== undefined) {
+          console.log('result is not undefined')
+          this.updateSpaceVehicleMap = true;
+          return this._loadLotView();
+        } else {
+          console.log('result is undefined', this.state.modalType)
+        }
+      })
     } else {
       console.log('nog vehicleID or sku_number')
       this.updateSpaceVehicleMap = true;
@@ -479,7 +515,7 @@ class LotView extends React.Component {
   updateLotAndReopenModal = (space_id) => {
     const tempHighlight = this.state.clickedStall;
     this.setState({ modalReopen: true, modalReopenTarget: space_id, modalReopenHighlight: tempHighlight })
-    this.updateLotAndDismissModal(null, null, null, 'Updating Lot...')
+    this.updateLotAndDismissModal(null, null, null, null, 'Updating Lot...')
   }
   updateStallNumber(new_stall, vehicleId) {
     let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
@@ -512,7 +548,6 @@ class LotView extends React.Component {
         return err
       });
   }
-
   setModalValues(modal_type, space_id, vehiclesArray) {
     // IF stall is empty only space_id needed
     if (modal_type == GlobalVariables.EMPTY_MODAL_TYPE) {
@@ -532,7 +567,12 @@ class LotView extends React.Component {
   }
 
   setVehicleHighlight(polygonClicked) {
-    this.setState({clickedStall: polygonClicked});
+    let centerCoordinate = this.state.centerCoordinate
+    if (polygonClicked !== null) {
+      centerCoordinate = this._calculateCenter(polygonClicked.geometry.coordinates[0]);
+    }
+    console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate)
+    this.setState({clickedStall: polygonClicked, centerCoordinate: centerCoordinate});
   }
 
   findOnMap = (boolean) => {
@@ -602,7 +642,7 @@ class LotView extends React.Component {
 
   dismissInput = () => {
     Keyboard.dismiss();
-    this.setSKUCollectorVisibility();
+    this.setState({skuCollectorVisible: false });
   }
 
   // Map Data
@@ -640,13 +680,22 @@ class LotView extends React.Component {
     return this.skuEntered
   }
 
-  locateVehicleBySKU() {
-    let sku = this.getSKUFromInput();
+  locateVehicle(type) {
+    if (type === 'sku') {
+      console.log('\n\nChecking Server for SKU: ', this.skuEntered);
+      this.setState({ sku: this.skuEntered, vin: null });
+    } else {
+      console.log('\n\nChecking Server for VIN: ', this.vinEntered);
+      this.setState({ sku: null, vin: this.vinEntered });
+    }
+    //let sku = this.getSKUFromInput();
     this.setVehicleHighlight(null);
-    console.log('\n\nChecking Server for SKU: ', sku);
-    let vehiclePromise = this._getVehicleBySKU(sku);
+
+    let vehiclePromise = this._getVehicleByType(type);
+    //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
 
     vehiclePromise.then((response) => {
+      console.log('Vehicle response: ', response)
       const { space_id, polygon, vehicle, events } = response;
       //console.log('Returned Vehicle Info')
       //console.log('SPACE ID: ', space_id)
@@ -656,12 +705,12 @@ class LotView extends React.Component {
       let eventsList = [];
       events!== null && events.forEach((event) => {
         //console.log(event.data)
-        const { event_type, started_at, ended_at, id } = event.data.attributes
+        const { event_type, started_at, ended_at, id, summary } = event.data.attributes
         if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at})
+          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
         }
         if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at})
+          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
         }
       })
       let navTarget = null;
@@ -681,16 +730,17 @@ class LotView extends React.Component {
       }
       if (navTarget === GlobalVariables.BEGIN_DRIVE) {
         console.log('Should navigate', this.props.navigation)
-        this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at })
+        this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
       }
       if (navTarget === GlobalVariables.BEGIN_FUELING) {
         console.log('Should navigate', this.props.navigation)
-        this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at })
+        this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
       }
       if (space_id) {
         this.dismissInput();
         this.showAndPopulateModal([space_id, null], polygon);
-        this.setState({spaceId: space_id})
+
+        this.setState({spaceId: space_id, centerCoordinate: centerCoordinate})
       } else if (space_id === null && vehicle ) {
         console.log('Pulling car from server: ', vehicle.id)
         this.setState({ vehicleId: vehicle.id, spaceId: null })
@@ -704,11 +754,14 @@ class LotView extends React.Component {
     });
   }
 
-  _getVehicleBySKU(stock_number) {
-    this.setState({ sku: stock_number })
-    // console.log('Stock Number Entered: ', stock_number);
-    // console.log('HITTING ENDPOINT: ', GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number);
-    return fetch(GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + stock_number , {
+  _getVehicleByType(type) {
+    //this.setState({ vin: vin })
+    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + this.skuEntered;
+    if (type === 'vin') {
+      url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_VIN + this.vinEntered;
+    }
+    console.log('URL: ', url)
+    return fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -719,7 +772,12 @@ class LotView extends React.Component {
     .then((responseJson) => {
       console.log('VEHICLE PULLED FROM STORE: ', responseJson);
       const { current_parking_space, vehicle, events } = responseJson;
-      return { space_id: current_parking_space !== null ? current_parking_space.id : null, polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall, vehicle: vehicle, events: events }
+      return {
+        space_id: current_parking_space !== null ? current_parking_space.id : null,
+        polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall,
+        vehicle: vehicle,
+        events: events
+      }
     })
     .catch(err => {
       return false
@@ -747,13 +805,20 @@ class LotView extends React.Component {
   maybeRenderSearchButton() {
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       return (
-        <TouchableOpacity
-          style={styles.floatingActionButton}
-          onPress={this.setSKUCollectorVisibility}>
-          <Image
-            source={require('../assets/images/search-solid.png')}
-            style={styles.searchIconSizing}/>
-        </TouchableOpacity>
+        <View style={ styles.floatingActionContainer }>
+          <TouchableOpacity
+            style={styles.floatingActionButton}
+            onPress={this.setSKUCollectorVisibility}>
+            <Image
+              source={require('../assets/images/search-solid.png')}
+              style={styles.searchIconSizing}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.floatingActionButton}
+            onPress={() => this.setState({ barcodeOpen: true })}>
+            <Ionicons type='ionicon' name={ 'md-barcode'} size={ 25 } style={{ color: '#FFF' }} />
+          </TouchableOpacity>
+          </View>
         )
     }
   }
@@ -789,7 +854,7 @@ class LotView extends React.Component {
                 returnKeyType='search'
                 style={[styles.floatingTextInput, {color: 'rgba(0, 0, 0, 0.75)'}]}
                 onChangeText={(sku) => {this.skuEntered = sku}}
-                onSubmitEditing={(event) => this.locateVehicleBySKU()}
+                onSubmitEditing={(event) => this.locateVehicle('sku')}
                 autoFocus={true}/>
 
               <Text
@@ -816,7 +881,7 @@ class LotView extends React.Component {
 
                 <TouchableOpacity
                   style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
-                  onPress={this.locateVehicleBySKU}>
+                  onPress={() => this.locateVehicle('sku') }>
                   <Text style={[buttonStyles.activePrimaryTextColor]}>
                     SEARCH
                   </Text>
@@ -866,7 +931,9 @@ class LotView extends React.Component {
           setVehicleHighlight={this.setVehicleHighlight}
           findOnMap={this.findOnMap}
           findingOnMap={this.state.findingOnMap}
+          openBarcodeScanner={this.openBarcodeScanner}
           sku={this.state.sku}
+          vin={this.state.vin}
           leaseRt={this.state.leaseRt} />
         </VehicleInfo>
       )
@@ -898,7 +965,40 @@ class LotView extends React.Component {
   }
 
   render() {
-    console.log('\n\n\n+ + + Render Lot Screen + + +');
+    //console.log('\n\n\n+ + + Render Lot Screen + + +');
+    if (this.state.barcodeOpen) {
+      console.log('Barcode Open, Selected stall: ', this.state.clickedStall)
+      return(
+        <View style={{ flex: 1 }}>
+          <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
+            <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
+            <TouchableOpacity onPress={()=>this.setState({barcodeOpen: false})}>
+              <View style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons type='ionicon' name={ 'md-close'} size={ 25 } />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <RNCamera
+            onStatusChange={(cameraStatus) => console.log('Camera Status: ', cameraStatus)}
+            onMountError={(e) => console.log('Camera mount error: ', e)}
+            onBarCodeRead={(e) => {
+              console.log('Barcode: ', e.data);
+              this.setState({barcodeOpen: false, skuCollectorVisible: false })
+              this.vinEntered = e.data
+              this.locateVehicle('vin');
+            }}
+            type={RNCamera.Constants.Type.back}
+            autoFocus={RNCamera.Constants.AutoFocus.on}
+            defaultTouchToFocus
+            mirrorImage={false}
+            permissionDialogTitle={'Permission to use camera'}
+            permissionDialogMessage={'We need your permission to use your camera phone'}
+            style={{flex: 1}}>
+            <BarcodeMask showAnimatedLine={false} />
+          </RNCamera>
+        </View>
+      );
+    }
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container} enabled keyboardVerticalOffset={Constants.statusBarHeight + 40}>
         <StatusBar
@@ -1162,10 +1262,13 @@ const styles = StyleSheet.create({
     width: 30,
     resizeMode: 'contain',
   },
-  floatingActionButton: {
+  floatingActionContainer: {
     position:'absolute',
     right: 30,
     bottom: 80,
+    flexDirection: 'column'
+  },
+  floatingActionButton: {
     width: 66,
     height: 66,
     backgroundColor: '#828282',
@@ -1175,6 +1278,7 @@ const styles = StyleSheet.create({
     shadowColor: '#828282',
     shadowOffset: {width: 1, height: 1},
     shadowOpacity: 20,
+    marginBottom: 20,
   },
   floatingTextInputArea: {
     alignItems: 'flex-start',

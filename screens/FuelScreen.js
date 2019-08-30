@@ -28,6 +28,7 @@ export default class FuelScreen extends React.Component {
 		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
 		this.eventId = this.props.navigation.state.params.eventId;
 		this.startedAt = this.props.navigation.state.params.started_at;
+		this.summary = this.props.navigation.state.params.summary;
 
 		//this.showSaveTagViews = this.showSaveTagViews.bind(this);
 		//this.startOrStopAction = this.startOrStopAction.bind(this);
@@ -76,7 +77,7 @@ export default class FuelScreen extends React.Component {
 		const startPackage = {
 			started_at: this.formatDate(Date.now())
 		}
-		console.log('start package', startPackage)
+		//console.log('start package', startPackage)
 		let eventIdPromise = LotActionHelper.endTimeboundTagAction(startPackage, eventId)
 
 		eventIdPromise.then(() => {
@@ -137,6 +138,11 @@ export default class FuelScreen extends React.Component {
 		return (
 			<View
 				style={{flex:7}}>
+				{ this.state.eventRunning && this.summary !== null && this.summary !== undefined && this.summary !== '' &&
+					<View style={{ flex: 0, padding: 14, paddingLeft: 30, paddingRight: 30 }}>
+						<Text style={[ textStyles.actionSummaryHeader, { color: '#828282'} ]}>Started by: { this.summary.substring(this.summary.indexOf('<strong>')+9, this.summary.indexOf('</strong>') ) }</Text>
+					</View>
+				}
 				<View style={{flex: 4, justifyContent: 'center', alignItems: 'center'}}>
 					{this._renderTimerOnStart(startTime)}
 				</View>
