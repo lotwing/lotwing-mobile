@@ -1014,7 +1014,7 @@ class LotView extends React.Component {
           styleURL={Mapbox.StyleURL.Street}
           zoomLevel={this.state.zoomLevel}
           ref={'_map'}
-          onRegionIsChanging={() => console.log(this.refs._map.getZoom() )}
+          onRegionDidChange={ (args) => this.setState({ zoomLevel: args.properties.zoomLevel}) }
         >
 
           <Mapbox.ShapeSource

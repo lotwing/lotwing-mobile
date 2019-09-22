@@ -17,6 +17,7 @@ import Tabs from './Tabs';
 
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
+import MultiScreen from '../screens/MultiScreen';
 import SalesScreen from '../screens/SalesScreen';
 import VMScreen from '../screens/VMScreen';
 import FuelScreen from '../screens/FuelScreen';
@@ -48,13 +49,26 @@ const navigationOptions = ({ navigation }) => {
           <Ionicons type='ionicon' name={ navigation.getParam('section') === 'lot' ? 'md-refresh' : 'ios-arrow-back'} size={ 25 } style={{ color: '#FFF' }} />
         </View>
       </TouchableOpacity>
-    )
+    ),
+    headerRight: (
+      (navigation.getParam('section') === 'lot' || navigation.getParam('section') === 'multi') &&
+        <TouchableOpacity onPress={()=> navigation.getParam('section') === 'lot' ? navigation.navigate('Multi') : navigation.navigate('Lot', { refresh: true } ) }>
+          <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons type='ionicon' name={ navigation.getParam('section') === 'lot' ? 'md-add-circle' : 'ios-car' } size={ 25 } style={{ color: '#FFF' }} />
+          </View>
+        </TouchableOpacity>
+    ),
   }
 }
 
 const LotStack = createStackNavigator({
 	Lot: {
     screen: LotScreen,
+    navigationOptions: navigationOptions,
+  },
+  Multi: {
+    screen: MultiScreen,
+    params: { resetValues: true },
     navigationOptions: navigationOptions,
   },
 	Fuel: {
@@ -98,7 +112,7 @@ const AppTabs = createBottomTabNavigator({
     params: { tabBarLabel: 'Vehicle Manager' }
   },
 }, {
-  initialRouteName: 'Sales',
+  //initialRouteName: 'Sales',
   defaultNavigationOptions: {
     tabBarComponent: props => <Tabs {...props} />,
   }
