@@ -83,10 +83,12 @@ export default class TagModalView extends React.Component {
     const { spaceId, vehicles } = props
     if (spaceId === null) {
       if (vehicles.length) {
+
+        const sortedVehicles = vehicles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         this.setState({
-          vehicles: vehicles,
-          vehicle: vehicles[this.state.arrayPosition],
-          mileage: vehicles[this.state.arrayPosition].mileage,
+          vehicles: sortedVehicles,
+          vehicle: sortedVehicles[this.state.arrayPosition],
+          mileage: sortedVehicles[this.state.arrayPosition].mileage,
           screen: 'default',
           mileageOpen: false,
           loading: false,
@@ -108,14 +110,14 @@ export default class TagModalView extends React.Component {
           return response.json();
       })
       .then((result) => {
-        console.log('\nRETURNED VEHICLE DATA: ', result.vehicles);
+        console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
         //console.log(result)
         if (result.vehicles.length) {
 
           let drive = {};
           let fuel = {};
           result.events!== null && result.events[0].forEach((event) => {
-            console.log('EVENT: ', event.data)
+            //console.log('EVENT: ', event.data)
             const { event_type, started_at, ended_at, id, summary } = event.data.attributes
             if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
               drive = { event_id: id, started_at: started_at, summary: summary }
@@ -124,10 +126,11 @@ export default class TagModalView extends React.Component {
               fuel = { event_id: id, started_at: started_at, summary: summary }
             }
           })
+          const sortedVehicles = result.vehicles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           this.setState({
-            vehicles: result.vehicles,
-            vehicle: result.vehicles[this.state.arrayPosition],
-            mileage: result.vehicles[this.state.arrayPosition].mileage,
+            vehicles: sortedVehicles,
+            vehicle: sortedVehicles[this.state.arrayPosition],
+            mileage: sortedVehicles[this.state.arrayPosition].mileage,
             screen: 'default',
             mileageOpen: false,
             loading: false,
@@ -136,7 +139,7 @@ export default class TagModalView extends React.Component {
             drive: drive,
             fuel: fuel
           });
-          this.props.setVehicleId(result.vehicles[this.state.arrayPosition].id, result.vehicles)
+          this.props.setVehicleId(sortedVehicles[this.state.arrayPosition].id, sortedVehicles)
         } else {
           console.log('load vehicle data: ', props.modalContent)
           this.setState({vehicle: null, loading: false, modalContent: 'empty', mileage: null, mileageOpen: false })

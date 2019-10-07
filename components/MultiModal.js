@@ -76,7 +76,7 @@ export default class TagModalView extends React.Component {
       this.setState({ vehicle: null, loading: false, modalContent: 'empty', mileage: null, mileageOpen: false })
       //this.loadVehicleData(this.props);
     } else {
-      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false})
+      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false, barcodeOpen: false})
     }
   }
 

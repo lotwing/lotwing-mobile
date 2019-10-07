@@ -307,7 +307,6 @@ class LotView extends React.Component {
         feedbackText: '',
         leaseRt: false,
       });
-
       this.updateSpaceVehicleMap = false;
       lotview._loadEvents();
       if (this.state.postLoadAction === 'chooseEmptySpace') {
