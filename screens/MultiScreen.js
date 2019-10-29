@@ -341,6 +341,31 @@ class LotView extends React.Component {
         this.setLocalHighlight(this.state.spaceId, result.vehicle)
       })
 
+    } else if (vin) {
+      console.log('VIN ENTERED: updating');
+      this.vinEntered = vin;
+      this.skuEntered = sku_number;
+      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
+      let vehiclePromise = this._getVehicleByType('vin');
+
+      vehiclePromise.then((vehicleData) => {
+        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
+        if (vehicleData.vehicle === null ) {
+          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
+          this.setVehicleHighlight(tempHighlight)
+        } else {
+          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
+        }
+      }).then((result) => {
+        console.log('STALL UPDATE RESULT from VIN: ', result);
+        // 3. Re-render lot by updating state
+        if (result !== undefined) {
+          console.log('VIN result is not undefined. Vehicle id: ', this.state.spaceId, result.vehicle)
+          this.setLocalHighlight(this.state.spaceId, result.vehicle)
+        } else {
+          console.log('result is undefined', this.state.modalType)
+        }
+      })
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
       this.skuEntered = sku_number;
@@ -361,31 +386,6 @@ class LotView extends React.Component {
         // 3. Re-render lot by updating state
         if (result !== undefined) {
           console.log('result is not undefined. Vehicle id: ', this.state.spaceId)
-          this.setLocalHighlight(this.state.spaceId, result.vehicle)
-        } else {
-          console.log('result is undefined', this.state.modalType)
-        }
-      })
-    } else if (vin) {
-      console.log('VIN ENTERED: updating');
-      this.vinEntered = vin;
-      this.skuEntered = null;
-      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
-      let vehiclePromise = this._getVehicleByType('vin');
-
-      vehiclePromise.then((vehicleData) => {
-        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
-        if (vehicleData.vehicle === null ) {
-          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
-          this.setVehicleHighlight(tempHighlight)
-        } else {
-          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
-        }
-      }).then((result) => {
-        console.log('STALL UPDATE RESULT from VIN: ', result);
-        // 3. Re-render lot by updating state
-        if (result !== undefined) {
-          console.log('VIN result is not undefined. Vehicle id: ', this.state.spaceId, result.vehicle)
           this.setLocalHighlight(this.state.spaceId, result.vehicle)
         } else {
           console.log('result is undefined', this.state.modalType)
@@ -476,7 +476,7 @@ class LotView extends React.Component {
     }
     // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
-      this.setState({leaseRt: false })
+      this.setState({leaseRt: false, sku: null })
       this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
       this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
 
@@ -715,8 +715,9 @@ class LotView extends React.Component {
         { this.state.modalVisible && this._renderTagModal() }
         {this.maybeRenderKeyboard()}
         <Mapbox.MapView
-          centerCoordinate={this.state.centerCoordinate}
+          //centerCoordinate={this.state.centerCoordinate}
           showUserLocation={true}
+          userTrackingMode={Mapbox.UserTrackingModes.Follow}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
           zoomLevel={this.state.zoomLevel}

@@ -53,8 +53,11 @@ const navigationOptions = ({ navigation }) => {
     headerRight: (
       (navigation.getParam('section') === 'lot' || navigation.getParam('section') === 'multi') &&
         <TouchableOpacity onPress={()=> navigation.getParam('section') === 'lot' ? navigation.navigate('Multi') : navigation.navigate('Lot', { refresh: true } ) }>
-          <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons type='ionicon' name={ navigation.getParam('section') === 'lot' ? 'md-add-circle' : 'ios-car' } size={ 25 } style={{ color: '#FFF' }} />
+          <View style={{ width: 80, height: 40, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+            <Ionicons type='ionicon' name={ 'ios-car' } size={ navigation.getParam('section') === 'lot' ? 18 : 25 } style={{ color: '#FFF' }} />
+            { navigation.getParam('section') === 'lot' &&
+              <Ionicons type='ionicon' name={ 'ios-car' } size={ 18 } style={{ color: '#FFF', marginLeft: 5 }} />
+            }
           </View>
         </TouchableOpacity>
     ),

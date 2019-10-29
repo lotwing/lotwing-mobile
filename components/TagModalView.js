@@ -70,9 +70,9 @@ export default class TagModalView extends React.Component {
     }
   }
   componentWillMount() {
-    console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType)
+    //console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType)
     if (this.props.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
-      console.log('CALL LOAD VEHICLE from MOUNT')
+      //console.log('CALL LOAD VEHICLE from MOUNT')
       this.loadVehicleData(this.props);
     } else {
       this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false})
@@ -110,7 +110,7 @@ export default class TagModalView extends React.Component {
           return response.json();
       })
       .then((result) => {
-        console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
+        //console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
         //console.log(result)
         if (result.vehicles.length) {
 
@@ -251,7 +251,7 @@ export default class TagModalView extends React.Component {
     } else if (page_name === 'fuel') {
       this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.fuel.event_id, started_at: this.state.fuel.started_at, summary: this.state.fuel.summary});
     } else if (page_name === 'note') {
-      this.props.navigation.navigate('Note', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition});
+      this.props.navigation.navigate('Note', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition });
     } else if (page_name === 'history') {
       this.props.navigation.navigate('History', { space_id: this.props.spaceId, vehicle: this.state.vehicle, position: this.state.arrayPosition});
     }
@@ -357,32 +357,54 @@ export default class TagModalView extends React.Component {
     return (
       <View>
         <Text style={ styles.stallHeader }>STOCK NUMBER</Text>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
-          </TouchableOpacity>
-        </View>
+        { this.props.vin !== null ?
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+            </TouchableOpacity>
+          </View>
+        :
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ color: '#FFF' }}>Scan to create New, Used or Loaner</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                style={[buttonStyles.activeSecondaryModalButton, { flex: 3, backgroundColor: '#006699', margin: 5 }]}
+                onPress={() => {
+                  this.tapOutsideModal()
+                  this.props.openBarcodeScanner() }}
+              >
+                <Text style={buttonStyles.activeSecondaryTextColor}>SCAN BARCODE</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
+                onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
+              >
+                <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        }
       </View>
     );
   }

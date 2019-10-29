@@ -21,6 +21,7 @@ class SalesScreen extends Component {
     }
   }
   loadSalesData() {
+    this.setState({loading: true })
     let url = GlobalVariables.BASE_ROUTE + Route.SALES + 'mtd/';
     return fetch(url, {
       method: 'GET',
@@ -68,7 +69,7 @@ class SalesScreen extends Component {
     })
     .then((result) => {
       console.log(result)
-      this.setState({loading: false, mtd_data: mtd_data, today_data: today_data, dealership_data: result })
+      this.setState({loading: false, mtd_data: mtd_data.filter(s =>  s.stored === false), today_data: today_data.filter(s =>  s.stored === false), dealership_data: result })
     })
   }
 
@@ -158,7 +159,7 @@ class SalesScreen extends Component {
     })
 
     models.sort((a, b) => b.total - a.total)
-    //console.log('MODELS', models)
+    console.log('SALES', this.state.today_data)
     if (this.state.loading) {
       return(
         <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
@@ -169,13 +170,16 @@ class SalesScreen extends Component {
     return(
       <View style={{ flex: 1, backgroundColor: '#BE1E2D', paddingTop: Constants.statusBarHeight}}>
         <ScrollView style={{ flex: 1 }}>
-          <View style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center', padding: 20, position: 'relative' }}>
             <TouchableOpacity onPress={()=> navigation.navigate('Sales')}>
               <Image
                 source={ require('../assets/images/menu-wing.png') }
                 style={{ width: Dimensions.get('window').width/4, height: Dimensions.get('window').width/4 }}
               />
             </TouchableOpacity>
+            <View style={{ position: 'absolute', right: 10, top: 5 }}>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.0.19.2</Text>
+            </View>
           </View>
           <View style={{ padding: 20}}>
             <View style={ row }>
@@ -230,7 +234,12 @@ class SalesScreen extends Component {
           }
           </View>
         </ScrollView>
-        <View style={{ flex: 0, padding: 10, alignItems: 'flex-end', position: 'absolute', right: 0, bottom: 0 }}>
+        <View style={{ flex: 0, flexDirection: 'row', padding: 10, alignItems: 'flex-end', position: 'absolute', right: 0, bottom: 0 }}>
+          <TouchableOpacity onPress={()=> this.loadSalesData()}>
+            <View style={{ padding: 10, backgroundColor: '#000', borderRadius: 5, marginRight: 10 }}>
+              <Text style={t}>Refresh</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity onPress={()=> this.logOut()}>
             <View style={{ padding: 10, backgroundColor: '#000', borderRadius: 5 }}>
               <Text style={t}>Log out</Text>

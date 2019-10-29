@@ -20,6 +20,7 @@ class VMScreen extends Component {
     }
   }
   loadVehicleData() {
+    this.setState({ loading: true });
     let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
     return fetch(url, {
       method: 'GET',
@@ -101,6 +102,13 @@ class VMScreen extends Component {
           }
           </View>
         </ScrollView>
+        <View style={{ flex: 0, flexDirection: 'row', padding: 10, alignItems: 'flex-end', position: 'absolute', right: 0, bottom: 0 }}>
+          <TouchableOpacity onPress={()=> this.loadVehicleData()}>
+            <View style={{ padding: 10, backgroundColor: '#000', borderRadius: 5, marginRight: 10 }}>
+              <Text style={t}>Refresh</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

@@ -108,7 +108,8 @@ class LotView extends React.Component {
         modalReopenHighlight: null,
         leaseRt: false,
         postLoadAction: '',
-        barcodeOpen: false
+        barcodeOpen: false,
+        barcodeTitle: 'Scan Barcode'
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -128,6 +129,7 @@ class LotView extends React.Component {
       this.vinEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
       this.updateSpaceVehicleMap = false;
+      this.currentCenter = null;
 
   }
   /**
@@ -464,6 +466,8 @@ class LotView extends React.Component {
         if (vehicleData.vehicle === null ) {
           this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
           this.setVehicleHighlight(tempHighlight)
+        } else if (this.checkActiveEvents(vehicleData.events)) {
+          this.jumpToEventScreen(vehicleData);
         } else {
           return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
         }
@@ -490,6 +494,8 @@ class LotView extends React.Component {
         if (vehicleData.vehicle === null ) {
           this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
           this.setVehicleHighlight(tempHighlight)
+        } else if (this.checkActiveEvents(vehicleData.events)) {
+          this.jumpToEventScreen(vehicleData);
         } else {
           return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
         }
@@ -511,6 +517,7 @@ class LotView extends React.Component {
     }
 
   }
+
   updateLotAndReopenModal = (space_id) => {
     const tempHighlight = this.state.clickedStall;
     this.setState({ modalReopen: true, modalReopenTarget: space_id, modalReopenHighlight: tempHighlight })
@@ -526,26 +533,26 @@ class LotView extends React.Component {
     console.log('sku number: ', this.state.stockNumber);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
-        body: JSON.stringify(space_data),
-      })
-      .then((response) => {
-        return response.json();
-      })
-      .then((responseJson) => {
-        //console.log(responseJson);
-        return responseJson
-      })
-      .catch(err => {
-        console.log('\nCAUGHT ERROR: \n', err, err.name);
-        //TODO(adwoa): make save button clickable again
-        return err
-      });
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+      body: JSON.stringify(space_data),
+    })
+    .then((response) => {
+      return response.json();
+    })
+    .then((responseJson) => {
+      //console.log(responseJson);
+      return responseJson
+    })
+    .catch(err => {
+      console.log('\nCAUGHT ERROR: \n', err, err.name);
+      //TODO(adwoa): make save button clickable again
+      return err
+    });
   }
   setModalValues(modal_type, space_id, vehiclesArray) {
     // IF stall is empty only space_id needed
@@ -561,14 +568,17 @@ class LotView extends React.Component {
     }
 
     this.setState({
+      modalType: modal_type,
       spaceId: space_id,
     });
   }
 
   setVehicleHighlight(polygonClicked) {
-    let centerCoordinate = this.state.centerCoordinate
+    //console.log('Map Center', this.refs._map.getCenter())
+    let centerCoordinate = this.currentCenter;
     if (polygonClicked !== null) {
       centerCoordinate = this._calculateCenter(polygonClicked.geometry.coordinates[0]);
+      this.currentCenter = centerCoordinate;
     }
     console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate)
     this.setState({clickedStall: polygonClicked, centerCoordinate: centerCoordinate});
@@ -580,7 +590,8 @@ class LotView extends React.Component {
 
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
-    console.log(space_id)
+    console.log('Show and Populate Space ID: ', space_id)
+    console.log('Modal Type: ', this.state.modalType)
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
     if (polygonClicked) {
@@ -600,15 +611,14 @@ class LotView extends React.Component {
       } else if (vehicleData === null ) {
         console.log('Extra data not empty: ', space_id);
         let vehiclesArray = [];
-
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehiclesArray);
         this.setModalVisibility(true);
       } else if (space_id !== null && vehicleData !== null ) {
+        console.log('SPACE ID isnt null and VEHICLEDATA isnt null')
         this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehicleData);
         this.setModalVisibility(true);
       } else {
         console.log('DATA MISSING: ', vehicleData)
-
       }
     } else {
       // Show Add Vehicle to highlighted space message
@@ -685,7 +695,7 @@ class LotView extends React.Component {
       this.setState({ sku: this.skuEntered, vin: null });
     } else {
       console.log('\n\nChecking Server for VIN: ', this.vinEntered);
-      this.setState({ sku: null, vin: this.vinEntered });
+      this.setState({ vin: this.vinEntered });
     }
     //let sku = this.getSKUFromInput();
     this.setVehicleHighlight(null);
@@ -694,52 +704,17 @@ class LotView extends React.Component {
     //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
 
     vehiclePromise.then((response) => {
-      console.log('Vehicle response: ', response)
+      //console.log('Vehicle response: ', response)
       const { space_id, polygon, vehicle, events } = response;
-      //console.log('Returned Vehicle Info')
-      //console.log('SPACE ID: ', space_id)
-      //console.log('SHAPE', polygon)
-      //console.log('VEHICLE', vehicle)
-      //console.log('EVENTS', events)
-      let eventsList = [];
-      events!== null && events.forEach((event) => {
-        //console.log(event.data)
-        const { event_type, started_at, ended_at, id, summary } = event.data.attributes
-        if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
-        }
-        if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-          eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
-        }
-      })
-      let navTarget = null;
-      let navIndex = 0;
-      if (eventsList.length > 0) {
-        console.log('Length', eventsList.length)
-        eventsList.forEach((event, index) => {
-          if (event.event_type === GlobalVariables.BEGIN_FUELING && navTarget === null) {
-            navTarget = GlobalVariables.BEGIN_FUELING
-            navIndex = index
-          }
-          if (event.event_type === GlobalVariables.BEGIN_DRIVE && navTarget === null) {
-            navTarget = GlobalVariables.BEGIN_DRIVE
-            navIndex = index
-          }
-        })
-      }
-      if (navTarget === GlobalVariables.BEGIN_DRIVE) {
-        console.log('Should navigate', this.props.navigation)
-        this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
-      }
-      if (navTarget === GlobalVariables.BEGIN_FUELING) {
-        console.log('Should navigate', this.props.navigation)
-        this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
-      }
-      if (space_id) {
+      console.log('check Active events results: ', this.checkActiveEvents(events))
+      if (this.checkActiveEvents(events)) {
+        this.jumpToEventScreen(response);
+      } else if (space_id) {
+        console.log('SPACE_ID', this._calculateCenter(polygon.geometry.coordinates[0]))
+        //this._calculateCenter(polygon.geometry.coordinates[0]);
         this.dismissInput();
         this.showAndPopulateModal([space_id, null], polygon);
-
-        this.setState({spaceId: space_id, centerCoordinate: centerCoordinate})
+        this.setState({spaceId: space_id, centerCoordinate: this._calculateCenter(polygon.geometry.coordinates[0]) })
       } else if (space_id === null && vehicle ) {
         console.log('Pulling car from server: ', vehicle.id)
         this.setState({ vehicleId: vehicle.id, spaceId: null })
@@ -751,6 +726,60 @@ class LotView extends React.Component {
         this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
       }
     });
+  }
+  checkActiveEvents(events) {
+    let eventCounter = 0;
+    events!== null && events.forEach((event) => {
+      const { event_type, started_at, ended_at, id, summary } = event.data.attributes
+      //console.log('Event Type: ', event_type, 'Started At: ', started_at, 'Ended at: ', ended_at)
+      if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
+        eventCounter ++
+      }
+      if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
+        eventCounter ++
+      }
+    })
+    if (eventCounter > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  jumpToEventScreen(vehicleResponse) {
+    console.log('Vehicle Data contains events')
+    const { space_id, polygon, vehicle, events } = vehicleResponse;
+    let eventsList = [];
+    events!== null && events.forEach((event) => {
+      //console.log(event.data)
+      const { event_type, started_at, ended_at, id, summary } = event.data.attributes
+      if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
+        eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
+      }
+      if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
+        eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
+      }
+    })
+    let navTarget = null;
+    let navIndex = 0;
+    if (eventsList.length > 0) {
+      console.log('Length', eventsList.length)
+      eventsList.forEach((event, index) => {
+        if (event.event_type === GlobalVariables.BEGIN_FUELING && navTarget === null) {
+          navTarget = GlobalVariables.BEGIN_FUELING
+          navIndex = index
+        }
+        if (event.event_type === GlobalVariables.BEGIN_DRIVE && navTarget === null) {
+          navTarget = GlobalVariables.BEGIN_DRIVE
+          navIndex = index
+        }
+      })
+    }
+    if (navTarget === GlobalVariables.BEGIN_DRIVE) {
+      this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
+    }
+    if (navTarget === GlobalVariables.BEGIN_FUELING) {
+      this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
+    }
   }
 
   _getVehicleByType(type) {
@@ -769,7 +798,7 @@ class LotView extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+      //console.log('VEHICLE PULLED FROM STORE: ', responseJson);
       const { current_parking_space, vehicle, events } = responseJson;
       return {
         space_id: current_parking_space !== null ? current_parking_space.id : null,
@@ -781,6 +810,11 @@ class LotView extends React.Component {
     .catch(err => {
       return false
     })
+  }
+
+  openBarcodeScanner = () => {
+    console.log('open barcode scanner from modal')
+    this.setState({ barcodeOpen: true, barcodeTitle: 'Vehicle requires a scan to create' })
   }
 
   getLot() {
@@ -814,7 +848,7 @@ class LotView extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.floatingActionButton}
-            onPress={() => this.setState({ barcodeOpen: true })}>
+            onPress={() => this.setState({ barcodeOpen: true, sku: null, barcodeTitle: 'Scan Barcode' })}>
             <Ionicons type='ionicon' name={ 'md-barcode'} size={ 25 } style={{ color: '#FFF' }} />
           </TouchableOpacity>
           </View>
@@ -903,7 +937,7 @@ class LotView extends React.Component {
   }
 
   _renderTagModal() {
-    console.log('Render Tag Modal View: ', this.state.modalType);
+    //console.log('Render Tag Modal View: ', this.state.modalType);
     let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
     return (
       <VehicleInfo
@@ -970,7 +1004,7 @@ class LotView extends React.Component {
       return(
         <View style={{ flex: 1 }}>
           <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
-            <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
+            <Text style={{ fontWeight: 'bold' }}>{ this.state.barcodeTitle }</Text>
             <TouchableOpacity onPress={()=>this.setState({barcodeOpen: false})}>
               <View style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons type='ionicon' name={ 'md-close'} size={ 25 } />
@@ -1013,7 +1047,11 @@ class LotView extends React.Component {
           styleURL={Mapbox.StyleURL.Street}
           zoomLevel={this.state.zoomLevel}
           ref={'_map'}
-          onRegionDidChange={ (args) => this.setState({ zoomLevel: args.properties.zoomLevel}) }
+          //regionDidChangeDebounceTime={ 2000 }
+          onRegionDidChange={ (args) => {
+            this.currentCenter = args.geometry.coordinates
+            this.setState({ zoomLevel: args.properties.zoomLevel });
+            }}
         >
 
           <Mapbox.ShapeSource

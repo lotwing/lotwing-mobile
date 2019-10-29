@@ -14,7 +14,7 @@ class Tabs extends Component {
           { state.routes.map((route, key ) => {
             //console.log(route)
             return(
-              <TouchableOpacity onPress={() => navigate(route.key, { refresh: true }) } style={[tabStyle, index === key && {backgroundColor: '#66CC00' }]}>
+              <TouchableOpacity onPress={() => navigate(route.key) } style={[tabStyle, index === key && {backgroundColor: '#66CC00' }]}>
                 <View>
                   <Text style={{ textAlign: 'center', color: '#FFF' }}>
                     { route.params !== undefined && route.params.tabBarLabel !== undefined ? route.params.tabBarLabel.toUpperCase() : route.routeName.toUpperCase() }

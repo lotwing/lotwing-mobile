@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
@@ -134,16 +135,48 @@ export default class DriveScreen extends React.Component {
 		  	</View>
 		  		{ this.state.eventRunning?
 					<View style={{flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: 30}}>
-				  	<TouchableOpacity
+				  	{/*<TouchableOpacity
 				  		style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginLeft: 0 } ]}
-				 			onPress={() => {this.endTestDrive(false)}}>
+				 			onPress={() => {
+				 				Alert.alert(
+  								'Cancel Test Drive',
+								  'Cancel test drive and choose a stall to populate?',
+								  [
+								    {
+								      text: 'Cancel',
+								      style: 'cancel',
+								    },
+								    {
+								    	text: 'OK',
+								    	onPress: () => this.endTestDrive(false)
+								    },
+								  ],
+								  { cancelable: true },
+								);
+				 			}}>
 				 			<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>
-				 				CANCEL
+				 				CANCEL TEST DRIVE
 				 			</Text>
-				 		</TouchableOpacity>
+				 		</TouchableOpacity>*/}
 				  	<TouchableOpacity
 				  		style={[ buttonStyles.activeSecondaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 30 } ]}
-				 			onPress={() => {this.endTestDrive(true)}}>
+				 			onPress={() => {
+				 				Alert.alert(
+  								'End Test Drive',
+								  'End test drive and choose a stall to populate?',
+								  [
+								    {
+								      text: 'Cancel',
+								      style: 'cancel',
+								    },
+								    {
+								    	text: 'OK',
+								    	onPress: () => this.endTestDrive(true)
+								    },
+								  ],
+								  { cancelable: true },
+								);
+				 			}}>
 				 			<Text style={[buttonStyles.activeSecondaryTextColor, {fontWeight: '300', fontSize: 20}]}>
 				 				END TEST DRIVE
 				 			</Text>

@@ -32,7 +32,7 @@ export default class NoteScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.details = this.props.navigation.state.params.props;
-		this.vehicle = this.props.navigation.state.params.props.vehicles[this.props.navigation.state.params.position]
+		this.vehicle = this.props.navigation.state.params.vehicles[this.props.navigation.state.params.position]
 		this.showSaveTagViews = this.showSaveTagViews.bind(this);
 		this.sendNoteData = this.sendNoteData.bind(this);
 

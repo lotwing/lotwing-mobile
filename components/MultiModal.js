@@ -195,32 +195,54 @@ export default class TagModalView extends React.Component {
     return (
       <View>
         <Text style={ styles.stallHeader }>STOCK NUMBER</Text>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
-            onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
-          >
-            <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
-          </TouchableOpacity>
-        </View>
+        { this.props.vin !== null ?
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
+              onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
+            >
+              <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+            </TouchableOpacity>
+          </View>
+        :
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ color: '#FFF' }}>Scan to create New, Used or Loaner</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                style={[buttonStyles.activeSecondaryModalButton, { flex: 3, backgroundColor: '#006699', margin: 5 }]}
+                onPress={() => {
+                  //this.dismissModal()
+                  this.setState({ barcodeOpen: true })
+                }}>
+                <Text style={buttonStyles.activeSecondaryTextColor}>SCAN BARCODE</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
+                onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
+              >
+                <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        }
       </View>
     );
   }
@@ -393,7 +415,7 @@ export default class TagModalView extends React.Component {
             onBarCodeRead={(e) => {
               console.log('Barcode: ', e.data);
               this.setState({barcodeOpen: false })
-              this.props.updateLotAndDismissModal(this.props.spaceId, null, null, e.data, 'Attempting to Populate Empty Space...')
+              this.props.updateLotAndDismissModal(this.props.spaceId, null, this.state.sku, e.data, 'Attempting to Populate Empty Space...')
             }}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
