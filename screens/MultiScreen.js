@@ -56,7 +56,7 @@ class LotView extends React.Component {
     super(props);
     this.state = {
       initialLoad: [],
-      centerCoordinate:null,
+      centerCoordinate:[ -122.00704220157868, 37.352814585339715, ],
       zoomLevel: 20,
       lotShapes: null,
       errorLoading: false,

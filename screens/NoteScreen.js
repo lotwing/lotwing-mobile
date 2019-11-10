@@ -45,6 +45,10 @@ export default class NoteScreen extends React.Component {
     	//photos: []
 		}
 	}
+	componentWillMount() {
+		console.log('History Mounted')
+    this.props.navigation.setParams({ extras: { showModalonExit: true } })
+  }
 	/*
 	componentDidMount() {
     FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'LotWing').catch(e => {

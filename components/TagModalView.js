@@ -66,7 +66,7 @@ export default class TagModalView extends React.Component {
       drive: { event_id: null, started_at: null, summary: '' },
       fuel: { event_id: null, started_at: null, summary: '' },
       sku: this.props.sku,
-      barcodeOpen: false
+      barcodeOpen: false,
     }
   }
   componentWillMount() {
@@ -381,7 +381,7 @@ export default class TagModalView extends React.Component {
               style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
               onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
             >
-              <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+              <Text style={buttonStyles.activeSecondaryTextColor}>TRD/WHL</Text>
             </TouchableOpacity>
           </View>
         :
@@ -400,13 +400,39 @@ export default class TagModalView extends React.Component {
                 style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
                 onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
               >
-                <Text style={buttonStyles.activeSecondaryTextColor}>WHL UNIT</Text>
+                <Text style={buttonStyles.activeSecondaryTextColor}>TRD/WHL</Text>
               </TouchableOpacity>
             </View>
           </View>
         }
       </View>
     );
+  }
+  _renderSalesState() {
+    if (this.state.vehicle === null) {
+      return null
+    }
+    if (this.state.vehicle.service_hold) {
+      return(
+        <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
+          <View style={ styles.triangle }></View>
+          <Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFA500'}]}>Service Hold</Text>
+          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.service_hold_notes }</Text>
+        </View>
+      )
+    }
+    if (this.state.vehicle.sales_hold || this.state.vehicle.sold_status !== null) {
+      return(
+        <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
+          { this.state.vehicle.sales_hold && <View style={ styles.icon }><Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFF', fontSize: 14, lineHeight: 16}]}>H</Text></View> }
+          { this.state.vehicle.sold_status !== null && <View style={ styles.icon }><Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFF', fontSize: 14, lineHeight: 16 }]}>$</Text></View> }
+          <Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#000'}]}>{ this.state.vehicle.sold_status === null ? 'HOLD' : 'SOLD' }</Text>
+          { this.state.vehicle.sold_status !== null && <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.sold_status }</Text> }
+          { this.state.vehicle.sold_status === null && <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.sales_hold_notes }</Text> }
+        </View>
+      )
+    }
+    return null
   }
   _renderAltActionView() { // either stallChange, info, or base
     // car features that can be displayed
@@ -682,14 +708,14 @@ export default class TagModalView extends React.Component {
     let isCreateModal = this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
     console.log('Render modal content: ' , this.state.modalContent)
     let isOnMap = this.props.spaceId;
-    //console.log(this.state.vehicle)
+    console.log(this.state.vehicle)
     let vehicleUsageType = ''
     if (this.state.vehicle !== null) {
       let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
       if (usageType === 'is_new') { vehicleUsageType = 'New'}
       if (usageType === 'is_used') { vehicleUsageType = 'Used'}
       if (usageType === 'loaner') { vehicleUsageType = 'Loaner'}
-      if (usageType === 'wholesale_unit') { vehicleUsageType = 'Wholesale Unit'}
+      if (usageType === 'wholesale_unit') { vehicleUsageType = 'Trade/Wholesale'}
       if (usageType === 'lease_return') { vehicleUsageType = 'Lease Return'}
     }
     let vehicleYear = this.state.vehicle !== null && this.state.vehicle.year ? this.state.vehicle.year : '';
@@ -702,7 +728,7 @@ export default class TagModalView extends React.Component {
       if (usageType === 'is_new') { modalTitle = 'New'}
       if (usageType === 'is_used') { modalTitle = 'Used'}
       if (usageType === 'loaner') { modalTitle = 'Loaner'}
-      if (usageType === 'wholesale_unit') {  modalTitle = 'Wholesale Unit'}
+      if (usageType === 'wholesale_unit') {  modalTitle = 'Trade/Wholesale'}
       if (usageType === 'lease_return') { modalTitle = 'Lease Return'}
     }
 
@@ -836,9 +862,12 @@ export default class TagModalView extends React.Component {
               <Text style={styles.stallHeader}> Vehicle not found: { this.props.vin === null && this.state.sku } { this.props.vin !== null && `VIN: ${this.props.vin}` }</Text>
             </View>
           :
-            <View style={[styles.tagModalStallBar, { borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
-              <Text style={styles.stallHeader}> {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'} </Text>
-              <Text style={styles.stallHeader}>{modalTitle}</Text>
+            <View style={[styles.tagModalStallBar, { flexDirection: 'column', borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
+              <View style={ styles.tagModalStallBarHeader }>
+                <Text style={styles.stallHeader}> {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'} </Text>
+                <Text style={styles.stallHeader}>{ modalTitle }</Text>
+              </View>
+              { this._renderSalesState() }
             </View>
           }
 
@@ -925,6 +954,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#828282',
     paddingLeft: 5,
   },
+  tagModalStallBarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    width: '100%',
+  },
   tagModalMainBody: {
     flexDirection: 'column',
     backgroundColor: '#828282',
@@ -949,5 +984,29 @@ const styles = StyleSheet.create({
   tagModalTab: {
     padding: 10,
     backgroundColor: '#828282'
-  }
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 5
+  },
+  triangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderTopWidth: 0,
+    borderRightWidth: 10,
+    borderBottomWidth: 14,
+    borderLeftWidth: 10,
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#FFA500',
+    borderLeftColor: 'transparent',
+    marginRight: 5
+  },
 });

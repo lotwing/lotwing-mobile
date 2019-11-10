@@ -28,6 +28,7 @@ import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
 import BuildingLayer from '../components/BuildingLayer';
 import EventsLayer from '../components/EventsLayer';
+import HoldsLayer from '../components/HoldsLayer';
 import NoteLayer from '../components/NoteLayer';
 import DuplicatesLayer from '../components/DuplicatesLayer';
 import TagModalView from '../components/TagModalView';
@@ -59,7 +60,7 @@ export default class LotScreen extends React.Component {
   }
 }
 
-
+const lotCenterCoordinates = [ -122.00704220157868, 37.352814585339715 ];
 
 const VehicleInfo = posed.View({
   closed: { y: Dimensions.get('window').height, transition: { type: 'spring', stiffness: 300 } },
@@ -72,7 +73,8 @@ class LotView extends React.Component {
       super(props);
 
       this.state = {
-        centerCoordinate:null,
+        centerCoordinate: lotCenterCoordinates,
+        userCoordinate: null,
         zoomLevel: 17,
         lotShapes: null,
         errorLoading: false,
@@ -84,6 +86,9 @@ class LotView extends React.Component {
         loanerSpaces: [],
         leaseSpaces: [],
         wholesaleSpaces: [],
+        soldSpaces: [],
+        serviceHoldSpaces: [],
+        salesHoldSpaces: [],
         driveEventSpaces: [],
         fuelEventSpaces: [],
         noteEventSpaces: [],
@@ -109,7 +114,13 @@ class LotView extends React.Component {
         leaseRt: false,
         postLoadAction: '',
         barcodeOpen: false,
-        barcodeTitle: 'Scan Barcode'
+        barcodeTitle: 'Scan Barcode',
+        skuInputEntered: '',
+        leaseRtInput1: '',
+        leaseRtInput2: '',
+        leaseRtInput3: '',
+        leaseRtInput4: '',
+        leaseRtInput5: ''
       }
 
       let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -129,7 +140,7 @@ class LotView extends React.Component {
       this.vinEntered = 0;
       this._loadLotView = this._loadLotView.bind(this);
       this.updateSpaceVehicleMap = false;
-      this.currentCenter = null;
+      this.currentCenter = lotCenterCoordinates;
 
   }
   /**
@@ -173,9 +184,14 @@ class LotView extends React.Component {
           console.log('Update Location Event')
           this.setVehicleHighlight(null);
           this.setState({ postLoadAction: 'chooseEmptySpace', modalVisible: false})
+        } else if ( extras.showModalonExit && extras.showModalonExit === true ) {
+          console.log('Show modal on exit')
+          this.setState({ findingOnMap: false, modalType: GlobalVariables.BASIC_MODAL_TYPE, modalVisible: true })
         } else {
           console.log('NAVIGATION: extras exist')
+          this.setVehicleHighlight(null);
           this.setState({findingOnMap: false, modalType: GlobalVariables.BASIC_MODAL_TYPE, modalVisible: false })
+          return this._loadLotView();
         }
       } else {
         this.setState({findingOnMap: false, modalVisible: true })
@@ -247,7 +263,6 @@ class LotView extends React.Component {
        }
 
        GlobalVariables.LOT_DATA = responseJson;
-       // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
        let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
        let lot_coords = lot_geometry["coordinates"][0];
 
@@ -256,7 +271,7 @@ class LotView extends React.Component {
          lotParkingSpaceMap[space["id"]] = space;
       });
       console.log('     resetting state: _loadLotView');
-
+      console.log('_loadLotView coords: ', lot_coords);
 
       lotview._loadParkingSpaceMetadata({
         centerCoordinate: this.state.centerCoordinate === null ? lotview._calculateCenter(lot_coords) : this.state.centerCoordinate,
@@ -279,7 +294,7 @@ class LotView extends React.Component {
         },
     })
     .then((response) => response.json())
-    .then((responseJson) => { // only saying space ids not saving most_recently_tagged_at which is also returned
+    .then((responseJson) => {
       lotview.setState({
         newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
         usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
@@ -288,7 +303,10 @@ class LotView extends React.Component {
         loanerSpaces: responseJson["loaner_occupied_spaces"].map((space) => space["id"]),
         leaseSpaces: responseJson["lease_return_occupied_spaces"].map((space) => space["id"]),
         wholesaleSpaces: responseJson["wholesale_unit_occupied_spaces"].map((space) => space["id"]),
-        centerCoordinate,
+        soldSpaces: responseJson["sold_vehicle_spaces"].map((space) => space["id"]),
+        serviceHoldSpaces: responseJson["service_hold_spaces"].map((space) => space["id"]),
+        salesHoldSpaces: responseJson["sales_hold_spaces"].map((space) => space["id"]),
+        centerCoordinate: centerCoordinate !== null ? centerCoordinate : lotCenterCoordinates,
         lotShapes: GlobalVariables.LOT_DATA,
         parkingShapes,
         errorLoading: false,
@@ -308,6 +326,12 @@ class LotView extends React.Component {
         //clickedStall: null,
         feedbackText: '',
         leaseRt: false,
+        skuInputEntered: '',
+        leaseRtInput1: '',
+        leaseRtInput2: '',
+        leaseRtInput3: '',
+        leaseRtInput4: '',
+        leaseRtInput5: ''
       });
       this.updateSpaceVehicleMap = false;
       lotview._loadEvents();
@@ -550,6 +574,7 @@ class LotView extends React.Component {
     })
     .catch(err => {
       console.log('\nCAUGHT ERROR: \n', err, err.name);
+      this.setState({ feedbackText: 'Error in tagging vehicle' })
       //TODO(adwoa): make save button clickable again
       return err
     });
@@ -591,6 +616,7 @@ class LotView extends React.Component {
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
     console.log('Show and Populate Space ID: ', space_id)
+    console.log('Vehicle Data: ', vehicleData, 'VehicleID: ', this.state.vehicleId)
     console.log('Modal Type: ', this.state.modalType)
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
@@ -628,7 +654,7 @@ class LotView extends React.Component {
 
   populateStall(space_id) {
     if (space_id) {
-      this.setState({clickToPopulateStall: space_id, feedbackText: 'Populating stall '+ space_id+'...'});
+      this.setState({clickToPopulateStall: space_id, feedbackText: 'Populating stall '+ space_id+' with vehicle ID ' + this.state.vehicleId + '...'});
 
       console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
       console.log('VEHICLE ID: ', this.state.vehicleId);
@@ -638,12 +664,15 @@ class LotView extends React.Component {
         let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
 
         stallUpdatedPromise.then((result) => {
+          this.setState({ feedbackText: 'Stall updated!' })
           // 3. Re-render lot by updating state
           this.updateLotAndReopenModal(space_id)
           //this.updateSpaceVehicleMap = true;
           //return this._loadLotView();
 
         })
+      } else {
+        this.setState({feedbackText: 'Vehicle ID missing'});
       }
 
     }
@@ -691,11 +720,13 @@ class LotView extends React.Component {
 
   locateVehicle(type) {
     if (type === 'sku') {
-      console.log('\n\nChecking Server for SKU: ', this.skuEntered);
-      this.setState({ sku: this.skuEntered, vin: null });
+      console.log('\n\nChecking Server for SKU: ', this.state.skuInputEntered);
+      this.skuEntered = this.state.skuInputEntered
+      if (this.state.leaseRt ) { this.skuEntered = this.state.leaseRtInput1 + this.state.leaseRtInput2 + this.state.leaseRtInput3 + this.state.leaseRtInput4 + this.state.leaseRtInput5; }
+      this.setState({ sku: this.skuEntered, vin: null, skuCollectorVisible: false });
     } else {
       console.log('\n\nChecking Server for VIN: ', this.vinEntered);
-      this.setState({ vin: this.vinEntered });
+      this.setState({ vin: this.vinEntered, skuCollectorVisible: false });
     }
     //let sku = this.getSKUFromInput();
     this.setVehicleHighlight(null);
@@ -708,6 +739,7 @@ class LotView extends React.Component {
       const { space_id, polygon, vehicle, events } = response;
       console.log('check Active events results: ', this.checkActiveEvents(events))
       if (this.checkActiveEvents(events)) {
+        this.setState({ vehicleId: vehicle.id });
         this.jumpToEventScreen(response);
       } else if (space_id) {
         console.log('SPACE_ID', this._calculateCenter(polygon.geometry.coordinates[0]))
@@ -856,6 +888,13 @@ class LotView extends React.Component {
     }
   }
 
+  buildLeaseRt() {
+    const tempSku = this.state.leaseRtInput1 + this.state.leaseRtInput2 + this.state.leaseRtInput3 + this.state.leaseRtInput4 + this.state.leaseRtInput5;
+    this.setState({ skuInputEntered: tempSku, skuCollectorVisible: false })
+
+    this.locateVehicle('sku')
+  }
+
   maybeRenderTextInput() {
     if (this.state.skuCollectorVisible) {
       // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
@@ -880,15 +919,121 @@ class LotView extends React.Component {
             <View
               style={styles.floatingTextInputArea}>
               <Text
-                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>{ this.state.leaseRt ? 'LAST 5 VIN' : 'STOCK NUMBER'}</Text>
-              <TextInput
-                autoCapitalize='characters'
-                multiline={false}
-                returnKeyType='search'
-                style={[styles.floatingTextInput, {color: 'rgba(0, 0, 0, 0.75)'}]}
-                onChangeText={(sku) => {this.skuEntered = sku}}
-                onSubmitEditing={(event) => this.locateVehicle('sku')}
-                autoFocus={true}/>
+                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>{ this.state.leaseRt ? 'CREATING LEASE RETURN' : 'STOCK NUMBER'}</Text>
+              { this.state.leaseRt && <Text style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>ENTER LAST 5 OF VIN</Text> }
+              {
+                this.state.leaseRt ?
+                <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TextInput
+                      ref='_lrI1'
+                      autoCapitalize='characters'
+                      multiline={false}
+                      returnKeyType='search'
+                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      onChangeText={text => {
+                        this.setState({leaseRtInput1: text})
+                        text !== '' && this.refs._lrI2.focus()
+                      }}
+                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      autoFocus={true}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={ this.state.leaseRtInput1 }
+                    />
+                  </View>
+                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TextInput
+                      ref='_lrI2'
+                      autoCapitalize='characters'
+                      multiline={false}
+                      returnKeyType='search'
+                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      onChangeText={text => {
+                        this.setState({leaseRtInput2: text})
+                        text !== '' && this.refs._lrI3.focus()
+                      }}
+                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={ this.state.leaseRtInput2 }
+                      onKeyPress={({ nativeEvent }) => {
+                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput2 === '' && this.refs._lrI1.focus()
+                      }}
+                    />
+                  </View>
+                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TextInput
+                      ref='_lrI3'
+                      autoCapitalize='characters'
+                      multiline={false}
+                      returnKeyType='search'
+                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      onChangeText={text => {
+                        this.setState({leaseRtInput3: text})
+                        text !== '' && this.refs._lrI4.focus()
+                      }}
+                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={ this.state.leaseRtInput3 }
+                      onKeyPress={({ nativeEvent }) => {
+                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput3 === '' && this.refs._lrI2.focus()
+                      }}
+                    />
+                  </View>
+                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TextInput
+                      ref='_lrI4'
+                      autoCapitalize='characters'
+                      multiline={false}
+                      returnKeyType='search'
+                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      onChangeText={text => {
+                        this.setState({leaseRtInput4: text})
+                        text !== '' && this.refs._lrI5.focus()
+                      }}
+                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={ this.state.leaseRtInput4 }
+                      onKeyPress={({ nativeEvent }) => {
+                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput4 === '' && this.refs._lrI3.focus()
+                      }}
+                    />
+                  </View>
+                  <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TextInput
+                      ref='_lrI5'
+                      autoCapitalize='characters'
+                      multiline={false}
+                      returnKeyType='search'
+                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      onChangeText={text => {
+                        this.setState({leaseRtInput5: text})
+                      }}
+                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={ this.state.leaseRtInput5 }
+                      onKeyPress={({ nativeEvent }) => {
+                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput5 === '' && this.refs._lrI4.focus()
+                      }}
+                    />
+                  </View>
+                </View>
+              :
+                <TextInput
+                  autoCapitalize='characters'
+                  multiline={false}
+                  returnKeyType='search'
+                  style={[styles.floatingTextInput, {color: 'rgba(0, 0, 0, 0.75)'}]}
+                  onChangeText={text => this.setState({skuInputEntered: text})}
+                  onSubmitEditing={event => this.locateVehicle('sku')}
+                  autoFocus={true}
+                  value={this.state.skuInputEntered}
+                />
+              }
 
               <Text
                 style={[textStyles.actionSummaryText, {color: '#BE1E2D', fontSize: 10, marginLeft: 10, paddingBottom: 5}]}>
@@ -897,7 +1042,7 @@ class LotView extends React.Component {
               <View
                 style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
                 <TouchableOpacity
-                  style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }]}
+                  style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }, !this.state.leaseRt && { backgroundColor: '#D13CEA' }]}
                   onPress={() => this.setState({leaseRt: !this.state.leaseRt })}>
                   <Text style={buttonStyles.activeSecondaryTextColor}>
                     { this.state.leaseRt ? 'BACK' : 'LEASE RT'}
@@ -913,8 +1058,8 @@ class LotView extends React.Component {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
-                  onPress={() => this.locateVehicle('sku') }>
+                style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
+                onPress={() => this.locateVehicle('sku') }>
                   <Text style={[buttonStyles.activePrimaryTextColor]}>
                     SEARCH
                   </Text>
@@ -997,8 +1142,22 @@ class LotView extends React.Component {
     }
   }
 
+  maybeRenderMapControls() {
+    //lotCenterCoordinates
+    if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE && !this.state.barcodeOpen) {
+      return (
+        <View style={{ position: 'absolute', zIndex: 2, right: 10, top: 10 }}>
+        <TouchableOpacity onPress={() => this.setState({ centerCoordinate: [this.state.userLocation.coords.longitude, this.state.userLocation.coords.latitude] })} style={ styles.floatingActionButton }>
+          <Ionicons type='ionicon' name={ 'md-locate'} size={ 35 } style={{ color: '#FFF', marginTop: 2, marginLeft: 2 }} />
+        </TouchableOpacity>
+        </View>
+      )
+    }
+    return null
+  }
   render() {
-    //console.log('\n\n\n+ + + Render Lot Screen + + +');
+    console.log('\n\n\n+ + + Render Lot Screen + + +');
+    console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
       console.log('Barcode Open, Selected stall: ', this.state.clickedStall)
       return(
@@ -1052,6 +1211,7 @@ class LotView extends React.Component {
             this.currentCenter = args.geometry.coordinates
             this.setState({ zoomLevel: args.properties.zoomLevel });
             }}
+          onUserLocationUpdate={location => this.setState({ userLocation: location }) }
         >
 
           <Mapbox.ShapeSource
@@ -1217,6 +1377,21 @@ class LotView extends React.Component {
             blank={this.state.findingOnMap}>
           </VehicleSpaceLayer>
 
+          <VehicleSpaceLayer
+            ids={this.state.soldSpaces}
+            style={lotLayerStyles.sold_spaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.soldSpaces}
+            sendMapCallback={this.getMapCallback}
+            showAndPopulateModal={this.showAndPopulateModal}
+            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+            updateEvents={this.postLoadEvents}
+            type='sold'
+            recent={false}
+            blank={this.state.findingOnMap}>
+          </VehicleSpaceLayer>
+
+
           {/*
           <VehicleSpaceLayer
             ids={this.state.duplicateSpaces}
@@ -1257,6 +1432,21 @@ class LotView extends React.Component {
             eventShapes={this.state.noteEventSpaces}
             type='note'>
           </EventsLayer>
+
+          <HoldsLayer
+            spaces={this.state.serviceHoldSpaces}
+            parkingShapes={this.state.parkingShapes}
+            skip={this.state.duplicateSpaces}
+            type='service_hold'>
+          </HoldsLayer>
+
+          <HoldsLayer
+            spaces={this.state.salesHoldSpaces}
+            parkingShapes={this.state.parkingShapes}
+            skip={this.state.duplicateSpaces}
+            type='sales_hold'>
+          </HoldsLayer>
+
           <NoteLayer
             eventShapes={this.state.noteEventSpaces}
             type='noteText'
@@ -1273,6 +1463,7 @@ class LotView extends React.Component {
 
         {this.maybeRenderPopulateOnClick()}
         {this.maybeRenderActionFeedbackView()}
+        {this.maybeRenderMapControls()}
 
       </KeyboardAvoidingView>
 
@@ -1399,6 +1590,10 @@ const lotLayerStyles = Mapbox.StyleSheet.create({ // NOTE: On web all shapes hav
   },
   wholesale_recent_occupied_spaces: {
     fillColor: '#8D8C88',
+    fillOpacity: 1,
+  },
+  sold_spaces: {
+    fillColor: '#000',
     fillOpacity: 1,
   },
 });

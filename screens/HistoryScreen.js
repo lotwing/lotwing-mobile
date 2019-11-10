@@ -31,6 +31,7 @@ export default class HistoryScreen extends React.Component {
 	}
 	componentWillMount() {
 		console.log('History Mounted')
+    this.props.navigation.setParams({ extras: { showModalonExit: true } })
 		if (this.props.navigation.state.params) {
 			const {space_id, vehicle, position} = this.props.navigation.state.params;
 			this.setState({ space_id, vehicle, position })
@@ -59,7 +60,15 @@ export default class HistoryScreen extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-    	this.setState({events: responseJson.events[this.state.position], loading: false, space_coords: responseJson.shape.geo_info })
+      let position = this.state.position;
+      responseJson.vehicles.forEach((vehicle, index) => {
+        console.log('Vehicle obkject: ', vehicle.id, ' State vehicle', this.state.vehicle.id)
+        if (vehicle.id === this.state.vehicle.id) {
+          position =  index;
+        }
+      })
+      console.log('History Results: ')
+    	this.setState({events: responseJson.events[position], loading: false, space_coords: responseJson.shape.geo_info })
     })
     .catch(err => {
       console.log('\nCAUGHT ERROR IN FETCH HISTORY: \n', err, err.name);
@@ -107,14 +116,15 @@ export default class HistoryScreen extends React.Component {
 	}
 
 	render() {
-    console.log(this.state.vehicle)
+    //console.log(this.state.vehicle)
   	return (
   		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
 	  		{ this.state.vehicle !== {} &&
 	  			<View style={[pageStyles.darkBody, pageStyles.column ]}>
 						<Text style={textStyles.header}>{this.state.vehicle.year} {this.state.vehicle.make} {this.state.vehicle.model}</Text>
-		         <Text style={textStyles.subtitle}>Stock Number {this.state.vehicle.stock_number}</Text>
-		       </View>
+		        <Text style={textStyles.subtitle}>Stock Number: {this.state.vehicle.stock_number}</Text>
+            <Text style={textStyles.subtitle}>VIN: {this.state.vehicle.vin}</Text>
+		      </View>
 		     }
   			{this._renderHistory()}
   		</View>

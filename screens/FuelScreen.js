@@ -50,7 +50,7 @@ export default class FuelScreen extends React.Component {
 	}
 	componentDidMount() {
 		console.log('Event ID: ', this.eventId)
-		this.props.navigation.setParams({ extras: { } })
+		this.props.navigation.setParams({ extras: { showModalonExit: true } })
 		if (this.eventId !== null && this.eventId !== undefined) {
 			this.setState({ eventRunning: true, eventId: this.eventId })
 		}
@@ -58,7 +58,7 @@ export default class FuelScreen extends React.Component {
 
 	// create event tag and retrieve id
 	startFuelingAction() {
-		this.props.navigation.setParams({extras: { fuelEventId: this.eventId,  spaceId: this.details.spaceId }})
+		this.props.navigation.setParams({extras: { fuelEventId: this.eventId,  spaceId: this.details.spaceId, showModalonExit: false }})
 		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_FUELING, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting to fuel');
 		LotActionHelper.registerTagAction(payload)
 			.then((responseJson) => {
