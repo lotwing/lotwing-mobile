@@ -115,6 +115,8 @@ class LoginButton extends React.Component {
           .then((responseJson) => {
             if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
               GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
+              GlobalVariables.USER_NAME = responseJson.user_info.full_name;
+              console.log(responseJson)
 
               console.log('\nLOT ACCESS TOKEN: ', GlobalVariables.LOTWING_ACCESS_TOKEN, '\n');
               AsyncStorage.setItem('userToken', '' + GlobalVariables.LOTWING_ACCESS_TOKEN);

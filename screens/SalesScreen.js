@@ -178,7 +178,7 @@ class SalesScreen extends Component {
               />
             </TouchableOpacity>
             <View style={{ position: 'absolute', right: 10, top: 5 }}>
-              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.0.19.8</Text>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.0.19.10</Text>
             </View>
           </View>
           <View style={{ padding: 20}}>

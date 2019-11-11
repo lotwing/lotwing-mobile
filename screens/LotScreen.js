@@ -271,7 +271,7 @@ class LotView extends React.Component {
          lotParkingSpaceMap[space["id"]] = space;
       });
       console.log('     resetting state: _loadLotView');
-      console.log('_loadLotView coords: ', lot_coords);
+      //console.log('_loadLotView coords: ', lot_coords);
 
       lotview._loadParkingSpaceMetadata({
         centerCoordinate: this.state.centerCoordinate === null ? lotview._calculateCenter(lot_coords) : this.state.centerCoordinate,

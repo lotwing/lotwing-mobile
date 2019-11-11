@@ -32,6 +32,7 @@ export default class DriveScreen extends React.Component {
 		this.summary = this.props.navigation.state.params.summary;
 
 		this.state = {
+			btnPressed: false,
 			eventRunning: false,
 			driveTime: '0:01',
 			eventId: 0
@@ -48,19 +49,23 @@ export default class DriveScreen extends React.Component {
 
 	// create event tag and retrieve id
 	startDrivingAction() {
-		this.props.navigation.setParams({extras: { driveEventId: this.eventId,  spaceId: this.details.spaceId, showModalonExit: false }})
-		let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting test drive');
-		LotActionHelper.registerTagAction(payload)
-			.then((responseJson) => {
-				if (responseJson) {
-					this.eventId = responseJson['event'] ? responseJson['event']['id']: null;
-			    this.startEvent(this.eventId);
-				}
-			})
-			.catch(err => {
-			    console.log('\nCAUGHT ERROR IN START DRIVING ACTION: \n', err, err.name);
-			    return err
-			});
+		if (!this.state.btnPressed) {
+			this.setState({ btnPressed: true });
+			this.props.navigation.setParams({extras: { driveEventId: this.eventId,  spaceId: this.details.spaceId, showModalonExit: false }})
+			let payload = LotActionHelper.structureTagPayload(GlobalVariables.BEGIN_DRIVE, { vehicleId: this.vehicle.id, spaceId: this.details.spaceId }, 'starting test drive');
+			LotActionHelper.registerTagAction(payload)
+				.then((responseJson) => {
+					if (responseJson) {
+						this.eventId = responseJson['event'] ? responseJson['event']['id']: null;
+				    this.startEvent(this.eventId);
+					}
+				})
+				.catch(err => {
+				    console.log('\nCAUGHT ERROR IN START DRIVING ACTION: \n', err, err.name);
+				    this.setState({ btnPressed: false });
+				    return err
+				});
+		}
 	}
 	// send the started_at time to the server, and start animation
 	startEvent(eventId) {
@@ -72,7 +77,7 @@ export default class DriveScreen extends React.Component {
 		let eventIdPromise = LotActionHelper.endTimeboundTagAction(startPackage, eventId)
 
 		eventIdPromise.then(() => {
-			this.setState({ eventRunning: true, eventId: eventId })
+			this.setState({ eventRunning: true, eventId: eventId, btnPressed: false })
 		});
 	}
 
@@ -82,7 +87,7 @@ export default class DriveScreen extends React.Component {
 		const endPackage = {
 			ended_at: this.formatDate(Date.now()),
 			acknowledged: true, // shouldAcknowledgeAction
-			event_details: shouldAcknowledgeAction ? 'test driven for ' + this.state.driveTime : 'drive event ' + this.eventId + ' canceled'
+			event_details: 'Test driven for ' + this.state.driveTime + '. \nTest drive ended by ' + GlobalVariables.USER_NAME
 		}
 
 		let eventIdPromise = LotActionHelper.endTimeboundTagAction(endPackage, this.eventId).then(() => {
@@ -198,6 +203,7 @@ export default class DriveScreen extends React.Component {
 	}
 
 	render() {
+		console.log('USER NAME: ', GlobalVariables.USER_NAME)
 	  	return (
 	  		<View style={[pageStyles.container, {justifyContent: 'flex-start', backgroundColor: '#E6E4E0'}]}>
 		  		<View style={[pageStyles.darkBody, pageStyles.row, {justifyContent: 'space-between'}]}>
