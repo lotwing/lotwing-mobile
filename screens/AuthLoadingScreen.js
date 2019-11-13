@@ -17,6 +17,7 @@ export default class AuthLoadingScreen extends React.Component {
     authResponse.then((responseJson) => {
       if (responseJson && responseJson.message == 'Correct Authentication') {
         console.log('Navigate to App');
+        GlobalVariables.USER_NAME = responseJson.user_info.full_name;
         this.props.navigation.navigate('App');
       } else {
         console.log('Navigate to Auth');
@@ -47,7 +48,6 @@ export default class AuthLoadingScreen extends React.Component {
         // This will switch to the App or Auth screen and this loading
         // screen will be unmounted and thrown away.
         console.log('AUTH CHECK RESPONSE:', responseJson);
-        GlobalVariables.USER_NAME = responseJson.user_info.full_name;
         return responseJson
       })
     } else {

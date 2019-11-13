@@ -408,10 +408,7 @@ export default class TagModalView extends React.Component {
       </View>
     );
   }
-  _renderSalesState() {
-    if (this.state.vehicle === null) {
-      return null
-    }
+  renderServiceHold() {
     if (this.state.vehicle.service_hold) {
       return(
         <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
@@ -421,6 +418,9 @@ export default class TagModalView extends React.Component {
         </View>
       )
     }
+    return null
+  }
+  renderSoldHold() {
     if (this.state.vehicle.sales_hold || this.state.vehicle.sold_status !== null) {
       return(
         <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
@@ -433,6 +433,18 @@ export default class TagModalView extends React.Component {
       )
     }
     return null
+  }
+  _renderSalesState() {
+    if (this.state.vehicle === null) {
+      return null
+    } else {
+      return(
+        <View style={{ width: '100%' }}>
+          { this.renderServiceHold() }
+          { this.renderSoldHold() }
+        </View>
+      )
+    }
   }
   _renderAltActionView() { // either stallChange, info, or base
     // car features that can be displayed

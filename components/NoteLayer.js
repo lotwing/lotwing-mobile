@@ -22,7 +22,7 @@ export default class NoteLayer extends React.PureComponent {
       this.renderEvents = this.renderEvents.bind(this);
   }
   componentWillReceiveProps(nextProps) {
-    this.setState({loading: false })
+    this.setState({loading: false})
   }
   _createNewPolygon(coordinates, id) {
     const size = this.props.type === 'note' ? 0.0007 : 0.0007
@@ -41,7 +41,7 @@ export default class NoteLayer extends React.PureComponent {
     const h = left + ((right - left)/2)
     const v = bottom + ((top - bottom)/2)
     const updatedCoordinates = [h, v]
-    const generatedCoordinates = circle(updatedCoordinates, size, {steps: 30, units: 'kilometers'})
+    const generatedCoordinates = circle(updatedCoordinates, size, {steps: 10, units: 'kilometers'})
     const empty_polygon_geojson = {
       "id": id,
       "type": "Feature",
@@ -62,6 +62,7 @@ export default class NoteLayer extends React.PureComponent {
 
   getAllEventsCoordinatesObject() {
     if (Object.keys(this.props.eventShapes).length > 0) {
+      this.setState({loading: false})
       return this.props.eventShapes
     } else {
       return null;
