@@ -1512,7 +1512,11 @@ class LotView extends React.Component {
               type="ionicon"
               name={'md-locate'}
               size={35}
-              style={{ color: '#FFF', marginTop: 2, marginLeft: 2 }}
+              style={{
+                color: '#FFF',
+                marginTop: Platform.OS === 'ios' ? 2 : 0,
+                marginLeft: Platform.OS === 'ios' ? 2 : 0,
+              }}
             />
           </TouchableOpacity>
         </View>
@@ -1535,6 +1539,8 @@ class LotView extends React.Component {
               alignItems: 'center',
               paddingLeft: 10,
               paddingRight: 10,
+              elevation: 20,
+              backgroundColor: 'white',
             }}>
             <Text style={{ fontWeight: 'bold' }}>
               {this.state.barcodeTitle}
@@ -1566,7 +1572,7 @@ class LotView extends React.Component {
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
-            mirrorImage={false}
+            mirrorImage={true}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={
               'We need your permission to use your camera phone'

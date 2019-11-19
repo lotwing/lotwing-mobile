@@ -112,40 +112,40 @@ class LoginButton extends React.Component {
     super(props);
   }
 
-  _attemptLogin() {
+  async _attemptLogin() {
     let login_formdata = new FormData();
     login_formdata.append('email', this.props.email);
     login_formdata.append('password', this.props.pwd);
-    return fetch(GlobalVariables.BASE_ROUTE + Route.LOGIN, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      body: login_formdata,
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
-          GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
-          GlobalVariables.USER_NAME = responseJson.user_info.full_name;
-          console.log(responseJson);
-
-          console.log(
-            '\nLOT ACCESS TOKEN: ',
-            GlobalVariables.LOTWING_ACCESS_TOKEN,
-            '\n',
-          );
-          AsyncStorage.setItem(
-            'userToken',
-            '' + GlobalVariables.LOTWING_ACCESS_TOKEN,
-          );
-
-          this.props.navigation.navigate('App', { user: this.props.email });
-        } else {
-          // TODO(adwoa): display error message
-          console.log('There was an error with login', responseJson);
-        }
+    try {
+      const response = await fetch(GlobalVariables.BASE_ROUTE + Route.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: login_formdata,
       });
+      const responseJson = await response.json();
+      if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
+        GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
+        GlobalVariables.USER_NAME = responseJson.user_info.full_name;
+        console.log(
+          '\nLOT ACCESS TOKEN: ',
+          GlobalVariables.LOTWING_ACCESS_TOKEN,
+          '\n',
+        );
+        AsyncStorage.setItem(
+          'userToken',
+          '' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        );
+
+        this.props.navigation.navigate('App', { user: this.props.email });
+      } else {
+        // TODO(adwoa): display error message
+        console.log('There was an error with login', responseJson);
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
   }
 
   render() {

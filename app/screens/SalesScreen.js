@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   View,
   ScrollView,
@@ -7,12 +7,12 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  AsyncStorage
-} from "react-native";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
+  AsyncStorage,
+} from 'react-native';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
-import GlobalVariables from "../constants/GlobalVariables";
-import Route from "../constants/Routes";
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
 class SalesScreen extends Component {
   state = { loading: true, mtd_data: [], today_data: [], dealership_data: [] };
@@ -30,13 +30,13 @@ class SalesScreen extends Component {
   }
   loadSalesData() {
     this.setState({ loading: true });
-    let url = GlobalVariables.BASE_ROUTE + Route.SALES + "mtd/";
+    let url = GlobalVariables.BASE_ROUTE + Route.SALES + 'mtd/';
     return fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
       .then(response => {
         return response.json();
@@ -47,13 +47,13 @@ class SalesScreen extends Component {
   }
 
   loadTodayData(mtd_data) {
-    let url = GlobalVariables.BASE_ROUTE + Route.SALES + "today/";
+    let url = GlobalVariables.BASE_ROUTE + Route.SALES + 'today/';
     return fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
       .then(response => {
         return response.json();
@@ -66,11 +66,11 @@ class SalesScreen extends Component {
   loadDealershipData(mtd_data, today_data) {
     let url = GlobalVariables.BASE_ROUTE + Route.DEALERSHIP;
     return fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
       .then(response => {
         return response.json();
@@ -81,50 +81,53 @@ class SalesScreen extends Component {
           loading: false,
           mtd_data: mtd_data.filter(s => s.stored === false),
           today_data: today_data.filter(s => s.stored === false),
-          dealership_data: result
+          dealership_data: result,
         });
       });
   }
 
   toCamelCase(string) {
-    return string
-      .replace(/\b(\w)/g, function(match, capture) {
-        return capture.toUpperCase();
-      })
-      .replace(/\s+/g, " ");
+    return (
+      string &&
+      string
+        .replace(/\b(\w)/g, function(match, capture) {
+          return capture.toUpperCase();
+        })
+        .replace(/\s+/g, ' ')
+    );
   }
 
   logOut() {
     const { navigation } = this.props;
-    GlobalVariables.LOTWING_ACCESS_TOKEN = "";
-    AsyncStorage.setItem("userToken", "");
-    navigation.navigate("Auth");
+    GlobalVariables.LOTWING_ACCESS_TOKEN = '';
+    AsyncStorage.setItem('userToken', '');
+    navigation.navigate('Auth');
   }
 
   formatDate(date) {
     const d = new Date(date);
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
     ];
     const hours =
       d.getUTCHours() < 10 ? `0${d.getUTCHours()}` : `${d.getUTCHours()}`;
@@ -150,18 +153,18 @@ class SalesScreen extends Component {
           name: sale.sales_rep,
           newSales: 0,
           usedSales: 0,
-          totalSales: 0
+          totalSales: 0,
         });
       }
       if (
         !reps.some(rep => rep.name === sale.split_rep) &&
-        sale.split_rep !== ""
+        sale.split_rep !== ''
       ) {
         reps.push({
           name: sale.split_rep,
           newSales: 0,
           usedSales: 0,
-          totalSales: 0
+          totalSales: 0,
         });
       }
       if (sale.is_used) {
@@ -176,7 +179,7 @@ class SalesScreen extends Component {
       let newSales = 0;
       mtd_used.forEach(sale => {
         if (sale.sales_rep === rep.name) {
-          if (sale.split_rep === "") {
+          if (sale.split_rep === '') {
             usedSales += 1;
           } else {
             usedSales += 0.5;
@@ -187,7 +190,7 @@ class SalesScreen extends Component {
       });
       mtd_new.forEach(sale => {
         if (sale.sales_rep === rep.name) {
-          if (sale.split_rep === "") {
+          if (sale.split_rep === '') {
             newSales += 1;
           } else {
             newSales += 0.5;
@@ -205,30 +208,29 @@ class SalesScreen extends Component {
 
     let models = [];
     const vehicles = mtd_new.filter(
-      vehicle => vehicle.usage_type === this.state.type
+      vehicle => vehicle.usage_type === this.state.type,
     );
     mtd_new.forEach(sale => {
       if (!models.some(model => model.name === sale.model)) {
         models.push({
           name: sale.model,
           total: mtd_new.filter(saleTotal => saleTotal.model === sale.model)
-            .length
+            .length,
         });
       }
     });
 
     models.sort((a, b) => b.total - a.total);
-    console.log("SALES", this.state.today_data);
+    console.log('SALES', this.state.today_data);
     if (this.state.loading) {
       return (
         <View
           style={{
             flex: 1,
-            backgroundColor: "#FFF",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
+            backgroundColor: '#FFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
           <ActivityIndicator size="large" color="#000" />
         </View>
       );
@@ -237,30 +239,28 @@ class SalesScreen extends Component {
       <View
         style={{
           flex: 1,
-          backgroundColor: "#BE1E2D",
-          paddingTop: getStatusBarHeight()
-        }}
-      >
+          backgroundColor: '#BE1E2D',
+          paddingTop: getStatusBarHeight(),
+        }}>
         <ScrollView style={{ flex: 1 }}>
           <View
             style={{
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems: 'center',
+              justifyContent: 'center',
               padding: 20,
-              position: "relative"
-            }}
-          >
-            <TouchableOpacity onPress={() => navigation.navigate("Sales")}>
+              position: 'relative',
+            }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Sales')}>
               <Image
-                source={require("../../assets/images/menu-wing.png")}
+                source={require('../../assets/images/menu-wing.png')}
                 style={{
-                  width: Dimensions.get("window").width / 4,
-                  height: Dimensions.get("window").width / 4
+                  width: Dimensions.get('window').width / 4,
+                  height: Dimensions.get('window').width / 4,
                 }}
               />
             </TouchableOpacity>
-            <View style={{ position: "absolute", right: 10, top: 5 }}>
-              <Text style={{ fontSize: 12, color: "#FFFFFF" }}>v1.0.19.10</Text>
+            <View style={{ position: 'absolute', right: 10, top: 5 }}>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.0.19.10</Text>
             </View>
           </View>
           <View style={{ padding: 20 }}>
@@ -274,8 +274,10 @@ class SalesScreen extends Component {
               </View>
             </View>
             <View
-              style={[row, { borderBottomWidth: 1, borderBottomColor: "#FFF" }]}
-            >
+              style={[
+                row,
+                { borderBottomWidth: 1, borderBottomColor: '#FFF' },
+              ]}>
               <View style={cell}>
                 <Text style={h}>New Sold</Text>
               </View>
@@ -290,11 +292,10 @@ class SalesScreen extends Component {
               <View style={[cell, { flex: 0 }]}>
                 <View
                   style={{
-                    backgroundColor: "#000",
+                    backgroundColor: '#000',
                     padding: 5,
-                    borderRadius: 5
-                  }}
-                >
+                    borderRadius: 5,
+                  }}>
                   <Text style={h}>
                     {
                       this.state.mtd_data.filter(vehicle => !vehicle.is_used)
@@ -305,8 +306,10 @@ class SalesScreen extends Component {
               </View>
             </View>
             <View
-              style={[row, { borderBottomWidth: 1, borderBottomColor: "#FFF" }]}
-            >
+              style={[
+                row,
+                { borderBottomWidth: 1, borderBottomColor: '#FFF' },
+              ]}>
               <View style={cell}>
                 <Text style={h}>Used Sold</Text>
               </View>
@@ -321,11 +324,10 @@ class SalesScreen extends Component {
               <View style={[cell, { flex: 0 }]}>
                 <View
                   style={{
-                    backgroundColor: "#000",
+                    backgroundColor: '#000',
                     padding: 5,
-                    borderRadius: 5
-                  }}
-                >
+                    borderRadius: 5,
+                  }}>
                   <Text style={h}>
                     {
                       this.state.mtd_data.filter(vehicle => vehicle.is_used)
@@ -336,8 +338,8 @@ class SalesScreen extends Component {
               </View>
             </View>
             <View style={{ paddingTop: 10 }}>
-              <Text style={[t, { fontStyle: "italic" }]}>
-                New start date:{" "}
+              <Text style={[t, { fontStyle: 'italic' }]}>
+                New start date:{' '}
                 {this.state.dealership_data.custom_mtd_start_date}
               </Text>
             </View>
@@ -374,30 +376,27 @@ class SalesScreen extends Component {
         <View
           style={{
             flex: 0,
-            flexDirection: "row",
+            flexDirection: 'row',
             padding: 10,
-            alignItems: "flex-end",
-            position: "absolute",
+            alignItems: 'flex-end',
+            position: 'absolute',
             right: 0,
-            bottom: 0
-          }}
-        >
+            bottom: 0,
+          }}>
           <TouchableOpacity onPress={() => this.loadSalesData()}>
             <View
               style={{
                 padding: 10,
-                backgroundColor: "#000",
+                backgroundColor: '#000',
                 borderRadius: 5,
-                marginRight: 10
-              }}
-            >
+                marginRight: 10,
+              }}>
               <Text style={t}>Refresh</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.logOut()}>
             <View
-              style={{ padding: 10, backgroundColor: "#000", borderRadius: 5 }}
-            >
+              style={{ padding: 10, backgroundColor: '#000', borderRadius: 5 }}>
               <Text style={t}>Log out</Text>
             </View>
           </TouchableOpacity>
@@ -409,21 +408,21 @@ class SalesScreen extends Component {
 
 const styles = {
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     flex: 1,
     paddingTop: 5,
-    paddingBottom: 5
+    paddingBottom: 5,
   },
   cell: {
     flex: 1,
-    justifyContent: "center"
+    justifyContent: 'center',
   },
   h: {
-    color: "#FFF",
-    fontSize: 18
+    color: '#FFF',
+    fontSize: 18,
   },
   t: {
-    color: "#FFF"
-  }
+    color: '#FFF',
+  },
 };
 export default SalesScreen;
