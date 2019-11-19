@@ -1,0 +1,6 @@
+node_modules
+ios
+android
+amplify
+coverage
+__tests__
