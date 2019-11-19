@@ -138,6 +138,7 @@ class LotView extends React.Component {
     this._loadLotView = this._loadLotView.bind(this);
     this.updateSpaceVehicleMap = false;
     this.currentCenter = lotCenterCoordinates;
+    this.zoom = 17;
   }
   /**
    * Loads all of the data associated with a lot and updates
@@ -155,9 +156,10 @@ class LotView extends React.Component {
       // if the navigation 'findingOnMap' param is true (from History screen)
       const { space_coords, findingOnMap } = nextProps.navigation.state.params;
       console.log('Finding on map Event. COORDS: ', space_coords);
-      centerCoordinate = this._calculateCenter(
+      let centerCoordinate = this._calculateCenter(
         space_coords.geometry.coordinates[0],
       );
+      this.zoom = 18.5
       this.setState({
         findingOnMap: findingOnMap,
         modalVisible: true,
@@ -1524,6 +1526,7 @@ class LotView extends React.Component {
     }
     return null;
   }
+
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
     console.log('Current Vehicle ID: ', this.state.vehicleId);
@@ -1572,7 +1575,7 @@ class LotView extends React.Component {
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
-            mirrorImage={true}
+            mirrorImage={Platform.OS !== 'ios'}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={
               'We need your permission to use your camera phone'
@@ -1594,20 +1597,27 @@ class LotView extends React.Component {
         {this.state.modalVisible && this._renderTagModal()}
 
         <Mapbox.MapView
-          centerCoordinate={this.state.centerCoordinate}
           showUserLocation={true}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          zoomLevel={this.state.zoomLevel}
           ref={'_map'}
-          //regionDidChangeDebounceTime={ 2000 }
           onRegionDidChange={args => {
             this.currentCenter = args.geometry.coordinates;
-            this.setState({ zoomLevel: args.properties.zoomLevel });
+            this.zoom = args.properties.zoomLevel;
           }}
           onUserLocationUpdate={location =>
             this.setState({ userLocation: location })
           }>
+          <Mapbox.Camera
+            zoomLevel={this.zoom}
+            centerCoordinate={this.state.centerCoordinate}
+            animationMode='none'
+            animationDuration={0}
+            followPitch
+            followHeading
+            followZoomLevel
+          />
+          <Mapbox.UserLocation />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
             <Mapbox.FillLayer
               id="fill_parking_lot"

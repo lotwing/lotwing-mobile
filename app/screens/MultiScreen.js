@@ -56,7 +56,6 @@ class LotView extends React.Component {
     this.state = {
       initialLoad: [],
       centerCoordinate: [-122.00704220157868, 37.352814585339715],
-      zoomLevel: 20,
       lotShapes: null,
       errorLoading: false,
       newVehicleSpaces: [],
@@ -93,6 +92,7 @@ class LotView extends React.Component {
     this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
     this.dismissInput = this.dismissInput.bind(this);
     this._loadLotView = this._loadLotView.bind(this);
+    this.zoom = 20
   }
 
   componentWillMount() {
@@ -864,16 +864,18 @@ class LotView extends React.Component {
         {this.state.modalVisible && this._renderTagModal()}
         {this.maybeRenderKeyboard()}
         <Mapbox.MapView
-          //centerCoordinate={this.state.centerCoordinate}
-          showUserLocation={true}
-          userTrackingMode={Mapbox.UserTrackingModes.Follow}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          zoomLevel={this.state.zoomLevel}
           ref={'_map'}
-          onRegionDidChange={args =>
-            this.setState({ zoomLevel: args.properties.zoomLevel })
-          }>
+          >
+          <Mapbox.Camera
+            zoomLevel={this.zoom}
+            animationMode='none'
+            animationDuration={0}
+            followUserLocation={true}
+            followUserMode='normal'
+          />
+          <Mapbox.UserLocation />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
             <Mapbox.FillLayer
               id="fill_parking_lot"
