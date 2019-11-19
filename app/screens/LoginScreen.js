@@ -119,7 +119,7 @@ class LoginButton extends React.Component {
     return fetch(GlobalVariables.BASE_ROUTE + Route.LOGIN, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'multipart/form-data',
       },
       body: login_formdata,
     })
