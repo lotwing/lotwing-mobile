@@ -14,7 +14,7 @@ import {
   Text,
   TextInput,
   View,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import posed from 'react-native-pose';
 import { RNCamera } from 'react-native-camera';
@@ -41,167 +41,187 @@ import Mapbox from '@react-native-mapbox-gl/maps';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
-
 /**
  *
  * Lot shapes include:
  * parking_lots, buildings, parking_spaces
  */
 export default class LotScreen extends React.Component {
-
   constructor(props) {
     super(props);
   }
 
   render() {
-  	return (
-  		<LotView
-        navigation={this.props.navigation} />
-  	);
+    return <LotView navigation={this.props.navigation} />;
   }
 }
 
-const lotCenterCoordinates = [ -122.00704220157868, 37.352814585339715 ];
+const lotCenterCoordinates = [-122.00704220157868, 37.352814585339715];
 
 const VehicleInfo = posed.View({
-  closed: { y: Dimensions.get('window').height, transition: { type: 'spring', stiffness: 300 } },
-  open: { y: 0, transition: { ease: 'easeOut', duration: 300 } }
+  closed: {
+    y: Dimensions.get('window').height,
+    transition: { type: 'spring', stiffness: 300 },
+  },
+  open: { y: 0, transition: { ease: 'easeOut', duration: 300 } },
 });
 
 class LotView extends React.Component {
-
   constructor(props) {
-      super(props);
+    super(props);
 
-      this.state = {
-        centerCoordinate: lotCenterCoordinates,
-        userCoordinate: null,
-        zoomLevel: 17,
-        lotShapes: null,
-        errorLoading: false,
-        modalVisible: false,
-        newVehicleSpaces: [],
-        usedVehicleSpaces: [],
-        emptySpaces: [],
-        duplicateSpaces: [],
-        loanerSpaces: [],
-        leaseSpaces: [],
-        wholesaleSpaces: [],
-        soldSpaces: [],
-        serviceHoldSpaces: [],
-        salesHoldSpaces: [],
-        driveEventSpaces: [],
-        fuelEventSpaces: [],
-        noteEventSpaces: [],
-        parkingShapes: {},
-        spaceVehicleMap: {},
-        spaceId: 0,
-        vehicles: [],
-        vehicleId: 0,
-        modalType: GlobalVariables.BASIC_MODAL_TYPE,
-        sku: null,
-        vin: null,
-        skuCollectorVisible: false,
-        skuSearchFailed: false,
-        stockNumberVehicleMap: {},
-        extraVehicleData: {},
-        clickToPopulateStall: null,
-        clickedStall: null,
-        feedbackText: 'Populating space...',
-        findingOnMap: false,
-        modalReopen: false,
-        modalReopenTarget: 0,
-        modalReopenHighlight: null,
-        leaseRt: false,
-        postLoadAction: '',
-        barcodeOpen: false,
-        barcodeTitle: 'Scan Barcode',
-        skuInputEntered: '',
-        leaseRtInput1: '',
-        leaseRtInput2: '',
-        leaseRtInput3: '',
-        leaseRtInput4: '',
-        leaseRtInput5: ''
+    this.state = {
+      centerCoordinate: lotCenterCoordinates,
+      userCoordinate: null,
+      zoomLevel: 17,
+      lotShapes: null,
+      errorLoading: false,
+      modalVisible: false,
+      newVehicleSpaces: [],
+      usedVehicleSpaces: [],
+      emptySpaces: [],
+      duplicateSpaces: [],
+      loanerSpaces: [],
+      leaseSpaces: [],
+      wholesaleSpaces: [],
+      soldSpaces: [],
+      serviceHoldSpaces: [],
+      salesHoldSpaces: [],
+      driveEventSpaces: [],
+      fuelEventSpaces: [],
+      noteEventSpaces: [],
+      parkingShapes: {},
+      spaceVehicleMap: {},
+      spaceId: 0,
+      vehicles: [],
+      vehicleId: 0,
+      modalType: GlobalVariables.BASIC_MODAL_TYPE,
+      sku: null,
+      vin: null,
+      skuCollectorVisible: false,
+      skuSearchFailed: false,
+      stockNumberVehicleMap: {},
+      extraVehicleData: {},
+      clickToPopulateStall: null,
+      clickedStall: null,
+      feedbackText: 'Populating space...',
+      findingOnMap: false,
+      modalReopen: false,
+      modalReopenTarget: 0,
+      modalReopenHighlight: null,
+      leaseRt: false,
+      postLoadAction: '',
+      barcodeOpen: false,
+      barcodeTitle: 'Scan Barcode',
+      skuInputEntered: '',
+      leaseRtInput1: '',
+      leaseRtInput2: '',
+      leaseRtInput3: '',
+      leaseRtInput4: '',
+      leaseRtInput5: '',
+    };
+
+    let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+    loadPromise.then(result => {
+      console.log('PROMISE RESOLVED: ', result);
+      if (result && result.name == 'Error') {
+        console.log('Routing back to login page!', this.props);
+        this.props.navigation.navigate('Auth');
       }
+    });
 
-      let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
-      loadPromise.then((result) => {
-        console.log('PROMISE RESOLVED: ', result);
-        if (result && result.name == 'Error') {
-          console.log('Routing back to login page!', this.props);
-          this.props.navigation.navigate('Auth');
-        }
-
-      });
-
-      this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
-      this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
-      this.dismissInput = this.dismissInput.bind(this);
-      this.skuEntered = 0;
-      this.vinEntered = 0;
-      this._loadLotView = this._loadLotView.bind(this);
-      this.updateSpaceVehicleMap = false;
-      this.currentCenter = lotCenterCoordinates;
-
+    this.setSKUCollectorVisibility = this.setSKUCollectorVisibility.bind(this);
+    this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
+    this.dismissInput = this.dismissInput.bind(this);
+    this.skuEntered = 0;
+    this.vinEntered = 0;
+    this._loadLotView = this._loadLotView.bind(this);
+    this.updateSpaceVehicleMap = false;
+    this.currentCenter = lotCenterCoordinates;
   }
   /**
    * Loads all of the data associated with a lot and updates
    * the associated state variables, triggering a reload of
    * the lotview.
    */
-   componentWillMount() {
-    this.props.navigation.setParams({ section: 'lot', onPress: () => this.refresh() })
-   }
+  componentWillMount() {
+    this.props.navigation.setParams({
+      section: 'lot',
+      onPress: () => this.refresh(),
+    });
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.navigation.state.params.findingOnMap === true) {
       // if the navigation 'findingOnMap' param is true (from History screen)
-      const { space_coords, findingOnMap } = nextProps.navigation.state.params
-      console.log('Finding on map Event. COORDS: ', space_coords)
-      centerCoordinate = this._calculateCenter(space_coords.geometry.coordinates[0])
-      this.setState({findingOnMap: findingOnMap, modalVisible: true, centerCoordinate: centerCoordinate, zoomLevel: 18.5, clickedStall: space_coords });
+      const { space_coords, findingOnMap } = nextProps.navigation.state.params;
+      console.log('Finding on map Event. COORDS: ', space_coords);
+      centerCoordinate = this._calculateCenter(
+        space_coords.geometry.coordinates[0],
+      );
+      this.setState({
+        findingOnMap: findingOnMap,
+        modalVisible: true,
+        centerCoordinate: centerCoordinate,
+        zoomLevel: 18.5,
+        clickedStall: space_coords,
+      });
     } else if (nextProps.navigation.state.params) {
       if (nextProps.navigation.state.params.extras) {
         // If the navigation contains an "extras" param (End fuelling or test drive)
-        const { extras } = nextProps.navigation.state.params
-        console.log('extras', extras)
+        const { extras } = nextProps.navigation.state.params;
+        console.log('extras', extras);
         // cancel fuelling event
         if (extras.fuelEventId) {
-          console.log('Fuelling Event', extras );
+          console.log('Fuelling Event', extras);
           const { fuelEventId, spaceId } = extras;
           this.cancelFuel(fuelEventId, spaceId);
           this.setVehicleHighlight(null);
           this.updateSpaceVehicleMap = true;
           return this._loadLotView();
-        // cancel fuelling event
+          // cancel fuelling event
         } else if (extras.driveEventId) {
-          console.log('Driving Event started, REFRESHING ', extras );
+          console.log('Driving Event started, REFRESHING ', extras);
           const { driveEventId, spaceId } = extras;
           this.setVehicleHighlight(null);
           this.updateSpaceVehicleMap = true;
           return this._loadLotView();
           //this.cancelDrive(driveEventId, spaceId);
-        // update location
-        } else if ( extras.updateLocation && extras.updateLocation === true ) {
-          console.log('Update Location Event')
+          // update location
+        } else if (extras.updateLocation && extras.updateLocation === true) {
+          console.log('Update Location Event');
           this.setVehicleHighlight(null);
-          this.setState({ postLoadAction: 'chooseEmptySpace', modalVisible: false})
-        } else if ( extras.showModalonExit && extras.showModalonExit === true ) {
-          console.log('Show modal on exit')
-          this.setState({ findingOnMap: false, modalType: GlobalVariables.BASIC_MODAL_TYPE, modalVisible: true })
+          this.setState({
+            postLoadAction: 'chooseEmptySpace',
+            modalVisible: false,
+          });
+        } else if (extras.showModalonExit && extras.showModalonExit === true) {
+          console.log('Show modal on exit');
+          this.setState({
+            findingOnMap: false,
+            modalType: GlobalVariables.BASIC_MODAL_TYPE,
+            modalVisible: true,
+          });
         } else {
-          console.log('NAVIGATION: extras exist')
+          console.log('NAVIGATION: extras exist');
           this.setVehicleHighlight(null);
-          this.setState({findingOnMap: false, modalType: GlobalVariables.BASIC_MODAL_TYPE, modalVisible: false })
+          this.setState({
+            findingOnMap: false,
+            modalType: GlobalVariables.BASIC_MODAL_TYPE,
+            modalVisible: false,
+          });
           return this._loadLotView();
         }
       } else {
-        this.setState({findingOnMap: false, modalVisible: true })
+        this.setState({ findingOnMap: false, modalVisible: true });
       }
     } else {
-      this.setState({findingOnMap: false, modalVisible: true })
+      this.setState({ findingOnMap: false, modalVisible: true });
     }
-    if (nextProps.navigation.state.params && nextProps.navigation.state.params.refresh) {
-      console.log('REFRESHING LOT')
+    if (
+      nextProps.navigation.state.params &&
+      nextProps.navigation.state.params.refresh
+    ) {
+      console.log('REFRESHING LOT');
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
@@ -213,180 +233,224 @@ class LotView extends React.Component {
   cancelFuel(fuelEventId, spaceId) {
     endedPackage = {
       acknowledged: true,
-      event_details: 'fuel event ' + fuelEventId + ' canceled'
-    }
+      event_details: 'fuel event ' + fuelEventId + ' canceled',
+    };
 
     let eventIdPromise = LotActionHelper.getEventId(spaceId, 'fuel_vehicle');
     eventIdPromise
-      .then((event_id) => {
+      .then(event_id => {
         console.log('FUEL EVENT CANCELLED - EVENT ID: ', event_id);
-        event_id.forEach((id) => {
+        event_id.forEach(id => {
           LotActionHelper.endTimeboundTagAction(endedPackage, id);
-        })
+        });
       })
-      .then( this.setState({findingOnMap: false, modalVisible: true }) )
-      .catch((e) => console.log('FUEL EVENT ERROR: ', e));
+      .then(this.setState({ findingOnMap: false, modalVisible: true }))
+      .catch(e => console.log('FUEL EVENT ERROR: ', e));
   }
   cancelDrive(driveEventId, spaceId) {
     endedPackage = {
       acknowledged: true,
-      event_details: 'drive event ' + driveEventId + ' canceled'
-    }
+      event_details: 'drive event ' + driveEventId + ' canceled',
+    };
 
     let eventIdPromise = LotActionHelper.getEventId(spaceId, 'test_drive');
     eventIdPromise
-      .then((event_id) => {
+      .then(event_id => {
         console.log('DRIVE EVENT CANCELLED - EVENT ID: ', event_id);
-        event_id.forEach((id) => {
+        event_id.forEach(id => {
           LotActionHelper.endTimeboundTagAction(endedPackage, id);
-        })
+        });
       })
-      .then( this.setState({findingOnMap: false, modalVisible: true }) )
-      .catch((e) => console.log('DRIVE EVENT ERROR: ', e));
+      .then(this.setState({ findingOnMap: false, modalVisible: true }))
+      .catch(e => console.log('DRIVE EVENT ERROR: ', e));
   }
   _loadLotView() {
     var lotview = this;
     console.log('* * * * * LOAD LOT VIEW * * * * *');
-    this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, 'Updating Lot...');
-    return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT , {
+    this.setModalVisibility(
+      false,
+      GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+      null,
+      'Updating Lot...',
+    );
+    return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-       console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
-       if (responseJson.message == "Signature has expired") {
-         console.log('Throwing Error');
-         throw Error('Unauthorized user');
-       }
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
+        if (responseJson.message == 'Signature has expired') {
+          console.log('Throwing Error');
+          throw Error('Unauthorized user');
+        }
 
-       GlobalVariables.LOT_DATA = responseJson;
-       let lot_geometry = GlobalVariables.LOT_DATA['parking_lots'][0]["geo_info"]["geometry"]
-       let lot_coords = lot_geometry["coordinates"][0];
+        GlobalVariables.LOT_DATA = responseJson;
+        let lot_geometry =
+          GlobalVariables.LOT_DATA['parking_lots'][0]['geo_info']['geometry'];
+        let lot_coords = lot_geometry['coordinates'][0];
 
-       let lotParkingSpaceMap = {};
-       GlobalVariables.LOT_DATA['parking_spaces'].forEach((space) => {
-         lotParkingSpaceMap[space["id"]] = space;
-      });
-      console.log('     resetting state: _loadLotView');
-      //console.log('_loadLotView coords: ', lot_coords);
+        let lotParkingSpaceMap = {};
+        GlobalVariables.LOT_DATA['parking_spaces'].forEach(space => {
+          lotParkingSpaceMap[space['id']] = space;
+        });
+        console.log('     resetting state: _loadLotView');
+        //console.log('_loadLotView coords: ', lot_coords);
 
-      lotview._loadParkingSpaceMetadata({
-        centerCoordinate: this.state.centerCoordinate === null ? lotview._calculateCenter(lot_coords) : this.state.centerCoordinate,
-        parkingShapes: lotParkingSpaceMap,
+        lotview._loadParkingSpaceMetadata({
+          centerCoordinate:
+            this.state.centerCoordinate === null
+              ? lotview._calculateCenter(lot_coords)
+              : this.state.centerCoordinate,
+          parkingShapes: lotParkingSpaceMap,
+        });
       })
-    })
-    .catch(err => {
-      console.log('CAUGHT ERR, attempting logout: ', err, err.name);
-      return err
-    });
+      .catch(err => {
+        console.log('CAUGHT ERR, attempting logout: ', err, err.name);
+        return err;
+      });
   }
   _loadParkingSpaceMetadata({ centerCoordinate, parkingShapes }) {
     var lotview = this;
 
-    return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA , {
+    return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      lotview.setState({
-        newVehicleSpaces: responseJson["new_vehicle_occupied_spaces"].map((space) => space["id"]),
-        usedVehicleSpaces: responseJson["used_vehicle_occupied_spaces"].map((space) => space["id"]),
-        emptySpaces: responseJson["empty_parking_spaces"].map((space) => space["id"]),
-        duplicateSpaces: responseJson["duplicate_parked_spaces"].map((space) => space["id"]),
-        loanerSpaces: responseJson["loaner_occupied_spaces"].map((space) => space["id"]),
-        leaseSpaces: responseJson["lease_return_occupied_spaces"].map((space) => space["id"]),
-        wholesaleSpaces: responseJson["wholesale_unit_occupied_spaces"].map((space) => space["id"]),
-        soldSpaces: responseJson["sold_vehicle_spaces"].map((space) => space["id"]),
-        serviceHoldSpaces: responseJson["service_hold_spaces"].map((space) => space["id"]),
-        salesHoldSpaces: responseJson["sales_hold_spaces"].map((space) => space["id"]),
-        centerCoordinate: centerCoordinate !== null ? centerCoordinate : lotCenterCoordinates,
-        lotShapes: GlobalVariables.LOT_DATA,
-        parkingShapes,
-        errorLoading: false,
-        modalVisible: false,
-        spaceVehicleMap: {},
-        //spaceId: 0,
-        //vehicles: [],
-        //vehicleId: 0,
-        modalType: GlobalVariables.BASIC_MODAL_TYPE,
-        sku: null,
-        vin: null,
-        skuCollectorVisible: false,
-        skuSearchFailed: false,
-        stockNumberVehicleMap: {},
-        extraVehicleData: {},
-        clickToPopulateStall: null,
-        //clickedStall: null,
-        feedbackText: '',
-        leaseRt: false,
-        skuInputEntered: '',
-        leaseRtInput1: '',
-        leaseRtInput2: '',
-        leaseRtInput3: '',
-        leaseRtInput4: '',
-        leaseRtInput5: ''
+      .then(response => response.json())
+      .then(responseJson => {
+        lotview.setState({
+          newVehicleSpaces: responseJson['new_vehicle_occupied_spaces'].map(
+            space => space['id'],
+          ),
+          usedVehicleSpaces: responseJson['used_vehicle_occupied_spaces'].map(
+            space => space['id'],
+          ),
+          emptySpaces: responseJson['empty_parking_spaces'].map(
+            space => space['id'],
+          ),
+          duplicateSpaces: responseJson['duplicate_parked_spaces'].map(
+            space => space['id'],
+          ),
+          loanerSpaces: responseJson['loaner_occupied_spaces'].map(
+            space => space['id'],
+          ),
+          leaseSpaces: responseJson['lease_return_occupied_spaces'].map(
+            space => space['id'],
+          ),
+          wholesaleSpaces: responseJson['wholesale_unit_occupied_spaces'].map(
+            space => space['id'],
+          ),
+          soldSpaces: responseJson['sold_vehicle_spaces'].map(
+            space => space['id'],
+          ),
+          serviceHoldSpaces: responseJson['service_hold_spaces'].map(
+            space => space['id'],
+          ),
+          salesHoldSpaces: responseJson['sales_hold_spaces'].map(
+            space => space['id'],
+          ),
+          centerCoordinate:
+            centerCoordinate !== null ? centerCoordinate : lotCenterCoordinates,
+          lotShapes: GlobalVariables.LOT_DATA,
+          parkingShapes,
+          errorLoading: false,
+          modalVisible: false,
+          spaceVehicleMap: {},
+          //spaceId: 0,
+          //vehicles: [],
+          //vehicleId: 0,
+          modalType: GlobalVariables.BASIC_MODAL_TYPE,
+          sku: null,
+          vin: null,
+          skuCollectorVisible: false,
+          skuSearchFailed: false,
+          stockNumberVehicleMap: {},
+          extraVehicleData: {},
+          clickToPopulateStall: null,
+          //clickedStall: null,
+          feedbackText: '',
+          leaseRt: false,
+          skuInputEntered: '',
+          leaseRtInput1: '',
+          leaseRtInput2: '',
+          leaseRtInput3: '',
+          leaseRtInput4: '',
+          leaseRtInput5: '',
+        });
+        this.updateSpaceVehicleMap = false;
+        lotview._loadEvents();
+        if (this.state.postLoadAction === 'chooseEmptySpace') {
+          this.setVehicleHighlight(null);
+          this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE);
+          this.setState({ postLoadAction: '' });
+        }
+        if (this.state.modalReopen) {
+          this.showAndPopulateModal(
+            [this.state.modalReopenTarget, null],
+            this.state.modalReopenHighlight,
+          );
+          this.setState({ modalReopen: false });
+        }
       });
-      this.updateSpaceVehicleMap = false;
-      lotview._loadEvents();
-      if (this.state.postLoadAction === 'chooseEmptySpace') {
-        this.setVehicleHighlight(null);
-        this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE)
-        this.setState({postLoadAction: ''})
-      }
-      if (this.state.modalReopen) {
-        this.showAndPopulateModal([this.state.modalReopenTarget, null], this.state.modalReopenHighlight)
-        this.setState({modalReopen: false })
-      }
-    });
   }
   _loadEvents() {
     var lotview = this;
-    return fetch(GlobalVariables.BASE_ROUTE + Route.EVENTS , {
+    return fetch(GlobalVariables.BASE_ROUTE + Route.EVENTS, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      //console.log(responseJson)
-      lotview.setState({
-        driveEventSpaces: responseJson["test_drive_events"].map((space) => space.data.attributes),
-        fuelEventSpaces: responseJson["fuel_vehicle_events"].map((space) => space.data.attributes),
-        noteEventSpaces: responseJson["note_events"].map((space) => space.data.attributes),
-      })
-    })
+      .then(response => response.json())
+      .then(responseJson => {
+        //console.log(responseJson)
+        lotview.setState({
+          driveEventSpaces: responseJson['test_drive_events'].map(
+            space => space.data.attributes,
+          ),
+          fuelEventSpaces: responseJson['fuel_vehicle_events'].map(
+            space => space.data.attributes,
+          ),
+          noteEventSpaces: responseJson['note_events'].map(
+            space => space.data.attributes,
+          ),
+        });
+      });
   }
   _calculateCenter(coord, CENTER_TYPE = 'MAX_MIN') {
     let center_coordinate = [];
 
-    if (CENTER_TYPE == "SIMPLE_AVE") {
+    if (CENTER_TYPE == 'SIMPLE_AVE') {
       // simple average x and average y of all of the lots coordinates
       let ave_latitude = 0;
       let ave_longitude = 0;
       let num_coordinates = coord.length;
 
-      let center = coord.forEach((point) => {
+      let center = coord.forEach(point => {
         ave_latitude += point[0];
         ave_longitude += point[1];
       });
 
-      center_coordinate = [ave_latitude/num_coordinates, ave_longitude/num_coordinates];
-
-    } else if (CENTER_TYPE == "MAX_MIN") {
+      center_coordinate = [
+        ave_latitude / num_coordinates,
+        ave_longitude / num_coordinates,
+      ];
+    } else if (CENTER_TYPE == 'MAX_MIN') {
       // average of the max and min x and y points in the lot
-      let max_min_array = [[coord[0][0], coord[0][0]], [coord[0][1], coord[0][1]]]; // [[x_min, x_max], [y_min, y_max]]
+      let max_min_array = [
+        [coord[0][0], coord[0][0]],
+        [coord[0][1], coord[0][1]],
+      ]; // [[x_min, x_max], [y_min, y_max]]
 
-      coord.forEach((point) => {
+      coord.forEach(point => {
         [px, py] = point;
 
         if (max_min_array[0][0] > px) max_min_array[0][0] = px;
@@ -396,11 +460,17 @@ class LotView extends React.Component {
         if (max_min_array[1][1] < py) max_min_array[1][1] = py;
       });
 
-      center_coordinate = [max_min_array[0].reduce((a, b) => {return a + b})/2,
-        max_min_array[1].reduce((a, b) => {return a + b})/2];
+      center_coordinate = [
+        max_min_array[0].reduce((a, b) => {
+          return a + b;
+        }) / 2,
+        max_min_array[1].reduce((a, b) => {
+          return a + b;
+        }) / 2,
+      ];
     }
 
-    return center_coordinate
+    return center_coordinate;
   }
 
   unauthorizedError() {
@@ -408,7 +478,7 @@ class LotView extends React.Component {
     err.name = 'UnAuthError';
 
     console.log('ERR: ', err);
-    return err
+    return err;
   }
 
   _signOut(instance, opt_msg) {
@@ -423,162 +493,218 @@ class LotView extends React.Component {
     this.props.navigation.navigate('Auth');
   }
 
-
   setVisibility = (value, opt_modalType, opt_currVehicleId) => {
     this.setModalVisibility(value, opt_modalType, opt_currVehicleId);
-  }
+  };
   setModalId = (id, vehicleArray) => {
-    console.log('Lot View Vehicle ID: ', id)
-    this.state.vehicleId !== id && this.setState({ vehicleId: id, vehicles: vehicleArray })
-  }
+    console.log('Lot View Vehicle ID: ', id);
+    this.state.vehicleId !== id &&
+      this.setState({ vehicleId: id, vehicles: vehicleArray });
+  };
 
   // Modal Visibility controls
-  setModalVisibility(visibility, modalType = null, vehicleId = null, opt_basic_modal_action_fb_msg = null) {
+  setModalVisibility(
+    visibility,
+    modalType = null,
+    vehicleId = null,
+    opt_basic_modal_action_fb_msg = null,
+  ) {
     // let clickedStallValue = visibility ? this.state.clickedStall : null;
     // console.log('\n* * * *   show clicked stall? ', clickedStallValue, '\n\n\n');
-    console.log('Set modal visibility')
+    console.log('Set modal visibility');
     if (modalType !== null) {
-      let textToShow = null
+      let textToShow = null;
       if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
         Keyboard.dismiss();
         this.setState({ skuCollectorVisible: false });
         textToShow = 'Choose the stall to populate...';
         console.log('Should populate VEHICLE ', vehicleId);
-      } else if (modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE && visibility == false && opt_basic_modal_action_fb_msg) {
+      } else if (
+        modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE &&
+        visibility == false &&
+        opt_basic_modal_action_fb_msg
+      ) {
         textToShow = opt_basic_modal_action_fb_msg;
       }
-      this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
+      this.setState({
+        modalVisible: visibility,
+        modalType: modalType,
+        feedbackText: textToShow,
+      });
     } else {
-      this.setState({modalVisible: visibility, modalType: GlobalVariables.BASIC_MODAL_TYPE});
+      this.setState({
+        modalVisible: visibility,
+        modalType: GlobalVariables.BASIC_MODAL_TYPE,
+      });
     }
   }
 
   setPopulateViewVisibility(visibility, modalType = null, vehicleId = null) {
-    this.setState({modalVisible: visibility, modalType: modalType, feedbackText: textToShow});
+    this.setState({
+      modalVisible: visibility,
+      modalType: modalType,
+      feedbackText: textToShow,
+    });
   }
 
-
-  updateLotAndDismissModal = (new_stall, vehicleId = null, sku_number = null, vin = null, opt_feedbackMsg = null) => {
+  updateLotAndDismissModal = (
+    new_stall,
+    vehicleId = null,
+    sku_number = null,
+    vin = null,
+    opt_feedbackMsg = null,
+  ) => {
     // 1. Remove Vehicle  Highlight
-    console.log('updateLotAndDismissModal')
-    const tempHighlight = this.state.clickedStall
+    console.log('updateLotAndDismissModal');
+    const tempHighlight = this.state.clickedStall;
     this.setVehicleHighlight(null);
 
     // 2. Dismiss Modal & Show Loading Feedback
-    this.setModalVisibility(false, GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE, null, opt_feedbackMsg);
+    this.setModalVisibility(
+      false,
+      GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+      null,
+      opt_feedbackMsg,
+    );
 
     // 3. Update Stall Number & Fetch Updated Lot
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
       let stallUpdatedPromise = this.updateStallNumber(new_stall, vehicleId);
 
-      stallUpdatedPromise.then((result) => {
+      stallUpdatedPromise.then(result => {
         console.log('STALL UPDATE RESULT from vehicle ID: ', result);
         // 3. Re-render lot by updating state
         this.updateSpaceVehicleMap = true;
         return this._loadLotView();
-      })
-
+      });
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
       this.skuEntered = sku_number;
       this.vinEntered = null;
-      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
+      this.setState({ sku: this.skuEntered, vin: this.vinEntered });
       let vehiclePromise = this._getVehicleByType('sku');
 
-      vehiclePromise.then((vehicleData) => {
-        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
-        if (vehicleData.vehicle === null ) {
-          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
-          this.setVehicleHighlight(tempHighlight)
-        } else if (this.checkActiveEvents(vehicleData.events)) {
-          this.jumpToEventScreen(vehicleData);
-        } else {
-          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
-        }
-      }).then((result) => {
-        console.log('STALL UPDATE RESULT from SKU: ', result);
-        // 3. Re-render lot by updating state
-        if (result !== undefined) {
-          console.log('result is not undefined')
-          this.updateSpaceVehicleMap = true;
-          return this._loadLotView();
-        } else {
-          console.log('result is undefined', this.state.modalType)
-        }
-      })
+      vehiclePromise
+        .then(vehicleData => {
+          console.log(
+            'Vehicle data from updateLotAndDismissModal: ',
+            vehicleData,
+          );
+          if (vehicleData.vehicle === null) {
+            this.setModalVisibility(
+              true,
+              GlobalVariables.CREATE_MODAL_TYPE,
+              null,
+              null,
+            );
+            this.setVehicleHighlight(tempHighlight);
+          } else if (this.checkActiveEvents(vehicleData.events)) {
+            this.jumpToEventScreen(vehicleData);
+          } else {
+            return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
+          }
+        })
+        .then(result => {
+          console.log('STALL UPDATE RESULT from SKU: ', result);
+          // 3. Re-render lot by updating state
+          if (result !== undefined) {
+            console.log('result is not undefined');
+            this.updateSpaceVehicleMap = true;
+            return this._loadLotView();
+          } else {
+            console.log('result is undefined', this.state.modalType);
+          }
+        });
     } else if (vin) {
       console.log('VIN ENTERED: updating');
       this.vinEntered = vin;
       this.skuEntered = null;
-      this.setState({ sku: this.skuEntered, vin: this.vinEntered })
+      this.setState({ sku: this.skuEntered, vin: this.vinEntered });
       let vehiclePromise = this._getVehicleByType('vin');
 
-      vehiclePromise.then((vehicleData) => {
-        console.log('Vehicle data from updateLotAndDismissModal: ', vehicleData)
-        if (vehicleData.vehicle === null ) {
-          this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
-          this.setVehicleHighlight(tempHighlight)
-        } else if (this.checkActiveEvents(vehicleData.events)) {
-          this.jumpToEventScreen(vehicleData);
-        } else {
-          return this.updateStallNumber(new_stall, vehicleData.vehicle.id)
-        }
-      }).then((result) => {
-        console.log('STALL UPDATE RESULT from VIN: ', result);
-        // 3. Re-render lot by updating state
-        if (result !== undefined) {
-          console.log('result is not undefined')
-          this.updateSpaceVehicleMap = true;
-          return this._loadLotView();
-        } else {
-          console.log('result is undefined', this.state.modalType)
-        }
-      })
+      vehiclePromise
+        .then(vehicleData => {
+          console.log(
+            'Vehicle data from updateLotAndDismissModal: ',
+            vehicleData,
+          );
+          if (vehicleData.vehicle === null) {
+            this.setModalVisibility(
+              true,
+              GlobalVariables.CREATE_MODAL_TYPE,
+              null,
+              null,
+            );
+            this.setVehicleHighlight(tempHighlight);
+          } else if (this.checkActiveEvents(vehicleData.events)) {
+            this.jumpToEventScreen(vehicleData);
+          } else {
+            return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
+          }
+        })
+        .then(result => {
+          console.log('STALL UPDATE RESULT from VIN: ', result);
+          // 3. Re-render lot by updating state
+          if (result !== undefined) {
+            console.log('result is not undefined');
+            this.updateSpaceVehicleMap = true;
+            return this._loadLotView();
+          } else {
+            console.log('result is undefined', this.state.modalType);
+          }
+        });
     } else {
-      console.log('nog vehicleID or sku_number')
+      console.log('nog vehicleID or sku_number');
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
+  };
 
-  }
-
-  updateLotAndReopenModal = (space_id) => {
+  updateLotAndReopenModal = space_id => {
     const tempHighlight = this.state.clickedStall;
-    this.setState({ modalReopen: true, modalReopenTarget: space_id, modalReopenHighlight: tempHighlight })
-    this.updateLotAndDismissModal(null, null, null, null, 'Updating Lot...')
-  }
+    this.setState({
+      modalReopen: true,
+      modalReopenTarget: space_id,
+      modalReopenHighlight: tempHighlight,
+    });
+    this.updateLotAndDismissModal(null, null, null, null, 'Updating Lot...');
+  };
   updateStallNumber(new_stall, vehicleId) {
-    let newSpaceData = {spaceId: new_stall, vehicleId: vehicleId};
-    let space_data = LotActionHelper.structureTagPayload('change_stall', newSpaceData, 'Moved vehicle to stall ' + new_stall);
-    this.setState({ vehicleId: vehicleId })
-    console.log('vehicle id: ', vehicleId,' == ', this.state.vehicleId);
+    let newSpaceData = { spaceId: new_stall, vehicleId: vehicleId };
+    let space_data = LotActionHelper.structureTagPayload(
+      'change_stall',
+      newSpaceData,
+      'Moved vehicle to stall ' + new_stall,
+    );
+    this.setState({ vehicleId: vehicleId });
+    console.log('vehicle id: ', vehicleId, ' == ', this.state.vehicleId);
     console.log('old space id: ', this.state.spaceId);
     console.log('new space id: ', new_stall);
     console.log('sku number: ', this.state.stockNumber);
 
-    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
+    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
       },
       body: JSON.stringify(space_data),
     })
-    .then((response) => {
-      return response.json();
-    })
-    .then((responseJson) => {
-      //console.log(responseJson);
-      return responseJson
-    })
-    .catch(err => {
-      console.log('\nCAUGHT ERROR: \n', err, err.name);
-      this.setState({ feedbackText: 'Error in tagging vehicle' })
-      //TODO(adwoa): make save button clickable again
-      return err
-    });
+      .then(response => {
+        return response.json();
+      })
+      .then(responseJson => {
+        //console.log(responseJson);
+        return responseJson;
+      })
+      .catch(err => {
+        console.log('\nCAUGHT ERROR: \n', err, err.name);
+        this.setState({ feedbackText: 'Error in tagging vehicle' });
+        //TODO(adwoa): make save button clickable again
+        return err;
+      });
   }
   setModalValues(modal_type, space_id, vehiclesArray) {
     // IF stall is empty only space_id needed
@@ -588,9 +714,9 @@ class LotView extends React.Component {
       }
     }
     // IF stall is populated pass all data barring extra which is optional
-    if (space_id === null ) {
+    if (space_id === null) {
       // special case where we don't have a space id
-      this.setState({ vehicles: vehiclesArray })
+      this.setState({ vehicles: vehiclesArray });
     }
 
     this.setState({
@@ -603,22 +729,32 @@ class LotView extends React.Component {
     //console.log('Map Center', this.refs._map.getCenter())
     let centerCoordinate = this.currentCenter;
     if (polygonClicked !== null) {
-      centerCoordinate = this._calculateCenter(polygonClicked.geometry.coordinates[0]);
+      centerCoordinate = this._calculateCenter(
+        polygonClicked.geometry.coordinates[0],
+      );
       this.currentCenter = centerCoordinate;
     }
-    console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate)
-    this.setState({clickedStall: polygonClicked, centerCoordinate: centerCoordinate});
+    console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate);
+    this.setState({
+      clickedStall: polygonClicked,
+      centerCoordinate: centerCoordinate,
+    });
   }
 
-  findOnMap = (boolean) => {
-    this.setState({ findingOnMap: boolean })
-  }
+  findOnMap = boolean => {
+    this.setState({ findingOnMap: boolean });
+  };
 
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
-    console.log('Show and Populate Space ID: ', space_id)
-    console.log('Vehicle Data: ', vehicleData, 'VehicleID: ', this.state.vehicleId)
-    console.log('Modal Type: ', this.state.modalType)
+    console.log('Show and Populate Space ID: ', space_id);
+    console.log(
+      'Vehicle Data: ',
+      vehicleData,
+      'VehicleID: ',
+      this.state.vehicleId,
+    );
+    console.log('Modal Type: ', this.state.modalType);
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
     if (polygonClicked) {
@@ -628,61 +764,79 @@ class LotView extends React.Component {
     }
     // Display Proper Modal and Highlight selected stall
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
-      this.setState({leaseRt: false })
+      this.setState({ leaseRt: false });
       if (vehicleData && vehicleData == GlobalVariables.EMPTY_MODAL_TYPE) {
         console.log('\n\nEmpty Modal');
         // show empty modal
         this.setModalValues(GlobalVariables.EMPTY_MODAL_TYPE, space_id);
         this.setModalVisibility(true, GlobalVariables.EMPTY_MODAL_TYPE);
-
-      } else if (vehicleData === null ) {
+      } else if (vehicleData === null) {
         console.log('Extra data not empty: ', space_id);
         let vehiclesArray = [];
-        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehiclesArray);
+        this.setModalValues(
+          GlobalVariables.BASIC_MODAL_TYPE,
+          space_id,
+          vehiclesArray,
+        );
         this.setModalVisibility(true);
-      } else if (space_id !== null && vehicleData !== null ) {
-        console.log('SPACE ID isnt null and VEHICLEDATA isnt null')
-        this.setModalValues(GlobalVariables.BASIC_MODAL_TYPE, space_id, vehicleData);
+      } else if (space_id !== null && vehicleData !== null) {
+        console.log('SPACE ID isnt null and VEHICLEDATA isnt null');
+        this.setModalValues(
+          GlobalVariables.BASIC_MODAL_TYPE,
+          space_id,
+          vehicleData,
+        );
         this.setModalVisibility(true);
       } else {
-        console.log('DATA MISSING: ', vehicleData)
+        console.log('DATA MISSING: ', vehicleData);
       }
     } else {
       // Show Add Vehicle to highlighted space message
       this.populateStall(space_id);
     }
-  }
+  };
 
   populateStall(space_id) {
     if (space_id) {
-      this.setState({clickToPopulateStall: space_id, feedbackText: 'Populating stall '+ space_id+' with vehicle ID ' + this.state.vehicleId + '...'});
+      this.setState({
+        clickToPopulateStall: space_id,
+        feedbackText:
+          'Populating stall ' +
+          space_id +
+          ' with vehicle ID ' +
+          this.state.vehicleId +
+          '...',
+      });
 
-      console.log(' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW');
+      console.log(
+        ' - - - - - IN UPDATE LOT AND DISMISS ON CLICK POPULATE VIEW',
+      );
       console.log('VEHICLE ID: ', this.state.vehicleId);
       // 2. Update Stall Number & Fetch updated lot
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
-        let stallUpdatedPromise = this.updateStallNumber(space_id, this.state.vehicleId);
+        let stallUpdatedPromise = this.updateStallNumber(
+          space_id,
+          this.state.vehicleId,
+        );
 
-        stallUpdatedPromise.then((result) => {
-          this.setState({ feedbackText: 'Stall updated!' })
+        stallUpdatedPromise.then(result => {
+          this.setState({ feedbackText: 'Stall updated!' });
           // 3. Re-render lot by updating state
-          this.updateLotAndReopenModal(space_id)
+          this.updateLotAndReopenModal(space_id);
           //this.updateSpaceVehicleMap = true;
           //return this._loadLotView();
-
-        })
+        });
       } else {
-        this.setState({feedbackText: 'Vehicle ID missing'});
+        this.setState({ feedbackText: 'Vehicle ID missing' });
       }
-
     }
   }
 
   dismissInput = () => {
     Keyboard.dismiss();
-    this.setState({skuCollectorVisible: false });
-  }
+    this.setState({ skuCollectorVisible: false });
+  };
 
   // Map Data
   getMapCallback = (type, data) => {
@@ -690,13 +844,13 @@ class LotView extends React.Component {
     let snVehicleMap = this.state.stockNumberVehicleMap;
 
     if (type == 'new_vehicle' || type == 'used_vehicle') {
-      Object.keys(data).forEach((spaceId) => {
+      Object.keys(data).forEach(spaceId => {
         // console.log('SPACE QUERIED: ', spaceId);
         let vehicleData = data[spaceId];
 
         if (vehicleData) {
           vehicleData['shape_id'] = spaceId;
-          snVehicleMap[vehicleData["stock_number"]] = vehicleData;
+          snVehicleMap[vehicleData['stock_number']] = vehicleData;
         }
       });
       // console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
@@ -705,7 +859,7 @@ class LotView extends React.Component {
     this.setState({
       stockNumberVehicleMap: snVehicleMap,
     });
-  }
+  };
   // SKU Collector Visibility controls
   setSKUCollectorVisibility() {
     let visibile = !this.state.skuCollectorVisible;
@@ -716,15 +870,26 @@ class LotView extends React.Component {
   }
 
   getSKUFromInput() {
-    return this.skuEntered
+    return this.skuEntered;
   }
 
   locateVehicle(type) {
     if (type === 'sku') {
       console.log('\n\nChecking Server for SKU: ', this.state.skuInputEntered);
-      this.skuEntered = this.state.skuInputEntered
-      if (this.state.leaseRt ) { this.skuEntered = this.state.leaseRtInput1 + this.state.leaseRtInput2 + this.state.leaseRtInput3 + this.state.leaseRtInput4 + this.state.leaseRtInput5; }
-      this.setState({ sku: this.skuEntered, vin: null, skuCollectorVisible: false });
+      this.skuEntered = this.state.skuInputEntered;
+      if (this.state.leaseRt) {
+        this.skuEntered =
+          this.state.leaseRtInput1 +
+          this.state.leaseRtInput2 +
+          this.state.leaseRtInput3 +
+          this.state.leaseRtInput4 +
+          this.state.leaseRtInput5;
+      }
+      this.setState({
+        sku: this.skuEntered,
+        vin: null,
+        skuCollectorVisible: false,
+      });
     } else {
       console.log('\n\nChecking Server for VIN: ', this.vinEntered);
       this.setState({ vin: this.vinEntered, skuCollectorVisible: false });
@@ -735,43 +900,78 @@ class LotView extends React.Component {
     let vehiclePromise = this._getVehicleByType(type);
     //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
 
-    vehiclePromise.then((response) => {
+    vehiclePromise.then(response => {
       //console.log('Vehicle response: ', response)
       const { space_id, polygon, vehicle, events } = response;
-      console.log('check Active events results: ', this.checkActiveEvents(events))
+      console.log(
+        'check Active events results: ',
+        this.checkActiveEvents(events),
+      );
       if (this.checkActiveEvents(events)) {
         this.setState({ vehicleId: vehicle.id });
         this.jumpToEventScreen(response);
       } else if (space_id) {
-        console.log('SPACE_ID', this._calculateCenter(polygon.geometry.coordinates[0]))
+        console.log(
+          'SPACE_ID',
+          this._calculateCenter(polygon.geometry.coordinates[0]),
+        );
         //this._calculateCenter(polygon.geometry.coordinates[0]);
         this.dismissInput();
         this.showAndPopulateModal([space_id, null], polygon);
-        this.setState({spaceId: space_id, centerCoordinate: this._calculateCenter(polygon.geometry.coordinates[0]) })
-      } else if (space_id === null && vehicle ) {
-        console.log('Pulling car from server: ', vehicle.id)
-        this.setState({ vehicleId: vehicle.id, spaceId: null })
-        this.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE, vehicle.id)
+        this.setState({
+          spaceId: space_id,
+          centerCoordinate: this._calculateCenter(
+            polygon.geometry.coordinates[0],
+          ),
+        });
+      } else if (space_id === null && vehicle) {
+        console.log('Pulling car from server: ', vehicle.id);
+        this.setState({ vehicleId: vehicle.id, spaceId: null });
+        this.setModalVisibility(
+          false,
+          GlobalVariables.CHOOSE_EMPTY_SPACE,
+          vehicle.id,
+        );
       } else {
         // Display sku location failure text within search modal
         this.dismissInput();
-        this.setState({ vehicleId: null, spaceId: null })
-        this.setModalVisibility(true, GlobalVariables.CREATE_MODAL_TYPE, null, null);
+        this.setState({ vehicleId: null, spaceId: null });
+        this.setModalVisibility(
+          true,
+          GlobalVariables.CREATE_MODAL_TYPE,
+          null,
+          null,
+        );
       }
     });
   }
   checkActiveEvents(events) {
     let eventCounter = 0;
-    events!== null && events.forEach((event) => {
-      const { event_type, started_at, ended_at, id, summary } = event.data.attributes
-      //console.log('Event Type: ', event_type, 'Started At: ', started_at, 'Ended at: ', ended_at)
-      if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-        eventCounter ++
-      }
-      if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-        eventCounter ++
-      }
-    })
+    events !== null &&
+      events.forEach(event => {
+        const {
+          event_type,
+          started_at,
+          ended_at,
+          id,
+          summary,
+        } = event.data.attributes;
+        //console.log('Event Type: ', event_type, 'Started At: ', started_at, 'Ended at: ', ended_at)
+        if (
+          event_type === GlobalVariables.BEGIN_FUELING &&
+          started_at !== null &&
+          ended_at === null
+        ) {
+          eventCounter++;
+        }
+        if (
+          event_type === GlobalVariables.BEGIN_DRIVE &&
+          started_at !== null &&
+          ended_at === null
+        ) {
+          eventCounter++;
+        }
+      });
     if (eventCounter > 0) {
       return true;
     } else {
@@ -779,274 +979,413 @@ class LotView extends React.Component {
     }
   }
   jumpToEventScreen(vehicleResponse) {
-    console.log('Vehicle Data contains events')
+    console.log('Vehicle Data contains events');
     const { space_id, polygon, vehicle, events } = vehicleResponse;
     let eventsList = [];
-    events!== null && events.forEach((event) => {
-      //console.log(event.data)
-      const { event_type, started_at, ended_at, id, summary } = event.data.attributes
-      if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-        eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
-      }
-      if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-        eventsList.push({space_id: space_id, vehicles: [ vehicle ], event_type: event_type, event_id: id, started_at: started_at, summary: summary})
-      }
-    })
+    events !== null &&
+      events.forEach(event => {
+        //console.log(event.data)
+        const {
+          event_type,
+          started_at,
+          ended_at,
+          id,
+          summary,
+        } = event.data.attributes;
+        if (
+          event_type === GlobalVariables.BEGIN_FUELING &&
+          started_at !== null &&
+          ended_at === null
+        ) {
+          eventsList.push({
+            space_id: space_id,
+            vehicles: [vehicle],
+            event_type: event_type,
+            event_id: id,
+            started_at: started_at,
+            summary: summary,
+          });
+        }
+        if (
+          event_type === GlobalVariables.BEGIN_DRIVE &&
+          started_at !== null &&
+          ended_at === null
+        ) {
+          eventsList.push({
+            space_id: space_id,
+            vehicles: [vehicle],
+            event_type: event_type,
+            event_id: id,
+            started_at: started_at,
+            summary: summary,
+          });
+        }
+      });
     let navTarget = null;
     let navIndex = 0;
     if (eventsList.length > 0) {
-      console.log('Length', eventsList.length)
+      console.log('Length', eventsList.length);
       eventsList.forEach((event, index) => {
-        if (event.event_type === GlobalVariables.BEGIN_FUELING && navTarget === null) {
-          navTarget = GlobalVariables.BEGIN_FUELING
-          navIndex = index
+        if (
+          event.event_type === GlobalVariables.BEGIN_FUELING &&
+          navTarget === null
+        ) {
+          navTarget = GlobalVariables.BEGIN_FUELING;
+          navIndex = index;
         }
-        if (event.event_type === GlobalVariables.BEGIN_DRIVE && navTarget === null) {
-          navTarget = GlobalVariables.BEGIN_DRIVE
-          navIndex = index
+        if (
+          event.event_type === GlobalVariables.BEGIN_DRIVE &&
+          navTarget === null
+        ) {
+          navTarget = GlobalVariables.BEGIN_DRIVE;
+          navIndex = index;
         }
-      })
+      });
     }
     if (navTarget === GlobalVariables.BEGIN_DRIVE) {
-      this.props.navigation.navigate('Drive', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
+      this.props.navigation.navigate('Drive', {
+        space_id: eventsList[navIndex].space_id,
+        vehicles: eventsList[navIndex].vehicles,
+        position: 0,
+        eventId: eventsList[navIndex].event_id,
+        started_at: eventsList[navIndex].started_at,
+        summary: eventsList[navIndex].summary,
+      });
     }
     if (navTarget === GlobalVariables.BEGIN_FUELING) {
-      this.props.navigation.navigate('Fuel', { space_id: eventsList[navIndex].space_id, vehicles: eventsList[navIndex].vehicles, position: 0, eventId: eventsList[navIndex].event_id, started_at: eventsList[navIndex].started_at, summary: eventsList[navIndex].summary })
+      this.props.navigation.navigate('Fuel', {
+        space_id: eventsList[navIndex].space_id,
+        vehicles: eventsList[navIndex].vehicles,
+        position: 0,
+        eventId: eventsList[navIndex].event_id,
+        started_at: eventsList[navIndex].started_at,
+        summary: eventsList[navIndex].summary,
+      });
     }
   }
 
   _getVehicleByType(type) {
     //this.setState({ vin: vin })
-    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + this.skuEntered;
+    let url =
+      GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SKU + this.skuEntered;
     if (type === 'vin') {
       url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_VIN + this.vinEntered;
     }
-    console.log('URL: ', url)
+    console.log('URL: ', url);
     return fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      //console.log('VEHICLE PULLED FROM STORE: ', responseJson);
-      const { current_parking_space, vehicle, events } = responseJson;
-      return {
-        space_id: current_parking_space !== null ? current_parking_space.id : null,
-        polygon: current_parking_space !== null ? current_parking_space.geo_info : this.state.clickedStall,
-        vehicle: vehicle,
-        events: events
-      }
-    })
-    .catch(err => {
-      return false
-    })
+      .then(response => response.json())
+      .then(responseJson => {
+        //console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+        const { current_parking_space, vehicle, events } = responseJson;
+        return {
+          space_id:
+            current_parking_space !== null ? current_parking_space.id : null,
+          polygon:
+            current_parking_space !== null
+              ? current_parking_space.geo_info
+              : this.state.clickedStall,
+          vehicle: vehicle,
+          events: events,
+        };
+      })
+      .catch(err => {
+        return false;
+      });
   }
 
   openBarcodeScanner = () => {
-    console.log('open barcode scanner from modal')
-    this.setState({ barcodeOpen: true, barcodeTitle: 'Vehicle requires a scan to create' })
-  }
+    console.log('open barcode scanner from modal');
+    this.setState({
+      barcodeOpen: true,
+      barcodeTitle: 'Vehicle requires a scan to create',
+    });
+  };
 
   getLot() {
     if (this.state.lotShapes) {
-      return this.state.lotShapes['parking_lots'][0]["geo_info"]
+      return this.state.lotShapes['parking_lots'][0]['geo_info'];
     }
-    return GlobalVariables.EMPTY_GEOJSON
+    return GlobalVariables.EMPTY_GEOJSON;
   }
-
 
   getBuildings() {
     let buildingMap = {};
-    if (this.state.lotShapes){
-      this.state.lotShapes['buildings'].forEach((shape) => {
-        buildingMap[shape["id"]] = shape;
+    if (this.state.lotShapes) {
+      this.state.lotShapes['buildings'].forEach(shape => {
+        buildingMap[shape['id']] = shape;
       });
     }
-    return buildingMap
+    return buildingMap;
   }
 
   maybeRenderSearchButton() {
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       return (
-        <View style={ styles.floatingActionContainer }>
+        <View style={styles.floatingActionContainer}>
           <TouchableOpacity
             style={styles.floatingActionButton}
             onPress={this.setSKUCollectorVisibility}>
             <Image
               source={require('../../assets/images/search-solid.png')}
-              style={styles.searchIconSizing}/>
+              style={styles.searchIconSizing}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.floatingActionButton}
-            onPress={() => this.setState({ barcodeOpen: true, sku: null, barcodeTitle: 'Scan Barcode' })}>
-            <Ionicons type='ionicon' name={ 'md-barcode'} size={ 25 } style={{ color: '#FFF' }} />
+            onPress={() =>
+              this.setState({
+                barcodeOpen: true,
+                sku: null,
+                barcodeTitle: 'Scan Barcode',
+              })
+            }>
+            <Ionicons
+              type="ionicon"
+              name={'md-barcode'}
+              size={25}
+              style={{ color: '#FFF' }}
+            />
           </TouchableOpacity>
-          </View>
-        )
+        </View>
+      );
     }
   }
 
   buildLeaseRt() {
-    const tempSku = this.state.leaseRtInput1 + this.state.leaseRtInput2 + this.state.leaseRtInput3 + this.state.leaseRtInput4 + this.state.leaseRtInput5;
-    this.setState({ skuInputEntered: tempSku, skuCollectorVisible: false })
+    const tempSku =
+      this.state.leaseRtInput1 +
+      this.state.leaseRtInput2 +
+      this.state.leaseRtInput3 +
+      this.state.leaseRtInput4 +
+      this.state.leaseRtInput5;
+    this.setState({ skuInputEntered: tempSku, skuCollectorVisible: false });
 
-    this.locateVehicle('sku')
+    this.locateVehicle('sku');
   }
 
   maybeRenderTextInput() {
     if (this.state.skuCollectorVisible) {
       // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
       return (
-        <KeyboardAvoidingView behavior="padding"
+        <KeyboardAvoidingView
+          behavior="padding"
           style={{
-              position: 'absolute',
-              height: '100%',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center'}}
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           enabled
           keyboardVerticalOffset={getStatusBarHeight() + 40}>
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
-            <View style={{minHeight: '40%', width: '100%'}}>
-            </View>
+            <View style={{ minHeight: '40%', width: '100%' }}></View>
           </TouchableWithoutFeedback>
 
           <View>
-            <View
-              style={styles.floatingTextInputArea}>
+            <View style={styles.floatingTextInputArea}>
               <Text
-                style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>{ this.state.leaseRt ? 'CREATING LEASE RETURN' : 'STOCK NUMBER'}</Text>
-              { this.state.leaseRt && <Text style={[textStyles.actionSummaryHeader, {color: 'rgba(0, 0, 0, 0.75)'}]}>ENTER LAST 5 OF VIN</Text> }
-              {
-                this.state.leaseRt ?
+                style={[
+                  textStyles.actionSummaryHeader,
+                  { color: 'rgba(0, 0, 0, 0.75)' },
+                ]}>
+                {this.state.leaseRt ? 'CREATING LEASE RETURN' : 'STOCK NUMBER'}
+              </Text>
+              {this.state.leaseRt && (
+                <Text
+                  style={[
+                    textStyles.actionSummaryHeader,
+                    { color: 'rgba(0, 0, 0, 0.75)' },
+                  ]}>
+                  ENTER LAST 5 OF VIN
+                </Text>
+              )}
+              {this.state.leaseRt ? (
                 <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                  <View
+                    style={{
+                      flex: 1,
+                      marginRight: 10,
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    }}>
                     <TextInput
-                      ref='_lrI1'
-                      autoCapitalize='characters'
+                      ref="_lrI1"
+                      autoCapitalize="characters"
                       multiline={false}
-                      returnKeyType='search'
-                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      returnKeyType="search"
+                      style={{ padding: 5, color: 'rgba(0, 0, 0, 0.75)' }}
                       onChangeText={text => {
-                        this.setState({leaseRtInput1: text})
-                        text !== '' && this.refs._lrI2.focus()
+                        this.setState({ leaseRtInput1: text });
+                        text !== '' && this.refs._lrI2.focus();
                       }}
-                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      onSubmitEditing={event => this.buildLeaseRt()}
                       autoFocus={true}
                       maxLength={1}
                       selectTextOnFocus={true}
-                      value={ this.state.leaseRtInput1 }
+                      value={this.state.leaseRtInput1}
                     />
                   </View>
-                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                  <View
+                    style={{
+                      flex: 1,
+                      marginRight: 10,
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    }}>
                     <TextInput
-                      ref='_lrI2'
-                      autoCapitalize='characters'
+                      ref="_lrI2"
+                      autoCapitalize="characters"
                       multiline={false}
-                      returnKeyType='search'
-                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      returnKeyType="search"
+                      style={{ padding: 5, color: 'rgba(0, 0, 0, 0.75)' }}
                       onChangeText={text => {
-                        this.setState({leaseRtInput2: text})
-                        text !== '' && this.refs._lrI3.focus()
+                        this.setState({ leaseRtInput2: text });
+                        text !== '' && this.refs._lrI3.focus();
                       }}
-                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      onSubmitEditing={event => this.buildLeaseRt()}
                       maxLength={1}
                       selectTextOnFocus={true}
-                      value={ this.state.leaseRtInput2 }
+                      value={this.state.leaseRtInput2}
                       onKeyPress={({ nativeEvent }) => {
-                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput2 === '' && this.refs._lrI1.focus()
-                      }}
-                    />
-                  </View>
-                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
-                    <TextInput
-                      ref='_lrI3'
-                      autoCapitalize='characters'
-                      multiline={false}
-                      returnKeyType='search'
-                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
-                      onChangeText={text => {
-                        this.setState({leaseRtInput3: text})
-                        text !== '' && this.refs._lrI4.focus()
-                      }}
-                      onSubmitEditing={(event) => this.buildLeaseRt()}
-                      maxLength={1}
-                      selectTextOnFocus={true}
-                      value={ this.state.leaseRtInput3 }
-                      onKeyPress={({ nativeEvent }) => {
-                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput3 === '' && this.refs._lrI2.focus()
+                        nativeEvent.key === 'Backspace' &&
+                          this.state.leaseRtInput2 === '' &&
+                          this.refs._lrI1.focus();
                       }}
                     />
                   </View>
-                  <View style={{ flex: 1, marginRight: 10, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                  <View
+                    style={{
+                      flex: 1,
+                      marginRight: 10,
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    }}>
                     <TextInput
-                      ref='_lrI4'
-                      autoCapitalize='characters'
+                      ref="_lrI3"
+                      autoCapitalize="characters"
                       multiline={false}
-                      returnKeyType='search'
-                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      returnKeyType="search"
+                      style={{ padding: 5, color: 'rgba(0, 0, 0, 0.75)' }}
                       onChangeText={text => {
-                        this.setState({leaseRtInput4: text})
-                        text !== '' && this.refs._lrI5.focus()
+                        this.setState({ leaseRtInput3: text });
+                        text !== '' && this.refs._lrI4.focus();
                       }}
-                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      onSubmitEditing={event => this.buildLeaseRt()}
                       maxLength={1}
                       selectTextOnFocus={true}
-                      value={ this.state.leaseRtInput4 }
+                      value={this.state.leaseRtInput3}
                       onKeyPress={({ nativeEvent }) => {
-                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput4 === '' && this.refs._lrI3.focus()
+                        nativeEvent.key === 'Backspace' &&
+                          this.state.leaseRtInput3 === '' &&
+                          this.refs._lrI2.focus();
                       }}
                     />
                   </View>
-                  <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+                  <View
+                    style={{
+                      flex: 1,
+                      marginRight: 10,
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    }}>
                     <TextInput
-                      ref='_lrI5'
-                      autoCapitalize='characters'
+                      ref="_lrI4"
+                      autoCapitalize="characters"
                       multiline={false}
-                      returnKeyType='search'
-                      style={{padding: 5, color: 'rgba(0, 0, 0, 0.75)'}}
+                      returnKeyType="search"
+                      style={{ padding: 5, color: 'rgba(0, 0, 0, 0.75)' }}
                       onChangeText={text => {
-                        this.setState({leaseRtInput5: text})
+                        this.setState({ leaseRtInput4: text });
+                        text !== '' && this.refs._lrI5.focus();
                       }}
-                      onSubmitEditing={(event) => this.buildLeaseRt()}
+                      onSubmitEditing={event => this.buildLeaseRt()}
                       maxLength={1}
                       selectTextOnFocus={true}
-                      value={ this.state.leaseRtInput5 }
+                      value={this.state.leaseRtInput4}
                       onKeyPress={({ nativeEvent }) => {
-                        nativeEvent.key === 'Backspace' && this.state.leaseRtInput5 === '' && this.refs._lrI4.focus()
+                        nativeEvent.key === 'Backspace' &&
+                          this.state.leaseRtInput4 === '' &&
+                          this.refs._lrI3.focus();
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.1)' }}>
+                    <TextInput
+                      ref="_lrI5"
+                      autoCapitalize="characters"
+                      multiline={false}
+                      returnKeyType="search"
+                      style={{ padding: 5, color: 'rgba(0, 0, 0, 0.75)' }}
+                      onChangeText={text => {
+                        this.setState({ leaseRtInput5: text });
+                      }}
+                      onSubmitEditing={event => this.buildLeaseRt()}
+                      maxLength={1}
+                      selectTextOnFocus={true}
+                      value={this.state.leaseRtInput5}
+                      onKeyPress={({ nativeEvent }) => {
+                        nativeEvent.key === 'Backspace' &&
+                          this.state.leaseRtInput5 === '' &&
+                          this.refs._lrI4.focus();
                       }}
                     />
                   </View>
                 </View>
-              :
+              ) : (
                 <TextInput
-                  autoCapitalize='characters'
+                  autoCapitalize="characters"
                   multiline={false}
-                  returnKeyType='search'
-                  style={[styles.floatingTextInput, {color: 'rgba(0, 0, 0, 0.75)'}]}
-                  onChangeText={text => this.setState({skuInputEntered: text})}
+                  returnKeyType="search"
+                  style={[
+                    styles.floatingTextInput,
+                    { color: 'rgba(0, 0, 0, 0.75)' },
+                  ]}
+                  onChangeText={text =>
+                    this.setState({ skuInputEntered: text })
+                  }
                   onSubmitEditing={event => this.locateVehicle('sku')}
                   autoFocus={true}
                   value={this.state.skuInputEntered}
                 />
-              }
+              )}
 
               <Text
-                style={[textStyles.actionSummaryText, {color: '#BE1E2D', fontSize: 10, marginLeft: 10, paddingBottom: 5}]}>
-                {this.state.skuSearchFailed ? 'Vehicle not found. Please try another stock number.' : ''}</Text>
+                style={[
+                  textStyles.actionSummaryText,
+                  {
+                    color: '#BE1E2D',
+                    fontSize: 10,
+                    marginLeft: 10,
+                    paddingBottom: 5,
+                  },
+                ]}>
+                {this.state.skuSearchFailed
+                  ? 'Vehicle not found. Please try another stock number.'
+                  : ''}
+              </Text>
 
               <View
-                style={[pageStyles.rightButtonContainer, {width: 270, paddingTop: 5}]}>
+                style={[
+                  pageStyles.rightButtonContainer,
+                  { width: 270, paddingTop: 5 },
+                ]}>
                 <TouchableOpacity
-                  style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }, !this.state.leaseRt && { backgroundColor: '#D13CEA' }]}
-                  onPress={() => this.setState({leaseRt: !this.state.leaseRt })}>
+                  style={[
+                    buttonStyles.activeSecondaryModalButton,
+                    { marginRight: 'auto' },
+                    !this.state.leaseRt && { backgroundColor: '#D13CEA' },
+                  ]}
+                  onPress={() =>
+                    this.setState({ leaseRt: !this.state.leaseRt })
+                  }>
                   <Text style={buttonStyles.activeSecondaryTextColor}>
-                    { this.state.leaseRt ? 'BACK' : 'LEASE RT'}
+                    {this.state.leaseRt ? 'BACK' : 'LEASE RT'}
                   </Text>
                 </TouchableOpacity>
 
@@ -1059,8 +1398,11 @@ class LotView extends React.Component {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                style={[buttonStyles.activePrimaryModalButton, {borderColor: 'gray', borderWidth: 1}]}
-                onPress={() => this.locateVehicle('sku') }>
+                  style={[
+                    buttonStyles.activePrimaryModalButton,
+                    { borderColor: 'gray', borderWidth: 1 },
+                  ]}
+                  onPress={() => this.locateVehicle('sku')}>
                   <Text style={[buttonStyles.activePrimaryTextColor]}>
                     SEARCH
                   </Text>
@@ -1072,30 +1414,33 @@ class LotView extends React.Component {
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
-            <View style={{minHeight: '40%', width: '100%'}}>
-            </View>
+            <View style={{ minHeight: '40%', width: '100%' }}></View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       );
     } else {
-      return
+      return;
     }
   }
 
   _renderTagModal() {
     //console.log('Render Tag Modal View: ', this.state.modalType);
-    let stockNumberToDisplay = this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE ? this.state.stockNumber : null;
+    let stockNumberToDisplay =
+      this.state.modalType == GlobalVariables.BASIC_MODAL_TYPE
+        ? this.state.stockNumber
+        : null;
     return (
       <VehicleInfo
-        pose={ this.state.modalVisible? 'open' : 'closed' }
-        style={{ flex: 1,
+        pose={this.state.modalVisible ? 'open' : 'closed'}
+        style={{
+          flex: 1,
           width: Dimensions.get('window').width,
           height: Dimensions.get('window').height - getStatusBarHeight() - 40,
           position: 'absolute',
           bottom: 0,
           zIndex: 10,
-          backgroundColor: 'transparent'}}
-      >
+          backgroundColor: 'transparent',
+        }}>
         <TagModalView
           modalType={this.state.modalType}
           spaceId={this.state.spaceId}
@@ -1113,9 +1458,10 @@ class LotView extends React.Component {
           openBarcodeScanner={this.openBarcodeScanner}
           sku={this.state.sku}
           vin={this.state.vin}
-          leaseRt={this.state.leaseRt} />
-        </VehicleInfo>
-      )
+          leaseRt={this.state.leaseRt}
+        />
+      </VehicleInfo>
+    );
   }
 
   maybeRenderPopulateOnClick() {
@@ -1129,55 +1475,92 @@ class LotView extends React.Component {
           updateLotAndDismissModal={this.updateLotAndDismissOnClickPopulateView}
           clickToPopulateVehicleId={this.state.vehicleId}
           clickToPopulateStall={this.state.clickToPopulateStall}
-          feedbackText={this.state.feedbackText} />
-        )
+          feedbackText={this.state.feedbackText}
+        />
+      );
     }
   }
 
   maybeRenderActionFeedbackView() {
-    if (this.state.modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE && this.state.modalVisible == false) {
-      return (
-        <ActionFeedbackView
-          feedbackText={this.state.feedbackText} />
-      )
+    if (
+      this.state.modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE &&
+      this.state.modalVisible == false
+    ) {
+      return <ActionFeedbackView feedbackText={this.state.feedbackText} />;
     }
   }
 
   maybeRenderMapControls() {
     //lotCenterCoordinates
-    if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE && !this.state.barcodeOpen) {
+    if (
+      this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE &&
+      !this.state.barcodeOpen
+    ) {
       return (
         <View style={{ position: 'absolute', zIndex: 2, right: 10, top: 10 }}>
-        <TouchableOpacity onPress={() => this.setState({ centerCoordinate: [this.state.userLocation.coords.longitude, this.state.userLocation.coords.latitude] })} style={ styles.floatingActionButton }>
-          <Ionicons type='ionicon' name={ 'md-locate'} size={ 35 } style={{ color: '#FFF', marginTop: 2, marginLeft: 2 }} />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              this.setState({
+                centerCoordinate: [
+                  this.state.userLocation.coords.longitude,
+                  this.state.userLocation.coords.latitude,
+                ],
+              })
+            }
+            style={styles.floatingActionButton}>
+            <Ionicons
+              type="ionicon"
+              name={'md-locate'}
+              size={35}
+              style={{ color: '#FFF', marginTop: 2, marginLeft: 2 }}
+            />
+          </TouchableOpacity>
         </View>
-      )
+      );
     }
-    return null
+    return null;
   }
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
     console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
-      console.log('Barcode Open, Selected stall: ', this.state.clickedStall)
-      return(
+      console.log('Barcode Open, Selected stall: ', this.state.clickedStall);
+      return (
         <View style={{ flex: 1 }}>
-          <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
-            <Text style={{ fontWeight: 'bold' }}>{ this.state.barcodeTitle }</Text>
-            <TouchableOpacity onPress={()=>this.setState({barcodeOpen: false})}>
-              <View style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons type='ionicon' name={ 'md-close'} size={ 25 } />
+          <View
+            style={{
+              flex: 0,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingLeft: 10,
+              paddingRight: 10,
+            }}>
+            <Text style={{ fontWeight: 'bold' }}>
+              {this.state.barcodeTitle}
+            </Text>
+            <TouchableOpacity
+              onPress={() => this.setState({ barcodeOpen: false })}>
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Ionicons type="ionicon" name={'md-close'} size={25} />
               </View>
             </TouchableOpacity>
           </View>
           <RNCamera
-            onStatusChange={(cameraStatus) => console.log('Camera Status: ', cameraStatus)}
-            onMountError={(e) => console.log('Camera mount error: ', e)}
-            onBarCodeRead={(e) => {
+            onStatusChange={cameraStatus =>
+              console.log('Camera Status: ', cameraStatus)
+            }
+            onMountError={e => console.log('Camera mount error: ', e)}
+            onBarCodeRead={e => {
               console.log('Barcode: ', e.data);
-              this.setState({barcodeOpen: false, skuCollectorVisible: false })
-              this.vinEntered = e.data
+              this.setState({ barcodeOpen: false, skuCollectorVisible: false });
+              this.vinEntered = e.data;
               this.locateVehicle('vin');
             }}
             type={RNCamera.Constants.Type.back}
@@ -1185,20 +1568,24 @@ class LotView extends React.Component {
             defaultTouchToFocus
             mirrorImage={false}
             permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-            style={{flex: 1}}>
+            permissionDialogMessage={
+              'We need your permission to use your camera phone'
+            }
+            style={{ flex: 1 }}>
             <BarcodeMask showAnimatedLine={false} />
           </RNCamera>
         </View>
       );
     }
     return (
-      <KeyboardAvoidingView behavior="padding" style={styles.container} enabled keyboardVerticalOffset={getStatusBarHeight() + 40}>
-        <StatusBar
-          barStyle='light-content'
-          backgroundColor='#BE1E2D'/>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={styles.container}
+        enabled
+        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
-        { this.state.modalVisible && this._renderTagModal() }
+        {this.state.modalVisible && this._renderTagModal()}
 
         <Mapbox.MapView
           centerCoordinate={this.state.centerCoordinate}
@@ -1208,24 +1595,21 @@ class LotView extends React.Component {
           zoomLevel={this.state.zoomLevel}
           ref={'_map'}
           //regionDidChangeDebounceTime={ 2000 }
-          onRegionDidChange={ (args) => {
-            this.currentCenter = args.geometry.coordinates
+          onRegionDidChange={args => {
+            this.currentCenter = args.geometry.coordinates;
             this.setState({ zoomLevel: args.properties.zoomLevel });
-            }}
-          onUserLocationUpdate={location => this.setState({ userLocation: location }) }
-        >
-
-          <Mapbox.ShapeSource
-            id='parking_lot'
-            shape={this.getLot()}>
+          }}
+          onUserLocationUpdate={location =>
+            this.setState({ userLocation: location })
+          }>
+          <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
             <Mapbox.FillLayer
-              id='fill_parking_lot'
-              style={lotLayerStyles.parking_lot} />
+              id="fill_parking_lot"
+              style={lotLayerStyles.parking_lot}
+            />
           </Mapbox.ShapeSource>
 
-          <BuildingLayer
-            buildingShapes={this.getBuildings()}>
-          </BuildingLayer>
+          <BuildingLayer buildingShapes={this.getBuildings()}></BuildingLayer>
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
@@ -1237,9 +1621,8 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             updateSpaceVehicleMap={false}
             updateEvents={this.postLoadEvents}
-            type='empty'
-            recent={false}>
-          </VehicleSpaceLayer>
+            type="empty"
+            recent={false}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
@@ -1249,10 +1632,9 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='new_vehicle'
+            type="new_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
@@ -1262,10 +1644,9 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='new_vehicle'
+            type="new_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
@@ -1275,10 +1656,9 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='used_vehicle'
+            type="used_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
@@ -1289,10 +1669,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='used_vehicle'
+            type="used_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.loanerSpaces}
@@ -1303,10 +1682,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='loaner_vehicle'
+            type="loaner_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.loanerSpaces}
@@ -1317,10 +1695,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='loaner_vehicle'
+            type="loaner_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.leaseSpaces}
@@ -1331,10 +1708,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='lease_vehicle'
+            type="lease_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.leaseSpaces}
@@ -1345,10 +1721,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='lease_vehicle'
+            type="lease_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.wholesaleSpaces}
@@ -1359,10 +1734,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='wholesale_vehicle'
+            type="wholesale_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.wholesaleSpaces}
@@ -1373,10 +1747,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='wholesale_vehicle'
+            type="wholesale_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           <VehicleSpaceLayer
             ids={this.state.soldSpaces}
@@ -1387,11 +1760,9 @@ class LotView extends React.Component {
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             updateEvents={this.postLoadEvents}
-            type='sold'
+            type="sold"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
-
+            blank={this.state.findingOnMap}></VehicleSpaceLayer>
 
           {/*
           <VehicleSpaceLayer
@@ -1416,47 +1787,41 @@ class LotView extends React.Component {
             sendMapCallback={this.getMapCallback}
             showAndPopulateModal={this.showAndPopulateModal}
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='duplicates'
+            type="duplicates"
             recent={false}
-            blank={this.state.findingOnMap}>
-          </DuplicatesLayer>
+            blank={this.state.findingOnMap}></DuplicatesLayer>
 
           <EventsLayer
             eventShapes={this.state.driveEventSpaces}
-            type='test_drive'>
-          </EventsLayer>
+            type="test_drive"></EventsLayer>
           <EventsLayer
             eventShapes={this.state.fuelEventSpaces}
-            type='fuel'>
-          </EventsLayer>
+            type="fuel"></EventsLayer>
           <EventsLayer
             eventShapes={this.state.noteEventSpaces}
-            type='note'>
-          </EventsLayer>
+            type="note"></EventsLayer>
 
           <HoldsLayer
             spaces={this.state.serviceHoldSpaces}
             parkingShapes={this.state.parkingShapes}
             skip={this.state.duplicateSpaces}
-            type='service_hold'>
-          </HoldsLayer>
+            type="service_hold"></HoldsLayer>
 
           <HoldsLayer
             spaces={this.state.salesHoldSpaces}
             parkingShapes={this.state.parkingShapes}
             skip={this.state.duplicateSpaces}
-            type='sales_hold'>
-          </HoldsLayer>
+            type="sales_hold"></HoldsLayer>
 
           <NoteLayer
             eventShapes={this.state.noteEventSpaces}
-            type='noteText'
-            text='1'
-            zoom={this.state.zoomLevel}>
-          </NoteLayer>
+            type="noteText"
+            text="1"
+            zoom={this.state.zoomLevel}></NoteLayer>
           <VehicleHighlightLayer
-            clickedStallPolygon={this.state.clickedStall}>
-          </VehicleHighlightLayer>
+            clickedStallPolygon={
+              this.state.clickedStall
+            }></VehicleHighlightLayer>
         </Mapbox.MapView>
 
         {this.maybeRenderSearchButton()}
@@ -1465,10 +1830,8 @@ class LotView extends React.Component {
         {this.maybeRenderPopulateOnClick()}
         {this.maybeRenderActionFeedbackView()}
         {this.maybeRenderMapControls()}
-
       </KeyboardAvoidingView>
-
-    )
+    );
   }
 }
 
@@ -1492,10 +1855,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   floatingActionContainer: {
-    position:'absolute',
+    position: 'absolute',
     right: 30,
     bottom: 80,
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   floatingActionButton: {
     width: 66,
@@ -1505,7 +1868,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#828282',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 20,
     marginBottom: 20,
   },
@@ -1516,7 +1879,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     shadowColor: '#828282',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 20,
   },
   floatingTextInput: {
@@ -1532,7 +1895,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const lotLayerStyles = { // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
+const lotLayerStyles = {
+  // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
   buildings: {
     fillColor: '#FF9933',
     fillOpacity: 0.75,
@@ -1559,7 +1923,7 @@ const lotLayerStyles = { // NOTE: On web all shapes have an opacity of 1 barring
   },
   parking_spaces: {
     fillColor: '#FFFFFF',
-    fillOpacity: 0.75
+    fillOpacity: 0.75,
   },
   used_vehicle_occupied_spaces: {
     fillColor: '#66CC00',
@@ -1602,34 +1966,19 @@ const lotLayerStyles = { // NOTE: On web all shapes have an opacity of 1 barring
 const debug_location = [37.353285, -122.0079];
 
 const debug_highlight_polygon = {
-  "geometry": {
-    "coordinates":  [
-       [
-         [
-          -122.00724072754383,
-          37.35288456190844,
-        ],
-         [
-          -122.00723871588707,
-          37.352924805756714,
-        ],
-         [
-          -122.00721139088273,
-          37.352924805756714,
-        ],
-         [
-          -122.0072128996253,
-          37.35288456190844,
-        ],
-         [
-          -122.00724072754383,
-          37.35288456190844,
-        ],
+  geometry: {
+    coordinates: [
+      [
+        [-122.00724072754383, 37.35288456190844],
+        [-122.00723871588707, 37.352924805756714],
+        [-122.00721139088273, 37.352924805756714],
+        [-122.0072128996253, 37.35288456190844],
+        [-122.00724072754383, 37.35288456190844],
       ],
     ],
-    "type": "Polygon",
+    type: 'Polygon',
   },
-  "id": "130",
-  "properties": {},
-  "type": "Feature",
-}
+  id: '130',
+  properties: {},
+  type: 'Feature',
+};

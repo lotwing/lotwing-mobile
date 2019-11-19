@@ -116,7 +116,7 @@ export default class TagModalView extends React.Component {
       .then((result) => {
         //console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
         //console.log(result)
-        if (result.vehicles.length) {
+        if (result && result.vehicles && result.vehicles.length) {
 
           let drive = {};
           let fuel = {};
