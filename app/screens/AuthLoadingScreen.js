@@ -41,7 +41,7 @@ export default class AuthLoadingScreen extends React.Component {
           // This will switch to the App or Auth screen and this loading
           // screen will be unmounted and thrown away.
           console.log('AUTH CHECK RESPONSE:', responseJson);
-          GlobalVariables.USER_NAME = responseJson.user_info.full_name;
+          GlobalVariables.USER_NAME = responseJson.message === 'Correct Authentication' ? responseJson.user_info.full_name : '';
           return responseJson;
         });
     } else {
