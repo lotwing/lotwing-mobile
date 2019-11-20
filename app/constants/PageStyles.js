@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
-export default pageStyles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 10,
     flexDirection: 'column',
@@ -13,27 +13,27 @@ export default pageStyles = StyleSheet.create({
     borderColor: '#828282',
   },
   column: {
-  	flexDirection: 'column',
-  	justifyContent: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   row: {
-  	flexDirection: 'row',
-  	justifyContent: 'flex-start',
-  	alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   noteCard: {
-    backgroundColor:'white', 
+    backgroundColor: 'white',
     borderColor: '#828282',
     borderWidth: 0.5,
     borderRadius: 5,
     marginBottom: '10%',
     width: '80%',
-    paddingTop: 35, 
-    padding: 20, 
+    paddingTop: 35,
+    padding: 20,
   },
   rightButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-  }
+  },
 });

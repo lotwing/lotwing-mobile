@@ -35,6 +35,7 @@ import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
+import buttonStyles from '../constants/ButtonStyles';
 
 import Mapbox from '@react-native-mapbox-gl/maps';
 
@@ -159,7 +160,7 @@ class LotView extends React.Component {
       let centerCoordinate = this._calculateCenter(
         space_coords.geometry.coordinates[0],
       );
-      this.zoom = 18.5
+      this.zoom = 18.5;
       this.setState({
         findingOnMap: findingOnMap,
         modalVisible: true,
@@ -233,7 +234,7 @@ class LotView extends React.Component {
     return this._loadLotView();
   }
   cancelFuel(fuelEventId, spaceId) {
-    endedPackage = {
+    let endedPackage = {
       acknowledged: true,
       event_details: 'fuel event ' + fuelEventId + ' canceled',
     };
@@ -250,7 +251,7 @@ class LotView extends React.Component {
       .catch(e => console.log('FUEL EVENT ERROR: ', e));
   }
   cancelDrive(driveEventId, spaceId) {
-    endedPackage = {
+    let endedPackage = {
       acknowledged: true,
       event_details: 'drive event ' + driveEventId + ' canceled',
     };
@@ -292,12 +293,12 @@ class LotView extends React.Component {
 
         GlobalVariables.LOT_DATA = responseJson;
         let lot_geometry =
-          GlobalVariables.LOT_DATA['parking_lots'][0]['geo_info']['geometry'];
-        let lot_coords = lot_geometry['coordinates'][0];
+          GlobalVariables.LOT_DATA.parking_lots[0].geo_info.geometry;
+        let lot_coords = lot_geometry.coordinates[0];
 
         let lotParkingSpaceMap = {};
-        GlobalVariables.LOT_DATA['parking_spaces'].forEach(space => {
-          lotParkingSpaceMap[space['id']] = space;
+        GlobalVariables.LOT_DATA.parking_spaces.forEach(space => {
+          lotParkingSpaceMap[space.id] = space;
         });
         console.log('     resetting state: _loadLotView');
         //console.log('_loadLotView coords: ', lot_coords);
@@ -328,35 +329,31 @@ class LotView extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         lotview.setState({
-          newVehicleSpaces: responseJson['new_vehicle_occupied_spaces'].map(
-            space => space['id'],
+          newVehicleSpaces: responseJson.new_vehicle_occupied_spaces.map(
+            space => space.id,
           ),
-          usedVehicleSpaces: responseJson['used_vehicle_occupied_spaces'].map(
-            space => space['id'],
+          usedVehicleSpaces: responseJson.used_vehicle_occupied_spaces.map(
+            space => space.id,
           ),
-          emptySpaces: responseJson['empty_parking_spaces'].map(
-            space => space['id'],
+          emptySpaces: responseJson.empty_parking_spaces.map(space => space.id),
+          duplicateSpaces: responseJson.duplicate_parked_spaces.map(
+            space => space.id,
           ),
-          duplicateSpaces: responseJson['duplicate_parked_spaces'].map(
-            space => space['id'],
+          loanerSpaces: responseJson.loaner_occupied_spaces.map(
+            space => space.id,
           ),
-          loanerSpaces: responseJson['loaner_occupied_spaces'].map(
-            space => space['id'],
+          leaseSpaces: responseJson.lease_return_occupied_spaces.map(
+            space => space.id,
           ),
-          leaseSpaces: responseJson['lease_return_occupied_spaces'].map(
-            space => space['id'],
+          wholesaleSpaces: responseJson.wholesale_unit_occupied_spaces.map(
+            space => space.id,
           ),
-          wholesaleSpaces: responseJson['wholesale_unit_occupied_spaces'].map(
-            space => space['id'],
+          soldSpaces: responseJson.sold_vehicle_spaces.map(space => space.id),
+          serviceHoldSpaces: responseJson.service_hold_spaces.map(
+            space => space.id,
           ),
-          soldSpaces: responseJson['sold_vehicle_spaces'].map(
-            space => space['id'],
-          ),
-          serviceHoldSpaces: responseJson['service_hold_spaces'].map(
-            space => space['id'],
-          ),
-          salesHoldSpaces: responseJson['sales_hold_spaces'].map(
-            space => space['id'],
+          salesHoldSpaces: responseJson.sales_hold_spaces.map(
+            space => space.id,
           ),
           centerCoordinate:
             centerCoordinate !== null ? centerCoordinate : lotCenterCoordinates,
@@ -415,13 +412,13 @@ class LotView extends React.Component {
       .then(responseJson => {
         //console.log(responseJson)
         lotview.setState({
-          driveEventSpaces: responseJson['test_drive_events'].map(
+          driveEventSpaces: responseJson.test_drive_events.map(
             space => space.data.attributes,
           ),
-          fuelEventSpaces: responseJson['fuel_vehicle_events'].map(
+          fuelEventSpaces: responseJson.fuel_vehicle_events.map(
             space => space.data.attributes,
           ),
-          noteEventSpaces: responseJson['note_events'].map(
+          noteEventSpaces: responseJson.note_events.map(
             space => space.data.attributes,
           ),
         });
@@ -453,13 +450,21 @@ class LotView extends React.Component {
       ]; // [[x_min, x_max], [y_min, y_max]]
 
       coord.forEach(point => {
-        [px, py] = point;
+        const [px, py] = point;
 
-        if (max_min_array[0][0] > px) max_min_array[0][0] = px;
-        if (max_min_array[0][1] < px) max_min_array[0][1] = px;
+        if (max_min_array[0][0] > px) {
+          max_min_array[0][0] = px;
+        }
+        if (max_min_array[0][1] < px) {
+          max_min_array[0][1] = px;
+        }
 
-        if (max_min_array[1][0] > py) max_min_array[1][0] = py;
-        if (max_min_array[1][1] < py) max_min_array[1][1] = py;
+        if (max_min_array[1][0] > py) {
+          max_min_array[1][0] = py;
+        }
+        if (max_min_array[1][1] < py) {
+          max_min_array[1][1] = py;
+        }
       });
 
       center_coordinate = [
@@ -545,7 +550,7 @@ class LotView extends React.Component {
     this.setState({
       modalVisible: visibility,
       modalType: modalType,
-      feedbackText: textToShow,
+      // feedbackText: textToShow,
     });
   }
 
@@ -851,8 +856,8 @@ class LotView extends React.Component {
         let vehicleData = data[spaceId];
 
         if (vehicleData) {
-          vehicleData['shape_id'] = spaceId;
-          snVehicleMap[vehicleData['stock_number']] = vehicleData;
+          vehicleData.shape_id = spaceId;
+          snVehicleMap[vehicleData.stock_number] = vehicleData;
         }
       });
       // console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
@@ -1111,7 +1116,7 @@ class LotView extends React.Component {
 
   getLot() {
     if (this.state.lotShapes) {
-      return this.state.lotShapes['parking_lots'][0]['geo_info'];
+      return this.state.lotShapes.parking_lots[0].geo_info;
     }
     return GlobalVariables.EMPTY_GEOJSON;
   }
@@ -1119,8 +1124,8 @@ class LotView extends React.Component {
   getBuildings() {
     let buildingMap = {};
     if (this.state.lotShapes) {
-      this.state.lotShapes['buildings'].forEach(shape => {
-        buildingMap[shape['id']] = shape;
+      this.state.lotShapes.buildings.forEach(shape => {
+        buildingMap[shape.id] = shape;
       });
     }
     return buildingMap;
@@ -1189,7 +1194,7 @@ class LotView extends React.Component {
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
-            <View style={{ minHeight: '40%', width: '100%' }}></View>
+            <View style={{ minHeight: '40%', width: '100%' }} />
           </TouchableWithoutFeedback>
 
           <View>
@@ -1416,7 +1421,7 @@ class LotView extends React.Component {
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
-            <View style={{ minHeight: '40%', width: '100%' }}></View>
+            <View style={{ minHeight: '40%', width: '100%' }} />
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       );
@@ -1611,7 +1616,7 @@ class LotView extends React.Component {
           <Mapbox.Camera
             zoomLevel={this.zoom}
             centerCoordinate={this.state.centerCoordinate}
-            animationMode='none'
+            animationMode="none"
             animationDuration={0}
             followPitch
             followHeading
@@ -1625,7 +1630,7 @@ class LotView extends React.Component {
             />
           </Mapbox.ShapeSource>
 
-          <BuildingLayer buildingShapes={this.getBuildings()}></BuildingLayer>
+          <BuildingLayer buildingShapes={this.getBuildings()} />
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
@@ -1638,7 +1643,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={false}
             updateEvents={this.postLoadEvents}
             type="empty"
-            recent={false}></VehicleSpaceLayer>
+            recent={false}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
@@ -1650,7 +1656,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type="new_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
@@ -1662,7 +1669,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type="new_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
@@ -1674,7 +1682,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type="used_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
@@ -1687,7 +1696,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="used_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.loanerSpaces}
@@ -1700,7 +1710,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="loaner_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.loanerSpaces}
@@ -1713,7 +1724,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="loaner_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.leaseSpaces}
@@ -1726,7 +1738,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="lease_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.leaseSpaces}
@@ -1739,7 +1752,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="lease_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.wholesaleSpaces}
@@ -1752,7 +1766,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="wholesale_vehicle"
             recent={true}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.wholesaleSpaces}
@@ -1765,7 +1780,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="wholesale_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.soldSpaces}
@@ -1778,7 +1794,8 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="sold"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           {/*
           <VehicleSpaceLayer
@@ -1805,39 +1822,39 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type="duplicates"
             recent={false}
-            blank={this.state.findingOnMap}></DuplicatesLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <EventsLayer
             eventShapes={this.state.driveEventSpaces}
-            type="test_drive"></EventsLayer>
-          <EventsLayer
-            eventShapes={this.state.fuelEventSpaces}
-            type="fuel"></EventsLayer>
-          <EventsLayer
-            eventShapes={this.state.noteEventSpaces}
-            type="note"></EventsLayer>
+            type="test_drive"
+          />
+          <EventsLayer eventShapes={this.state.fuelEventSpaces} type="fuel" />
+          <EventsLayer eventShapes={this.state.noteEventSpaces} type="note" />
 
           <HoldsLayer
             spaces={this.state.serviceHoldSpaces}
             parkingShapes={this.state.parkingShapes}
             skip={this.state.duplicateSpaces}
-            type="service_hold"></HoldsLayer>
+            type="service_hold"
+          />
 
           <HoldsLayer
             spaces={this.state.salesHoldSpaces}
             parkingShapes={this.state.parkingShapes}
             skip={this.state.duplicateSpaces}
-            type="sales_hold"></HoldsLayer>
+            type="sales_hold"
+          />
 
           <NoteLayer
             eventShapes={this.state.noteEventSpaces}
             type="noteText"
             text="1"
-            zoom={this.state.zoomLevel}></NoteLayer>
+            zoom={this.state.zoomLevel}
+          />
           <VehicleHighlightLayer
-            clickedStallPolygon={
-              this.state.clickedStall
-            }></VehicleHighlightLayer>
+            clickedStallPolygon={this.state.clickedStall}
+          />
         </Mapbox.MapView>
 
         {this.maybeRenderSearchButton()}

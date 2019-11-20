@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AsyncStorage,
   Image,
@@ -13,21 +13,21 @@ import {
   View,
   ScrollView,
   Dimensions,
-  KeyboardAvoidingView
-} from "react-native";
+  KeyboardAvoidingView,
+} from 'react-native';
 
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
-import Ionicons from "react-native-vector-icons/Ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import GlobalVariables from "../constants/GlobalVariables";
-import Route from "../constants/Routes";
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
-import buttonStyles from "../constants/ButtonStyles";
-import pageStyles from "../constants/PageStyles";
-import textStyles from "../constants/TextStyles";
+import buttonStyles from '../constants/ButtonStyles';
+import pageStyles from '../constants/PageStyles';
+import textStyles from '../constants/TextStyles';
 
-import LotActionHelper from "../helpers/LotActionHelper";
+import LotActionHelper from '../helpers/LotActionHelper';
 
 export default class NoteScreen extends React.Component {
   constructor(props) {
@@ -41,7 +41,7 @@ export default class NoteScreen extends React.Component {
 
     this.state = {
       isNoteActionVisible: true,
-      placeholderText: "Write your vehicle note here."
+      placeholderText: 'Write your vehicle note here.',
       //cameraOpen: false,
       //hasCameraPermission: null,
       //type: Camera.Constants.Type.back,
@@ -49,7 +49,7 @@ export default class NoteScreen extends React.Component {
     };
   }
   componentWillMount() {
-    console.log("History Mounted");
+    console.log('History Mounted');
     this.props.navigation.setParams({ extras: { showModalonExit: true } });
   }
   /*
@@ -97,26 +97,26 @@ export default class NoteScreen extends React.Component {
   }
 
   sendNoteData() {
-    console.log("\nsendFuelData called");
-    console.log("\nNote: ", this.state.placeholderText);
+    console.log('\nsendFuelData called');
+    console.log('\nNote: ', this.state.placeholderText);
 
     //TODO(adwoa): make save button unclickable, process this action
     let space_data = LotActionHelper.structureTagPayload(
-      "note",
+      'note',
       { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-      this.state.placeholderText
+      this.state.placeholderText,
     );
     let noteScreen = this;
-    console.log("TAG DATA: ", space_data);
+    console.log('TAG DATA: ', space_data);
 
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
       },
-      body: JSON.stringify(space_data)
+      body: JSON.stringify(space_data),
     })
       .then(response => {
         return response.json();
@@ -125,7 +125,7 @@ export default class NoteScreen extends React.Component {
         LotActionHelper.backAction(this.props.navigation);
       })
       .catch(err => {
-        console.log("\nCAUHT ERROR: \n", err, err.name);
+        console.log('\nCAUHT ERROR: \n', err, err.name);
         //TODO(adwoa): make save button clickable again
         return err;
       });
@@ -138,31 +138,27 @@ export default class NoteScreen extends React.Component {
           behavior="padding"
           keyboardVerticalOffset={getStatusBarHeight() + 40}
           enabled
-          style={{ flex: 1 }}
-        >
+          style={{ flex: 1 }}>
           <TouchableWithoutFeedback
             onPress={() => {
               Keyboard.dismiss();
             }}
-            accessible={false}
-          >
+            accessible={false}>
             <View
               style={{
                 flex: 1,
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
               <View
                 style={[
                   pageStyles.noteCard,
                   {
                     flex: 1,
-                    width: Dimensions.get("window").width - 40,
-                    margin: 20
-                  }
-                ]}
-              >
+                    width: Dimensions.get('window').width - 40,
+                    margin: 20,
+                  },
+                ]}>
                 <TextInput
                   style={{ flex: 1 }}
                   editable={true}
@@ -182,31 +178,28 @@ export default class NoteScreen extends React.Component {
               <View
                 style={{
                   flex: 0,
-                  width: Dimensions.get("window").width - 40,
-                  justifyContent: "center",
-                  alignItems: "center",
+                  width: Dimensions.get('window').width - 40,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   margin: 20,
-                  flexDirection: "column"
-                }}
-              >
+                  flexDirection: 'column',
+                }}>
                 <TouchableOpacity
                   style={[
                     buttonStyles.activeSecondaryModalButton,
                     {
-                      width: "100%",
+                      width: '100%',
                       paddingTop: 15,
                       paddingBottom: 15,
-                      marginRight: 0
-                    }
+                      marginRight: 0,
+                    },
                   ]}
-                  onPress={this.sendNoteData}
-                >
+                  onPress={this.sendNoteData}>
                   <Text
                     style={[
                       buttonStyles.activeSecondaryTextColor,
-                      { fontWeight: "300", fontSize: 20 }
-                    ]}
-                  >
+                      { fontWeight: '300', fontSize: 20 },
+                    ]}>
                     SAVE NOTE
                   </Text>
                 </TouchableOpacity>
@@ -231,8 +224,7 @@ export default class NoteScreen extends React.Component {
 
       return (
         <View
-          style={{ flex: 7, alignItems: "center", justifyContent: "center" }}
-        >
+          style={{ flex: 7, alignItems: 'center', justifyContent: 'center' }}>
           <View style={pageStyles.noteCard}>
             <Text style={textStyles.actionSummaryHeader}>Summary</Text>
             <Text style={[textStyles.actionSummaryText, { marginTop: 15 }]}>
@@ -240,22 +232,20 @@ export default class NoteScreen extends React.Component {
             </Text>
           </View>
 
-          <View style={{ flexDirection: "row", marginTop: 40 }}>
+          <View style={{ flexDirection: 'row', marginTop: 40 }}>
             <TouchableOpacity
               style={[
                 buttonStyles.activeSecondaryModalButton,
-                { width: "40%", paddingTop: 15, paddingBottom: 15 }
+                { width: '40%', paddingTop: 15, paddingBottom: 15 },
               ]}
               onPress={() => {
                 LotActionHelper.backAction(this.props.navigation);
-              }}
-            >
+              }}>
               <Text
                 style={[
                   buttonStyles.activeSecondaryTextColor,
-                  { fontWeight: "300", fontSize: 20 }
-                ]}
-              >
+                  { fontWeight: '300', fontSize: 20 },
+                ]}>
                 CANCEL
               </Text>
             </TouchableOpacity>
@@ -263,18 +253,16 @@ export default class NoteScreen extends React.Component {
             <TouchableOpacity
               style={[
                 buttonStyles.activePrimaryModalButton,
-                { width: "40%", paddingTop: 15, paddingBottom: 15 }
+                { width: '40%', paddingTop: 15, paddingBottom: 15 },
               ]}
               onPress={() => {
                 this.sendFuelData();
-              }}
-            >
+              }}>
               <Text
                 style={[
                   buttonStyles.activePrimaryTextColor,
-                  { fontWeight: "300", fontSize: 20 }
-                ]}
-              >
+                  { fontWeight: '300', fontSize: 20 },
+                ]}>
                 SAVE
               </Text>
             </TouchableOpacity>
@@ -325,16 +313,14 @@ export default class NoteScreen extends React.Component {
       <View
         style={[
           pageStyles.container,
-          { justifyContent: "flex-start", backgroundColor: "#E6E4E0" }
-        ]}
-      >
+          { justifyContent: 'flex-start', backgroundColor: '#E6E4E0' },
+        ]}>
         <View
           style={[
             pageStyles.darkBody,
             pageStyles.row,
-            { justifyContent: "space-between" }
-          ]}
-        >
+            { justifyContent: 'space-between' },
+          ]}>
           <View style={[pageStyles.darkBody, pageStyles.column]}>
             <Text style={textStyles.header}>
               {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
@@ -346,9 +332,9 @@ export default class NoteScreen extends React.Component {
 
           <View style={pageStyles.column}>
             <Image
-              source={require("../../assets/images/note-white.png")}
+              source={require('../../assets/images/note-white.png')}
               style={[buttonStyles.icon, { padding: 10, minWidth: 30 }]}
-              resizeMode={"contain"}
+              resizeMode={'contain'}
             />
           </View>
         </View>

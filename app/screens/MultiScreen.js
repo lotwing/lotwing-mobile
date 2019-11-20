@@ -92,7 +92,7 @@ class LotView extends React.Component {
     this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
     this.dismissInput = this.dismissInput.bind(this);
     this._loadLotView = this._loadLotView.bind(this);
-    this.zoom = 20
+    this.zoom = 20;
   }
 
   componentWillMount() {
@@ -134,12 +134,12 @@ class LotView extends React.Component {
         GlobalVariables.LOT_DATA = responseJson;
         // TODO(adwoa): ask question about how multiple parking lots are listed and sorted within the get lot response
         let lot_geometry =
-          GlobalVariables.LOT_DATA['parking_lots'][0]['geo_info']['geometry'];
-        let lot_coords = lot_geometry['coordinates'][0];
+          GlobalVariables.LOT_DATA.parking_lots[0].geo_info.geometry;
+        let lot_coords = lot_geometry.coordinates[0];
 
         let lotParkingSpaceMap = {};
-        GlobalVariables.LOT_DATA['parking_spaces'].forEach(space => {
-          lotParkingSpaceMap[space['id']] = space;
+        GlobalVariables.LOT_DATA.parking_spaces.forEach(space => {
+          lotParkingSpaceMap[space.id] = space;
         });
         lotview.loadKeyBoardData();
         lotview._loadParkingSpaceMetadata({
@@ -170,17 +170,17 @@ class LotView extends React.Component {
         // only saying space ids not saving most_recently_tagged_at which is also returned
         let allSpaces = [];
         let results = [
-          responseJson['new_vehicle_occupied_spaces'],
-          responseJson['used_vehicle_occupied_spaces'],
-          responseJson['empty_parking_spaces'],
-          responseJson['loaner_occupied_spaces'],
-          responseJson['lease_return_occupied_spaces'],
-          responseJson['wholesale_unit_occupied_spaces'],
+          responseJson.new_vehicle_occupied_spaces,
+          responseJson.used_vehicle_occupied_spaces,
+          responseJson.empty_parking_spaces,
+          responseJson.loaner_occupied_spaces,
+          responseJson.lease_return_occupied_spaces,
+          responseJson.wholesale_unit_occupied_spaces,
         ];
         results.forEach(result => {
           result.forEach(space => {
-            if (!allSpaces.some(allspace => allspace['id'] === space['id'])) {
-              allSpaces.push(space['id']);
+            if (!allSpaces.some(allspace => allspace.id === space.id)) {
+              allSpaces.push(space.id);
             }
           });
         });
@@ -232,13 +232,21 @@ class LotView extends React.Component {
       ]; // [[x_min, x_max], [y_min, y_max]]
 
       coord.forEach(point => {
-        [px, py] = point;
+        const [px, py] = point;
 
-        if (max_min_array[0][0] > px) max_min_array[0][0] = px;
-        if (max_min_array[0][1] < px) max_min_array[0][1] = px;
+        if (max_min_array[0][0] > px) {
+          max_min_array[0][0] = px;
+        }
+        if (max_min_array[0][1] < px) {
+          max_min_array[0][1] = px;
+        }
 
-        if (max_min_array[1][0] > py) max_min_array[1][0] = py;
-        if (max_min_array[1][1] < py) max_min_array[1][1] = py;
+        if (max_min_array[1][0] > py) {
+          max_min_array[1][0] = py;
+        }
+        if (max_min_array[1][1] < py) {
+          max_min_array[1][1] = py;
+        }
       });
 
       center_coordinate = [
@@ -319,7 +327,7 @@ class LotView extends React.Component {
     this.setState({
       modalVisible: visibility,
       modalType: modalType,
-      feedbackText: textToShow,
+      // feedbackText: textToShow,
     });
   }
 
@@ -342,7 +350,7 @@ class LotView extends React.Component {
       usedSpaces.push(spaceId);
     }
     if (this.state.key_board !== null) {
-      url = GlobalVariables.BASE_ROUTE + Route.VEHICLE + vehicle.id;
+      let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE + vehicle.id;
       return fetch(url, {
         method: 'PUT',
         headers: {
@@ -634,8 +642,8 @@ class LotView extends React.Component {
         let vehicleData = data[spaceId];
 
         if (vehicleData) {
-          vehicleData['shape_id'] = spaceId;
-          snVehicleMap[vehicleData['stock_number']] = vehicleData;
+          vehicleData.shape_id = spaceId;
+          snVehicleMap[vehicleData.stock_number] = vehicleData;
         }
       });
       // console.log('NEW STOCK VEHICLE MAP: ', Object.keys(snVehicleMap), '\n\n');
@@ -695,7 +703,7 @@ class LotView extends React.Component {
 
   getLot() {
     if (this.state.lotShapes) {
-      return this.state.lotShapes['parking_lots'][0]['geo_info'];
+      return this.state.lotShapes.parking_lots[0].geo_info;
     }
     return GlobalVariables.EMPTY_GEOJSON;
   }
@@ -703,8 +711,8 @@ class LotView extends React.Component {
   getBuildings() {
     let buildingMap = {};
     if (this.state.lotShapes) {
-      this.state.lotShapes['buildings'].forEach(shape => {
-        buildingMap[shape['id']] = shape;
+      this.state.lotShapes.buildings.forEach(shape => {
+        buildingMap[shape.id] = shape;
       });
     }
     return buildingMap;
@@ -759,7 +767,6 @@ class LotView extends React.Component {
             updateLotAndDismissModal={this.updateLotAndDismissModal}
             updateLotAndReopenModal={this.updateLotAndReopenModal}
             setVehicleHighlight={this.setVehicleHighlight}
-            spaceId={this.state.spaceId}
             vehicles={this.state.vehicles}
             sku={this.state.sku}
             vin={this.state.vin}
@@ -866,14 +873,13 @@ class LotView extends React.Component {
         <Mapbox.MapView
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          ref={'_map'}
-          >
+          ref={'_map'}>
           <Mapbox.Camera
             zoomLevel={this.zoom}
-            animationMode='none'
+            animationMode="none"
             animationDuration={0}
             followUserLocation={true}
-            followUserMode='normal'
+            followUserMode="normal"
           />
           <Mapbox.UserLocation />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
@@ -883,7 +889,7 @@ class LotView extends React.Component {
             />
           </Mapbox.ShapeSource>
 
-          <BuildingLayer buildingShapes={this.getBuildings()}></BuildingLayer>
+          <BuildingLayer buildingShapes={this.getBuildings()} />
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
@@ -896,7 +902,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={false}
             updateEvents={this.postLoadEvents}
             type="empty"
-            recent={false}></VehicleSpaceLayer>
+            recent={false}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.newVehicleSpaces}
@@ -908,7 +915,8 @@ class LotView extends React.Component {
             updateSpaceVehicleMap={this.updateSpaceVehicleMap}
             type="new_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.usedVehicleSpaces}
@@ -921,12 +929,12 @@ class LotView extends React.Component {
             updateEvents={this.postLoadEvents}
             type="used_vehicle"
             recent={false}
-            blank={this.state.findingOnMap}></VehicleSpaceLayer>
+            blank={this.state.findingOnMap}
+          />
 
           <VehicleHighlightLayer
-            clickedStallPolygon={
-              this.state.clickedStall
-            }></VehicleHighlightLayer>
+            clickedStallPolygon={this.state.clickedStall}
+          />
         </Mapbox.MapView>
 
         {this.maybeRenderActionFeedbackView()}

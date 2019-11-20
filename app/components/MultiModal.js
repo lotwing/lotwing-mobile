@@ -175,7 +175,7 @@ export default class TagModalView extends React.Component {
     };
     console.log(vehicle);
     this.setState({ loading: true });
-    url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
+    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
     return fetch(url, {
       method: 'POST',
       headers: {
@@ -512,7 +512,7 @@ export default class TagModalView extends React.Component {
         this.state.vehicle.usage_type !== null
           ? this.state.vehicle.usage_type
           : '';
-      modalTitle = '';
+      let modalTitle = '';
       if (usageType === 'is_new') {
         modalTitle = 'New';
       }
@@ -541,7 +541,7 @@ export default class TagModalView extends React.Component {
             onPress={() => {
               this.props.findOnMap(false);
             }}>
-            <View style={styles.tagModalBlankSpace}></View>
+            <View style={styles.tagModalBlankSpace} />
           </TouchableWithoutFeedback>
 
           <View style={styles.modalBottomContainer}>
@@ -632,7 +632,7 @@ export default class TagModalView extends React.Component {
             console.log('TOUCHING --OUTER-- VIEW');
             this.tapOutsideModal();
           }}>
-          <View style={styles.tagModalBlankSpace}></View>
+          <View style={styles.tagModalBlankSpace} />
         </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
@@ -640,7 +640,8 @@ export default class TagModalView extends React.Component {
             style={[
               styles.tagModalStallBar,
               { borderBottomWidth: 0, height: 'auto' },
-            ]}></View>
+            ]}
+          />
           {isCreateModal ? (
             <View
               style={[

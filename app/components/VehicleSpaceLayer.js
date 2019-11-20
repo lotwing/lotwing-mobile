@@ -43,7 +43,7 @@ export default class VehicleSpaceLayer extends React.PureComponent {
    */
   onSourceLayerPress(e) {
     let payload = e.nativeEvent.payload;
-    const space_id = payload['id'];
+    const space_id = payload.id;
     console.log('\n\nSource layer pressed');
     console.log(
       '\n\nPressed Feature ID: ',
@@ -67,22 +67,20 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
       this.props.spaces.forEach(id => {
         if (this.props.recent) {
-          const updatedAt = new Date(
-            this.props.parkingShapes[id]['updated_at'],
-          );
+          const updatedAt = new Date(this.props.parkingShapes[id].updated_at);
           const now = new Date();
           const oneDay = 60 * 60 * 24 * 1000;
           //console.log('Time: ', now-updatedAt, 'One day: ', oneDay)
           if (now - updatedAt < oneDay) {
             //console.log('New')
-            coordinatesObject[id] = this.props.parkingShapes[id]['geo_info'][
-              'geometry'
-            ]['coordinates'];
+            coordinatesObject[id] = this.props.parkingShapes[
+              id
+            ].geo_info.geometry.coordinates;
           }
         } else {
-          coordinatesObject[id] = this.props.parkingShapes[id]['geo_info'][
-            'geometry'
-          ]['coordinates'];
+          coordinatesObject[id] = this.props.parkingShapes[
+            id
+          ].geo_info.geometry.coordinates;
         }
       });
       return coordinatesObject;

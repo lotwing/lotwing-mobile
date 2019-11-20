@@ -82,7 +82,7 @@ export default class EventsLayer extends React.PureComponent {
     if (event_coord_obj) {
       let polygons = Object.keys(event_coord_obj).map(ps_id =>
         this._createNewPolygon(
-          event_coord_obj[ps_id]['parking_space']['geometry']['coordinates'],
+          event_coord_obj[ps_id].parking_space.geometry.coordinates,
           ps_id,
         ),
       );

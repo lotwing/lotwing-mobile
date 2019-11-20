@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
-export default buttonStyles = StyleSheet.create({
+export default StyleSheet.create({
   activePrimaryModalButton: {
     padding: 10,
     marginLeft: 10,

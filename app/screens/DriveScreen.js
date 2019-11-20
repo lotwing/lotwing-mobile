@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AsyncStorage,
   Image,
@@ -8,19 +8,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert
-} from "react-native";
+  Alert,
+} from 'react-native';
 
-import GlobalVariables from "../constants/GlobalVariables";
-import Route from "../constants/Routes";
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
-import buttonStyles from "../constants/ButtonStyles";
-import pageStyles from "../constants/PageStyles";
-import textStyles from "../constants/TextStyles";
+import buttonStyles from '../constants/ButtonStyles';
+import pageStyles from '../constants/PageStyles';
+import textStyles from '../constants/TextStyles';
 
-import Timer from "../components/Timer";
+import Timer from '../components/Timer';
 
-import LotActionHelper from "../helpers/LotActionHelper";
+import LotActionHelper from '../helpers/LotActionHelper';
 
 export default class DriveScreen extends React.Component {
   constructor(props) {
@@ -36,13 +36,13 @@ export default class DriveScreen extends React.Component {
     this.state = {
       btnPressed: false,
       eventRunning: false,
-      driveTime: "0:01",
-      eventId: 0
+      driveTime: '0:01',
+      eventId: 0,
     };
   }
 
   componentDidMount() {
-    console.log("Event ID: ", this.eventId);
+    console.log('Event ID: ', this.eventId);
     this.props.navigation.setParams({ extras: { showModalonExit: true } });
     if (this.eventId !== null && this.eventId !== undefined) {
       this.setState({ eventRunning: true, eventId: this.eventId });
@@ -57,28 +57,26 @@ export default class DriveScreen extends React.Component {
         extras: {
           driveEventId: this.eventId,
           spaceId: this.details.spaceId,
-          showModalonExit: false
-        }
+          showModalonExit: false,
+        },
       });
       let payload = LotActionHelper.structureTagPayload(
         GlobalVariables.BEGIN_DRIVE,
         { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-        "starting test drive"
+        'starting test drive',
       );
       LotActionHelper.registerTagAction(payload)
         .then(responseJson => {
           if (responseJson) {
-            this.eventId = responseJson["event"]
-              ? responseJson["event"]["id"]
-              : null;
+            this.eventId = responseJson.event ? responseJson.event.id : null;
             this.startEvent(this.eventId);
           }
         })
         .catch(err => {
           console.log(
-            "\nCAUGHT ERROR IN START DRIVING ACTION: \n",
+            '\nCAUGHT ERROR IN START DRIVING ACTION: \n',
             err,
-            err.name
+            err.name,
           );
           this.setState({ btnPressed: false });
           return err;
@@ -89,19 +87,19 @@ export default class DriveScreen extends React.Component {
   startEvent(eventId) {
     //let eventIdPromise = LotActionHelper.getEventId(this.details.spaceId, 'test_drive');
     const startPackage = {
-      started_at: this.formatDate(Date.now())
+      started_at: this.formatDate(Date.now()),
     };
-    console.log("start package", startPackage);
+    console.log('start package', startPackage);
     let eventIdPromise = LotActionHelper.endTimeboundTagAction(
       startPackage,
-      eventId
+      eventId,
     );
 
     eventIdPromise.then(() => {
       this.setState({
         eventRunning: true,
         eventId: eventId,
-        btnPressed: false
+        btnPressed: false,
       });
     });
   }
@@ -113,21 +111,21 @@ export default class DriveScreen extends React.Component {
       ended_at: this.formatDate(Date.now()),
       acknowledged: true, // shouldAcknowledgeAction
       event_details:
-        "Test driven for " +
+        'Test driven for ' +
         this.state.driveTime +
-        ". \nTest drive ended by " +
-        GlobalVariables.USER_NAME
+        '. \nTest drive ended by ' +
+        GlobalVariables.USER_NAME,
     };
 
     let eventIdPromise = LotActionHelper.endTimeboundTagAction(
       endPackage,
-      this.eventId
+      this.eventId,
     ).then(() => {
-      this.props.navigation.navigate("Lot", {
-        extras: this.props.navigation.getParam("extras", {}),
+      this.props.navigation.navigate('Lot', {
+        extras: this.props.navigation.getParam('extras', {}),
         modalVisible: true,
         refresh: true,
-        findingOnMap: false
+        findingOnMap: false,
       });
       //LotActionHelper.backAction(driveScreen.props.navigation);
     });
@@ -136,27 +134,27 @@ export default class DriveScreen extends React.Component {
   formatDate(date) {
     const d = new Date(date);
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
     ];
     const hours =
       d.getUTCHours() < 10 ? `0${d.getUTCHours()}` : `${d.getUTCHours()}`;
@@ -175,7 +173,7 @@ export default class DriveScreen extends React.Component {
 
   _renderTimerOnStart(startTime) {
     if (this.state.eventRunning) {
-      return <Timer startTime={startTime} fuelTime={this.setDriveTime}></Timer>;
+      return <Timer startTime={startTime} fuelTime={this.setDriveTime} />;
     }
     return <Text style={textStyles.timer}>00:00:00</Text>;
   }
@@ -191,41 +189,37 @@ export default class DriveScreen extends React.Component {
         {this.state.eventRunning &&
           this.summary !== null &&
           this.summary !== undefined &&
-          this.summary !== "" && (
+          this.summary !== '' && (
             <View
               style={{
                 flex: 0,
                 padding: 14,
                 paddingLeft: 30,
-                paddingRight: 30
-              }}
-            >
+                paddingRight: 30,
+              }}>
               <Text
-                style={[textStyles.actionSummaryHeader, { color: "#828282" }]}
-              >
-                Started by:{" "}
+                style={[textStyles.actionSummaryHeader, { color: '#828282' }]}>
+                Started by:{' '}
                 {this.summary.substring(
-                  this.summary.indexOf("<strong>") + 9,
-                  this.summary.indexOf("</strong>")
+                  this.summary.indexOf('<strong>') + 9,
+                  this.summary.indexOf('</strong>'),
                 )}
               </Text>
             </View>
           )}
         <View
-          style={{ flex: 4, justifyContent: "center", alignItems: "center" }}
-        >
+          style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
           {this._renderTimerOnStart(startTime)}
         </View>
         {this.state.eventRunning ? (
           <View
             style={{
               flex: 1,
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              margin: 30
-            }}
-          >
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              margin: 30,
+            }}>
             {/*<TouchableOpacity
 				  		style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginLeft: 0 } ]}
 				 			onPress={() => {
@@ -253,36 +247,34 @@ export default class DriveScreen extends React.Component {
               style={[
                 buttonStyles.activeSecondaryModalButton,
                 {
-                  width: "90%",
+                  width: '90%',
                   paddingTop: 15,
                   paddingBottom: 15,
-                  marginTop: 30
-                }
+                  marginTop: 30,
+                },
               ]}
               onPress={() => {
                 Alert.alert(
-                  "End Test Drive",
-                  "End test drive and choose a stall to populate?",
+                  'End Test Drive',
+                  'End test drive and choose a stall to populate?',
                   [
                     {
-                      text: "Cancel",
-                      style: "cancel"
+                      text: 'Cancel',
+                      style: 'cancel',
                     },
                     {
-                      text: "OK",
-                      onPress: () => this.endTestDrive(true)
-                    }
+                      text: 'OK',
+                      onPress: () => this.endTestDrive(true),
+                    },
                   ],
-                  { cancelable: true }
+                  { cancelable: true },
                 );
-              }}
-            >
+              }}>
               <Text
                 style={[
                   buttonStyles.activeSecondaryTextColor,
-                  { fontWeight: "300", fontSize: 20 }
-                ]}
-              >
+                  { fontWeight: '300', fontSize: 20 },
+                ]}>
                 END TEST DRIVE
               </Text>
             </TouchableOpacity>
@@ -293,25 +285,22 @@ export default class DriveScreen extends React.Component {
               pageStyles.row,
               {
                 flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                margin: 30
-              }
-            ]}
-          >
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: 30,
+              },
+            ]}>
             <TouchableOpacity
               style={[
                 buttonStyles.activeSecondaryModalButton,
-                { width: "90%", paddingTop: 15, paddingBottom: 15 }
+                { width: '90%', paddingTop: 15, paddingBottom: 15 },
               ]}
-              onPress={() => this.startDrivingAction()}
-            >
+              onPress={() => this.startDrivingAction()}>
               <Text
                 style={[
                   buttonStyles.activeSecondaryTextColor,
-                  { fontWeight: "300", fontSize: 20 }
-                ]}
-              >
+                  { fontWeight: '300', fontSize: 20 },
+                ]}>
                 START TEST DRIVE
               </Text>
             </TouchableOpacity>
@@ -322,21 +311,19 @@ export default class DriveScreen extends React.Component {
   }
 
   render() {
-    console.log("USER NAME: ", GlobalVariables.USER_NAME);
+    console.log('USER NAME: ', GlobalVariables.USER_NAME);
     return (
       <View
         style={[
           pageStyles.container,
-          { justifyContent: "flex-start", backgroundColor: "#E6E4E0" }
-        ]}
-      >
+          { justifyContent: 'flex-start', backgroundColor: '#E6E4E0' },
+        ]}>
         <View
           style={[
             pageStyles.darkBody,
             pageStyles.row,
-            { justifyContent: "space-between" }
-          ]}
-        >
+            { justifyContent: 'space-between' },
+          ]}>
           <View style={[pageStyles.darkBody, pageStyles.column]}>
             <Text style={textStyles.header}>
               {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
@@ -347,9 +334,9 @@ export default class DriveScreen extends React.Component {
           </View>
           <View style={pageStyles.column}>
             <Image
-              source={require("../../assets/images/car-white.png")}
+              source={require('../../assets/images/car-white.png')}
               style={[buttonStyles.icon, { padding: 10, minWidth: 30 }]}
-              resizeMode={"contain"}
+              resizeMode={'contain'}
             />
           </View>
         </View>

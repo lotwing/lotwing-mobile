@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
-export default textStyles = StyleSheet.create({
+export default StyleSheet.create({
   largeText: {
     fontSize: 25,
   },
@@ -42,7 +42,7 @@ export default textStyles = StyleSheet.create({
   timer: {
     textShadowColor: '#828282',
     textShadowRadius: 5,
-    textShadowOffset: {'width': 1, 'height': 1},
+    textShadowOffset: { width: 1, height: 1 },
     fontSize: 50,
     fontWeight: '600',
     color: 'white',

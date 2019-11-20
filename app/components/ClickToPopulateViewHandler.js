@@ -33,17 +33,18 @@ export default class ClickToPopulateViewHandler extends React.Component {
   constructor(props) {
     super(props);
 
-    if (!this.props.feedbackText) this.props.feedbackText = 'Choose the stall to populate...';
+    if (!this.props.feedbackText) {
+      this.props.feedbackText = 'Choose the stall to populate...';
+    }
     console.log('TEXT to display: ', this.props.feedbackText);
   }
 
   render() {
     return (
-      <TouchableOpacity
-        style={styles.stallPopulationPrompt}>
-        <Text
-          style={styles.stallPopulationPromptText}>
-          {this.props.feedbackText} </Text>
+      <TouchableOpacity style={styles.stallPopulationPrompt}>
+        <Text style={styles.stallPopulationPromptText}>
+          {this.props.feedbackText}{' '}
+        </Text>
       </TouchableOpacity>
     );
   }
@@ -65,18 +66,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '300',
     color: 'white',
-    width: '100%'
+    width: '100%',
   },
   stallPopulationPrompt: {
-    position:'absolute',
+    position: 'absolute',
     bottom: 0,
-    width: '100%', 
+    width: '100%',
     height: '10%',
-    backgroundColor: '#828282', 
+    backgroundColor: '#828282',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
     borderWidth: 14,
     borderColor: '#828282',
-  }
+  },
 });

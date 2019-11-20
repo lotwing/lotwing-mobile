@@ -1,20 +1,20 @@
-import React from "react";
+import React from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
   ScrollView,
-  ActivityIndicator
-} from "react-native";
+  ActivityIndicator,
+} from 'react-native';
 
-import GlobalVariables from "../constants/GlobalVariables";
-import Route from "../constants/Routes";
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
-import buttonStyles from "../constants/ButtonStyles";
-import pageStyles from "../constants/PageStyles";
-import textStyles from "../constants/TextStyles";
+import buttonStyles from '../constants/ButtonStyles';
+import pageStyles from '../constants/PageStyles';
+import textStyles from '../constants/TextStyles';
 
-import LotActionHelper from "../helpers/LotActionHelper";
+import LotActionHelper from '../helpers/LotActionHelper';
 
 export default class HistoryScreen extends React.Component {
   constructor(props) {
@@ -26,24 +26,24 @@ export default class HistoryScreen extends React.Component {
       vehicle: {},
       position: 0,
       events: [],
-      space_coords: []
+      space_coords: [],
     };
   }
   componentWillMount() {
-    console.log("History Mounted");
+    console.log('History Mounted');
     this.props.navigation.setParams({ extras: { showModalonExit: true } });
     if (this.props.navigation.state.params) {
       const {
         space_id,
         vehicle,
-        position
+        position,
       } = this.props.navigation.state.params;
       this.setState({ space_id, vehicle, position });
       this.fetchHistory(space_id);
     }
   }
   componentWillReceiveProps(nextProps) {
-    console.log("History Receive Props");
+    console.log('History Receive Props');
     if (nextProps.navigation.state.params) {
       const { space_id, vehicle, position } = nextProps.navigation.state.params;
       this.setState({ space_id, vehicle, position });
@@ -53,38 +53,38 @@ export default class HistoryScreen extends React.Component {
 
   fetchHistory(space_id) {
     this.setState({ loading: true });
-    url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + space_id;
-    console.log("FETCH HISTORY: ", url);
+    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + space_id;
+    console.log('FETCH HISTORY: ', url);
     return fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
       .then(response => response.json())
       .then(responseJson => {
         let position = this.state.position;
         responseJson.vehicles.forEach((vehicle, index) => {
           console.log(
-            "Vehicle obkject: ",
+            'Vehicle obkject: ',
             vehicle.id,
-            " State vehicle",
-            this.state.vehicle.id
+            ' State vehicle',
+            this.state.vehicle.id,
           );
           if (vehicle.id === this.state.vehicle.id) {
             position = index;
           }
         });
-        console.log("History Results: ");
+        console.log('History Results: ');
         this.setState({
           events: responseJson.events[position],
           loading: false,
-          space_coords: responseJson.shape.geo_info
+          space_coords: responseJson.shape.geo_info,
         });
       })
       .catch(err => {
-        console.log("\nCAUGHT ERROR IN FETCH HISTORY: \n", err, err.name);
+        console.log('\nCAUGHT ERROR IN FETCH HISTORY: \n', err, err.name);
         return err;
       });
   }
@@ -105,27 +105,26 @@ export default class HistoryScreen extends React.Component {
             flex: 1,
             borderTopWidth: 1,
             borderBottomWidth: 0,
-            borderTopColor: "#FFF"
-          }
-        ]}
-      >
+            borderTopColor: '#FFF',
+          },
+        ]}>
         <ScrollView style={{ flex: 1 }}>
           <View style={{ paddingTop: 14, paddingBottom: 14 }}>
             {this.state.events.map(event => {
               const { id, summary } = event.data.attributes;
               console.log(id, summary);
               const time = summary.substring(
-                summary.indexOf("<strong>") + 9,
-                summary.indexOf("</strong>")
+                summary.indexOf('<strong>') + 9,
+                summary.indexOf('</strong>'),
               );
               const description = summary.substring(
-                summary.indexOf("16px;") + 7,
-                summary.indexOf("</span>")
+                summary.indexOf('16px;') + 7,
+                summary.indexOf('</span>'),
               );
-              console.log("Time: ", time);
+              console.log('Time: ', time);
               return (
                 <View key={id} style={{ paddingTop: 5, paddingBottom: 5 }}>
-                  <Text style={[textStyles.subtitle, { fontWeight: "bold" }]}>
+                  <Text style={[textStyles.subtitle, { fontWeight: 'bold' }]}>
                     {time}
                   </Text>
                   <Text style={textStyles.subtitle}>{description}</Text>
@@ -138,13 +137,12 @@ export default class HistoryScreen extends React.Component {
           <TouchableOpacity
             style={buttonStyles.activeSecondaryModalButton}
             onPress={() =>
-              this.props.navigation.navigate("Lot", {
+              this.props.navigation.navigate('Lot', {
                 findingOnMap: true,
                 space_coords: this.state.space_coords,
-                refresh: false
+                refresh: false,
               })
-            }
-          >
+            }>
             <Text style={buttonStyles.activeSecondaryTextColor}>
               SHOW ON MAP
             </Text>
@@ -160,13 +158,12 @@ export default class HistoryScreen extends React.Component {
       <View
         style={[
           pageStyles.container,
-          { justifyContent: "flex-start", backgroundColor: "#E6E4E0" }
-        ]}
-      >
+          { justifyContent: 'flex-start', backgroundColor: '#E6E4E0' },
+        ]}>
         {this.state.vehicle !== {} && (
           <View style={[pageStyles.darkBody, pageStyles.column]}>
             <Text style={textStyles.header}>
-              {this.state.vehicle.year} {this.state.vehicle.make}{" "}
+              {this.state.vehicle.year} {this.state.vehicle.make}{' '}
               {this.state.vehicle.model}
             </Text>
             <Text style={textStyles.subtitle}>

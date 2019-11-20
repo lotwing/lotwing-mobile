@@ -105,9 +105,9 @@ export default class HoldsLayer extends React.PureComponent {
       let coordinatesObject = {};
       this.props.spaces.forEach(id => {
         if (!this.props.skip.some(skipId => skipId === id)) {
-          coordinatesObject[id] = this.props.parkingShapes[id]['geo_info'][
-            'geometry'
-          ]['coordinates'];
+          coordinatesObject[id] = this.props.parkingShapes[
+            id
+          ].geo_info.geometry.coordinates;
         }
       });
       return coordinatesObject;

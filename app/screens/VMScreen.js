@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   View,
   ScrollView,
@@ -6,16 +6,16 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  ActivityIndicator
-} from "react-native";
+  ActivityIndicator,
+} from 'react-native';
 
-import GlobalVariables from "../constants/GlobalVariables";
-import Route from "../constants/Routes";
+import GlobalVariables from '../constants/GlobalVariables';
+import Route from '../constants/Routes';
 
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 class VMScreen extends Component {
-  state = { loading: true, vehicles_data: [], type: "is_new" };
+  state = { loading: true, vehicles_data: [], type: 'is_new' };
 
   componentWillMount() {
     this.loadVehicleData();
@@ -31,11 +31,11 @@ class VMScreen extends Component {
     this.setState({ loading: true });
     let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
     return fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Bearer " + GlobalVariables.LOTWING_ACCESS_TOKEN
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
     })
       .then(response => {
         return response.json();
@@ -47,7 +47,7 @@ class VMScreen extends Component {
   }
   count(type) {
     return this.state.vehicles_data.filter(
-      vehicle => vehicle.usage_type === type
+      vehicle => vehicle.usage_type === type,
     ).length;
   }
 
@@ -56,7 +56,7 @@ class VMScreen extends Component {
     const { t, h, pill } = styles;
     let models = [];
     const vehicles = this.state.vehicles_data.filter(
-      vehicle => vehicle.usage_type === this.state.type
+      vehicle => vehicle.usage_type === this.state.type,
     );
     vehicles.forEach(vehicle => {
       if (!models.includes(vehicle.model)) {
@@ -68,11 +68,10 @@ class VMScreen extends Component {
         <View
           style={{
             flex: 1,
-            backgroundColor: "#FFF",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
+            backgroundColor: '#FFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
           <ActivityIndicator size="large" color="#000" />
         </View>
       );
@@ -81,24 +80,22 @@ class VMScreen extends Component {
       <View
         style={{
           flex: 1,
-          backgroundColor: "#BE1E2D",
-          paddingTop: getStatusBarHeight()
-        }}
-      >
+          backgroundColor: '#BE1E2D',
+          paddingTop: getStatusBarHeight(),
+        }}>
         <ScrollView style={{ flex: 1 }}>
           <View
             style={{
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 20
-            }}
-          >
-            <TouchableOpacity onPress={() => navigation.navigate("Sales")}>
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+            }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Sales')}>
               <Image
-                source={require("../../assets/images/menu-wing.png")}
+                source={require('../../assets/images/menu-wing.png')}
                 style={{
-                  width: Dimensions.get("window").width / 4,
-                  height: Dimensions.get("window").width / 4
+                  width: Dimensions.get('window').width / 4,
+                  height: Dimensions.get('window').width / 4,
                 }}
               />
             </TouchableOpacity>
@@ -106,66 +103,59 @@ class VMScreen extends Component {
           <View style={{ padding: 20 }}>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
               <View
                 style={[
-                  { backgroundColor: "#006699" },
+                  { backgroundColor: '#006699' },
                   pill,
-                  this.state.type === "is_new" && { borderColor: "#BE1E2D" }
-                ]}
-              >
-                <Text style={t}>New: {this.count("is_new")}</Text>
+                  this.state.type === 'is_new' && { borderColor: '#BE1E2D' },
+                ]}>
+                <Text style={t}>New: {this.count('is_new')}</Text>
               </View>
               <View
                 style={[
-                  { backgroundColor: "#66CC00" },
+                  { backgroundColor: '#66CC00' },
                   pill,
-                  this.state.type === "is_used" && { borderColor: "#FFF" }
-                ]}
-              >
-                <Text style={t}>Used: {this.count("is_used")}</Text>
+                  this.state.type === 'is_used' && { borderColor: '#FFF' },
+                ]}>
+                <Text style={t}>Used: {this.count('is_used')}</Text>
               </View>
             </View>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
               <View
                 style={[
-                  { backgroundColor: "#E8F051" },
+                  { backgroundColor: '#E8F051' },
                   pill,
-                  this.state.type === "loaner" && { borderColor: "#FFF" }
-                ]}
-              >
-                <Text>Loaner: {this.count("loaner")}</Text>
+                  this.state.type === 'loaner' && { borderColor: '#FFF' },
+                ]}>
+                <Text>Loaner: {this.count('loaner')}</Text>
               </View>
               <View
                 style={[
-                  { backgroundColor: "#8D8C88" },
+                  { backgroundColor: '#8D8C88' },
                   pill,
-                  this.state.type === "wholesale_unit" && {
-                    borderColor: "#FFF"
-                  }
-                ]}
-              >
-                <Text style={t}>Wholesale: {this.count("wholesale_unit")}</Text>
+                  this.state.type === 'wholesale_unit' && {
+                    borderColor: '#FFF',
+                  },
+                ]}>
+                <Text style={t}>Wholesale: {this.count('wholesale_unit')}</Text>
               </View>
               <View
                 style={[
-                  { backgroundColor: "#D13CEA" },
+                  { backgroundColor: '#D13CEA' },
                   pill,
-                  this.state.type === "lease_return" && { borderColor: "#FFF" }
-                ]}
-              >
+                  this.state.type === 'lease_return' && { borderColor: '#FFF' },
+                ]}>
                 <Text style={t}>
-                  Lease Return: {this.count("lease_return")}
+                  Lease Return: {this.count('lease_return')}
                 </Text>
               </View>
             </View>
@@ -185,23 +175,21 @@ class VMScreen extends Component {
         <View
           style={{
             flex: 0,
-            flexDirection: "row",
+            flexDirection: 'row',
             padding: 10,
-            alignItems: "flex-end",
-            position: "absolute",
+            alignItems: 'flex-end',
+            position: 'absolute',
             right: 0,
-            bottom: 0
-          }}
-        >
+            bottom: 0,
+          }}>
           <TouchableOpacity onPress={() => this.loadVehicleData()}>
             <View
               style={{
                 padding: 10,
-                backgroundColor: "#000",
+                backgroundColor: '#000',
                 borderRadius: 5,
-                marginRight: 10
-              }}
-            >
+                marginRight: 10,
+              }}>
               <Text style={t}>Refresh</Text>
             </View>
           </TouchableOpacity>
@@ -213,18 +201,18 @@ class VMScreen extends Component {
 
 const styles = {
   h: {
-    color: "#FFF",
-    fontSize: 18
+    color: '#FFF',
+    fontSize: 18,
   },
   t: {
-    color: "#FFF"
+    color: '#FFF',
   },
   pill: {
     borderRadius: 8,
     padding: 7,
     margin: 3,
     borderWidth: 2,
-    borderColor: "#BE1E2D"
-  }
+    borderColor: '#BE1E2D',
+  },
 };
 export default VMScreen;

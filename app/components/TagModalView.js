@@ -15,7 +15,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
@@ -36,7 +36,6 @@ import textStyles from '../constants/TextStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import LotActionHelper from '../helpers/LotActionHelper';
-
 
 /**
  *
@@ -71,7 +70,7 @@ export default class TagModalView extends React.Component {
       fuel: { event_id: null, started_at: null, summary: '' },
       sku: this.props.sku,
       barcodeOpen: false,
-    }
+    };
   }
   componentWillMount() {
     //console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType)
@@ -79,16 +78,22 @@ export default class TagModalView extends React.Component {
       //console.log('CALL LOAD VEHICLE from MOUNT')
       this.loadVehicleData(this.props);
     } else {
-      this.setState({ loading: false, createView: false, vehicleType: null, reopenOnDismiss: false})
+      this.setState({
+        loading: false,
+        createView: false,
+        vehicleType: null,
+        reopenOnDismiss: false,
+      });
     }
   }
 
   loadVehicleData(props) {
-    const { spaceId, vehicles } = props
+    const { spaceId, vehicles } = props;
     if (spaceId === null) {
       if (vehicles.length) {
-
-        const sortedVehicles = vehicles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        const sortedVehicles = vehicles.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        );
         this.setState({
           vehicles: sortedVehicles,
           vehicle: sortedVehicles[this.state.arrayPosition],
@@ -97,8 +102,8 @@ export default class TagModalView extends React.Component {
           mileageOpen: false,
           loading: false,
           reopenOnDismiss: false,
-          modalContent: GlobalVariables.BASIC_MODAL_TYPE
-        })
+          modalContent: GlobalVariables.BASIC_MODAL_TYPE,
+        });
       }
     } else {
       let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE_BY_SPACE + spaceId;
@@ -107,48 +112,81 @@ export default class TagModalView extends React.Component {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
         },
       })
-      .then((response) => {
+        .then(response => {
           return response.json();
-      })
-      .then((result) => {
-        //console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
-        //console.log(result)
-        if (result && result.vehicles && result.vehicles.length) {
-
-          let drive = {};
-          let fuel = {};
-          result.events!== null && result.events[0].forEach((event) => {
-            //console.log('EVENT: ', event.data)
-            const { event_type, started_at, ended_at, id, summary } = event.data.attributes
-            if (event_type === GlobalVariables.BEGIN_DRIVE && started_at !== null && ended_at === null ) {
-              drive = { event_id: id, started_at: started_at, summary: summary }
-            }
-            if (event_type === GlobalVariables.BEGIN_FUELING && started_at !== null && ended_at === null ) {
-              fuel = { event_id: id, started_at: started_at, summary: summary }
-            }
-          })
-          const sortedVehicles = result.vehicles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          this.setState({
-            vehicles: sortedVehicles,
-            vehicle: sortedVehicles[this.state.arrayPosition],
-            mileage: sortedVehicles[this.state.arrayPosition].mileage,
-            screen: 'default',
-            mileageOpen: false,
-            loading: false,
-            events: result.events,
-            modalContent: GlobalVariables.BASIC_MODAL_TYPE,
-            drive: drive,
-            fuel: fuel
-          });
-          this.props.setVehicleId(sortedVehicles[this.state.arrayPosition].id, sortedVehicles)
-        } else {
-          console.log('load vehicle data: ', props.modalContent)
-          this.setState({vehicle: null, loading: false, modalContent: 'empty', mileage: null, mileageOpen: false })
-        }
-      })
+        })
+        .then(result => {
+          //console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
+          //console.log(result)
+          if (result && result.vehicles && result.vehicles.length) {
+            let drive = {};
+            let fuel = {};
+            result.events !== null &&
+              result.events[0].forEach(event => {
+                //console.log('EVENT: ', event.data)
+                const {
+                  event_type,
+                  started_at,
+                  ended_at,
+                  id,
+                  summary,
+                } = event.data.attributes;
+                if (
+                  event_type === GlobalVariables.BEGIN_DRIVE &&
+                  started_at !== null &&
+                  ended_at === null
+                ) {
+                  drive = {
+                    event_id: id,
+                    started_at: started_at,
+                    summary: summary,
+                  };
+                }
+                if (
+                  event_type === GlobalVariables.BEGIN_FUELING &&
+                  started_at !== null &&
+                  ended_at === null
+                ) {
+                  fuel = {
+                    event_id: id,
+                    started_at: started_at,
+                    summary: summary,
+                  };
+                }
+              });
+            const sortedVehicles = result.vehicles.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at),
+            );
+            this.setState({
+              vehicles: sortedVehicles,
+              vehicle: sortedVehicles[this.state.arrayPosition],
+              mileage: sortedVehicles[this.state.arrayPosition].mileage,
+              screen: 'default',
+              mileageOpen: false,
+              loading: false,
+              events: result.events,
+              modalContent: GlobalVariables.BASIC_MODAL_TYPE,
+              drive: drive,
+              fuel: fuel,
+            });
+            this.props.setVehicleId(
+              sortedVehicles[this.state.arrayPosition].id,
+              sortedVehicles,
+            );
+          } else {
+            console.log('load vehicle data: ', props.modalContent);
+            this.setState({
+              vehicle: null,
+              loading: false,
+              modalContent: 'empty',
+              mileage: null,
+              mileageOpen: false,
+            });
+          }
+        });
     }
   }
 
@@ -160,23 +198,23 @@ export default class TagModalView extends React.Component {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
       },
     })
-    .then((response) => {
+      .then(response => {
         return response.json();
-    })
-    .then((result) => {
-      console.log('\nRETURNED KEY LOCATIONS DATA: ', result);
-      if (result.length) {
-        this.setState({
-          key_board_locations: result,
-          loading: false
-        });
-      } else {
-        this.setState({loading: false })
-      }
-    })
+      })
+      .then(result => {
+        console.log('\nRETURNED KEY LOCATIONS DATA: ', result);
+        if (result.length) {
+          this.setState({
+            key_board_locations: result,
+            loading: false,
+          });
+        } else {
+          this.setState({ loading: false });
+        }
+      });
   }
 
   dismissModal() {
@@ -185,7 +223,7 @@ export default class TagModalView extends React.Component {
     //Keyboard.dismiss()
   }
   tapOutsideModal() {
-    console.log('tap outside modal')
+    console.log('tap outside modal');
     this.props.setVehicleHighlight(null);
     this.props.setModalVisibility(false);
     //Keyboard.dismiss()
@@ -203,16 +241,22 @@ export default class TagModalView extends React.Component {
   structureTagPayload(type, event_details) {
     // expects a valid type: tag, note, test_drive, fuel_vehicle, odometer_update
     let body = {
-      'tag': {'vehicle_id': this.state.vehicle !== null ? this.state.vehicle.id : null, 'shape_id': this.props.spaceId},
-      'event': {'event_type': type, 'event_details': event_details ? event_details : ''}
-    }
+      tag: {
+        vehicle_id: this.state.vehicle !== null ? this.state.vehicle.id : null,
+        shape_id: this.props.spaceId,
+      },
+      event: {
+        event_type: type,
+        event_details: event_details ? event_details : '',
+      },
+    };
 
-    return body
+    return body;
   }
 
   makeAltViewVisible(contentType) {
-    console.log('makeAltViewVisible: ', contentType)
-    this.setState({modalContent: contentType});
+    console.log('makeAltViewVisible: ', contentType);
+    this.setState({ modalContent: contentType });
   }
 
   confirmSpaceData() {
@@ -221,29 +265,29 @@ export default class TagModalView extends React.Component {
 
     console.log('TAG DATA: ', space_data);
 
-    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE , {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
-        },
-        body: JSON.stringify(space_data),
-      })
-      .then((response) => {
+    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+      },
+      body: JSON.stringify(space_data),
+    })
+      .then(response => {
         return response.json();
       })
-      .then((responseJson) => {
+      .then(responseJson => {
         if (this.state.reopenOnDismiss) {
-          this.setState({reopenOnDismiss: false })
-          this.props.updateLotAndReopenModal(this.props.spaceId)
+          this.setState({ reopenOnDismiss: false });
+          this.props.updateLotAndReopenModal(this.props.spaceId);
         } else {
           this.updateLotAndDismissModal();
         }
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
-        return err
+        return err;
       });
   }
 
@@ -251,108 +295,157 @@ export default class TagModalView extends React.Component {
     //this.dismissModal();
     //console.log('Vehicle: ',this.state.vehicles[this.state.arrayPosition])
     if (page_name == 'drive') {
-      this.props.navigation.navigate('Drive', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.drive.event_id, started_at: this.state.drive.started_at, summary: this.state.drive.summary});
+      this.props.navigation.navigate('Drive', {
+        props: this.props,
+        space_id: this.props.spaceId,
+        vehicles: this.state.vehicles,
+        position: this.state.arrayPosition,
+        eventId: this.state.drive.event_id,
+        started_at: this.state.drive.started_at,
+        summary: this.state.drive.summary,
+      });
     } else if (page_name === 'fuel') {
-      this.props.navigation.navigate('Fuel', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition, eventId: this.state.fuel.event_id, started_at: this.state.fuel.started_at, summary: this.state.fuel.summary});
+      this.props.navigation.navigate('Fuel', {
+        props: this.props,
+        space_id: this.props.spaceId,
+        vehicles: this.state.vehicles,
+        position: this.state.arrayPosition,
+        eventId: this.state.fuel.event_id,
+        started_at: this.state.fuel.started_at,
+        summary: this.state.fuel.summary,
+      });
     } else if (page_name === 'note') {
-      this.props.navigation.navigate('Note', { props: this.props, space_id: this.props.spaceId, vehicles: this.state.vehicles, position: this.state.arrayPosition });
+      this.props.navigation.navigate('Note', {
+        props: this.props,
+        space_id: this.props.spaceId,
+        vehicles: this.state.vehicles,
+        position: this.state.arrayPosition,
+      });
     } else if (page_name === 'history') {
-      this.props.navigation.navigate('History', { space_id: this.props.spaceId, vehicle: this.state.vehicle, position: this.state.arrayPosition});
+      this.props.navigation.navigate('History', {
+        space_id: this.props.spaceId,
+        vehicle: this.state.vehicle,
+        position: this.state.arrayPosition,
+      });
     }
   }
 
   updateVehicle(object) {
     this.setState({ loading: true });
-    url = GlobalVariables.BASE_ROUTE + Route.VEHICLE + this.state.vehicle.id
-    console.log('UPDATE VEHICLE: ', url, JSON.stringify(object))
+    let url =
+      GlobalVariables.BASE_ROUTE + Route.VEHICLE + this.state.vehicle.id;
+    console.log('UPDATE VEHICLE: ', url, JSON.stringify(object));
     return fetch(url, {
       method: 'PUT',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
       },
       body: JSON.stringify(object),
     })
-    .then((response) => {
+      .then(response => {
         console.log('RETURNED FROM UPDATE_VEHICLE', response);
 
-        console.log('CALL LOAD VEHICLE from UPDATE VEHICLE')
-        this.loadVehicleData(this.props)
-    })
-    .catch(err => {
-      console.log('\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n', err, err.name);
-      return err
-    })
+        console.log('CALL LOAD VEHICLE from UPDATE VEHICLE');
+        this.loadVehicleData(this.props);
+      })
+      .catch(err => {
+        console.log(
+          '\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n',
+          err,
+          err.name,
+        );
+        return err;
+      });
   }
 
   updateOdo(val) {
     this.setState({ loading: true });
     let payload = {
-      'tag': {'vehicle_id': this.state.vehicle !== null ? this.state.vehicle.id : null, 'shape_id': this.props.spaceId},
-      'event': {'event_type': GlobalVariables.ODO_UPDATE, 'event_details': val }
-    }
+      tag: {
+        vehicle_id: this.state.vehicle !== null ? this.state.vehicle.id : null,
+        shape_id: this.props.spaceId,
+      },
+      event: { event_type: GlobalVariables.ODO_UPDATE, event_details: val },
+    };
     LotActionHelper.registerTagAction(payload)
-      .then((response) => {
+      .then(response => {
         console.log('RETURNED FROM updateOdo', response);
-        console.log('CALL LOAD VEHICLE from updateOdo')
-        this.loadVehicleData(this.props)
+        console.log('CALL LOAD VEHICLE from updateOdo');
+        this.loadVehicleData(this.props);
       })
       .catch(err => {
-          console.log('\nCAUGHT ERROR IN ODOMETER UPDATE: \n', err, err.name);
-          return err
+        console.log('\nCAUGHT ERROR IN ODOMETER UPDATE: \n', err, err.name);
+        return err;
       });
   }
   createVehicle(sku, type) {
-    console.log('Location:', this.props.spaceId)
-    const vehicle =  { model: 'User created vehicle', stock_number: sku, creation_source: 'user_created', usage_type: type, vin: this.props.vin }
-    console.log(vehicle)
+    console.log('Location:', this.props.spaceId);
+    const vehicle = {
+      model: 'User created vehicle',
+      stock_number: sku,
+      creation_source: 'user_created',
+      usage_type: type,
+      vin: this.props.vin,
+    };
+    console.log(vehicle);
     this.setState({ loading: true });
-    url = GlobalVariables.BASE_ROUTE + Route.VEHICLE
+    let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
     return fetch(url, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+ GlobalVariables.LOTWING_ACCESS_TOKEN,
+        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
       },
       body: JSON.stringify(vehicle),
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      console.log('RETURNED FROM UPDATE_VEHICLE', responseJson);
-      this.props.setVehicleId(responseJson.id)
-      this.setState({
-        vehicle: responseJson,
-        createView: false,
-        vehicleType: null,
-        reopenOnDismiss: true
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log('RETURNED FROM UPDATE_VEHICLE', responseJson);
+        this.props.setVehicleId(responseJson.id);
+        this.setState({
+          vehicle: responseJson,
+          createView: false,
+          vehicleType: null,
+          reopenOnDismiss: true,
+        });
+        if (this.props.spaceId === null) {
+          this.showChooseSpaceView();
+        } else {
+          this.confirmSpaceData();
+        }
+        //this.loadVehicleData(this.props.spaceId)
+        //this.setState({ loading: false });
+      })
+      .catch(err => {
+        console.log(
+          '\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n',
+          err,
+          err.name,
+        );
+        return err;
       });
-      if (this.props.spaceId === null) {
-        this.showChooseSpaceView()
-      } else {
-        this.confirmSpaceData()
-      }
-      //this.loadVehicleData(this.props.spaceId)
-      //this.setState({ loading: false });
-    })
-    .catch(err => {
-      console.log('\nCAUGHT ERROR IN UPDATE VEHICLE ACTION: \n', err, err.name);
-      return err
-    })
   }
 
   createVehicleButtons() {
     if (this.props.leaseRt) {
-      return(
+      return (
         <View>
-          <Text style={ styles.stallHeader }>LAST 5 VIN</Text>
+          <Text style={styles.stallHeader}>LAST 5 VIN</Text>
           <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, margin: 5 }]}
-              onPress={() => this.createVehicle( this.state.sku, 'lease_return' ) }
-            >
-              <Text style={buttonStyles.activeSecondaryTextColor}>CREATE LEASE RT</Text>
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { flex: 1, margin: 5 },
+              ]}
+              onPress={() =>
+                this.createVehicle(this.state.sku, 'lease_return')
+              }>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
+                CREATE LEASE RT
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -360,102 +453,216 @@ export default class TagModalView extends React.Component {
     }
     return (
       <View>
-        <Text style={ styles.stallHeader }>STOCK NUMBER</Text>
-        { this.props.vin !== null ?
+        <Text style={styles.stallHeader}>STOCK NUMBER</Text>
+        {this.props.vin !== null ? (
           <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#006699', margin: 5 }]}
-              onPress={() => this.createVehicle( this.state.sku, 'is_new' ) }
-            >
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { flex: 1, backgroundColor: '#006699', margin: 5 },
+              ]}
+              onPress={() => this.createVehicle(this.state.sku, 'is_new')}>
               <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#66CC00', margin: 5 }]}
-              onPress={() => this.createVehicle( this.state.sku, 'is_used' ) }
-            >
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { flex: 1, backgroundColor: '#66CC00', margin: 5 },
+              ]}
+              onPress={() => this.createVehicle(this.state.sku, 'is_used')}>
               <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#E8F051', margin: 5 }]}
-              onPress={() => this.createVehicle( this.state.sku, 'loaner' ) }
-            >
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { flex: 1, backgroundColor: '#E8F051', margin: 5 },
+              ]}
+              onPress={() => this.createVehicle(this.state.sku, 'loaner')}>
               <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
-              onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
-            >
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { flex: 1, backgroundColor: '#8D8C88', margin: 5 },
+              ]}
+              onPress={() =>
+                this.createVehicle(this.state.sku, 'wholesale_unit')
+              }>
               <Text style={buttonStyles.activeSecondaryTextColor}>TRD/WHL</Text>
             </TouchableOpacity>
           </View>
-        :
+        ) : (
           <View style={{ marginTop: 10 }}>
-            <Text style={{ color: '#FFF' }}>Scan to create New, Used or Loaner</Text>
+            <Text style={{ color: '#FFF' }}>
+              Scan to create New, Used or Loaner
+            </Text>
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
-                style={[buttonStyles.activeSecondaryModalButton, { flex: 3, backgroundColor: '#006699', margin: 5 }]}
+                style={[
+                  buttonStyles.activeSecondaryModalButton,
+                  { flex: 3, backgroundColor: '#006699', margin: 5 },
+                ]}
                 onPress={() => {
-                  this.tapOutsideModal()
-                  this.props.openBarcodeScanner() }}
-              >
-                <Text style={buttonStyles.activeSecondaryTextColor}>SCAN BARCODE</Text>
+                  this.tapOutsideModal();
+                  this.props.openBarcodeScanner();
+                }}>
+                <Text style={buttonStyles.activeSecondaryTextColor}>
+                  SCAN BARCODE
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[buttonStyles.activeSecondaryModalButton, { flex: 1, backgroundColor: '#8D8C88', margin: 5 }]}
-                onPress={() => this.createVehicle( this.state.sku, 'wholesale_unit' ) }
-              >
-                <Text style={buttonStyles.activeSecondaryTextColor}>TRD/WHL</Text>
+                style={[
+                  buttonStyles.activeSecondaryModalButton,
+                  { flex: 1, backgroundColor: '#8D8C88', margin: 5 },
+                ]}
+                onPress={() =>
+                  this.createVehicle(this.state.sku, 'wholesale_unit')
+                }>
+                <Text style={buttonStyles.activeSecondaryTextColor}>
+                  TRD/WHL
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
-        }
+        )}
       </View>
     );
   }
   _renderSalesState() {
     if (this.state.vehicle === null) {
-      return null
+      return null;
     }
     if (this.state.vehicle.service_hold) {
-      return(
-        <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
-          <View style={ styles.triangle }></View>
-          <Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFA500'}]}>Service Hold</Text>
-          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.service_hold_notes }</Text>
+      return (
+        <View
+          style={{
+            width: '100%',
+            alignItems: 'baseline',
+            justifyContent: 'flex-start',
+            flexDirection: 'row',
+          }}>
+          <View style={styles.triangle} />
+          <Text
+            style={[
+              styles.stallHeader,
+              { fontWeight: 'bold', color: '#FFA500' },
+            ]}>
+            Service Hold
+          </Text>
+          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
+            {this.state.vehicle.service_hold_notes}
+          </Text>
         </View>
-      )
+      );
     }
-    if (this.state.vehicle.sales_hold || this.state.vehicle.sold_status !== null) {
-      return(
-        <View style={{ width: '100%', alignItems: 'baseline', justifyContent: 'flex-start', flexDirection: 'row'}}>
-          { this.state.vehicle.sales_hold && <View style={ styles.icon }><Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFF', fontSize: 14, lineHeight: 16}]}>H</Text></View> }
-          { this.state.vehicle.sold_status !== null && <View style={ styles.icon }><Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#FFF', fontSize: 14, lineHeight: 16 }]}>$</Text></View> }
-          <Text style={[styles.stallHeader, {fontWeight: 'bold', color: '#000'}]}>{ this.state.vehicle.sold_status === null ? 'HOLD' : 'SOLD' }</Text>
-          { this.state.vehicle.sold_status !== null && <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.sold_status }</Text> }
-          { this.state.vehicle.sold_status === null && <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>{ this.state.vehicle.sales_hold_notes }</Text> }
+    if (
+      this.state.vehicle.sales_hold ||
+      this.state.vehicle.sold_status !== null
+    ) {
+      return (
+        <View
+          style={{
+            width: '100%',
+            alignItems: 'baseline',
+            justifyContent: 'flex-start',
+            flexDirection: 'row',
+          }}>
+          {this.state.vehicle.sales_hold && (
+            <View style={styles.icon}>
+              <Text
+                style={[
+                  styles.stallHeader,
+                  {
+                    fontWeight: 'bold',
+                    color: '#FFF',
+                    fontSize: 14,
+                    lineHeight: 16,
+                  },
+                ]}>
+                H
+              </Text>
+            </View>
+          )}
+          {this.state.vehicle.sold_status !== null && (
+            <View style={styles.icon}>
+              <Text
+                style={[
+                  styles.stallHeader,
+                  {
+                    fontWeight: 'bold',
+                    color: '#FFF',
+                    fontSize: 14,
+                    lineHeight: 16,
+                  },
+                ]}>
+                $
+              </Text>
+            </View>
+          )}
+          <Text
+            style={[styles.stallHeader, { fontWeight: 'bold', color: '#000' }]}>
+            {this.state.vehicle.sold_status === null ? 'HOLD' : 'SOLD'}
+          </Text>
+          {this.state.vehicle.sold_status !== null && (
+            <Text
+              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
+              {this.state.vehicle.sold_status}
+            </Text>
+          )}
+          {this.state.vehicle.sold_status === null && (
+            <Text
+              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
+              {this.state.vehicle.sales_hold_notes}
+            </Text>
+          )}
         </View>
-      )
+      );
     }
-    return null
+    return null;
   }
-  _renderAltActionView() { // either stallChange, info, or base
+  _renderAltActionView() {
+    // either stallChange, info, or base
     // car features that can be displayed
     // spaceId, make, model, year, color, sku
-    console.log('MODAL CONTENT TYPE: ', this.state.modalContent)
+    console.log('MODAL CONTENT TYPE: ', this.state.modalContent);
     if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
-      let vehicleColor = this.state.vehicles[this.state.arrayPosition].color ? this.state.vehicles[this.state.arrayPosition].color : '- -';
-      const { model, mileage, age_in_days, key_board_location_id } = this.state.vehicles[this.state.arrayPosition]
+      let vehicleColor = this.state.vehicles[this.state.arrayPosition].color
+        ? this.state.vehicles[this.state.arrayPosition].color
+        : '- -';
+      const {
+        model,
+        mileage,
+        age_in_days,
+        key_board_location_id,
+      } = this.state.vehicles[this.state.arrayPosition];
       if (this.state.screen === 'keys') {
-        return(
-          <View style={[styles.tagModalMainBody, { borderLeftWidth: 0, borderRightWidth: 0}]}>
-            <View style={{ padding: 10, paddingLeft: 14, paddingRight: 14}}>
+        return (
+          <View
+            style={[
+              styles.tagModalMainBody,
+              { borderLeftWidth: 0, borderRightWidth: 0 },
+            ]}>
+            <View style={{ padding: 10, paddingLeft: 14, paddingRight: 14 }}>
               <Text style={styles.header}>SELECT A NEW LOCATION: </Text>
             </View>
-            { this.state.key_board_locations.map((keylocation) => {
-              return(
-                <TouchableOpacity key={ keylocation.id} onPress={()=> this.updateVehicle({ key_board_location_name: keylocation.name })}>
-                  <View style={[{ padding: 10, paddingLeft: 14, paddingRight: 14 }, keylocation.name === this.state.vehicle.key_board_location_name && {backgroundColor: '#727272'} ]}>
-                    <Text style={styles.header}>{ keylocation.name }</Text>
+            {this.state.key_board_locations.map(keylocation => {
+              return (
+                <TouchableOpacity
+                  key={keylocation.id}
+                  onPress={() =>
+                    this.updateVehicle({
+                      key_board_location_name: keylocation.name,
+                    })
+                  }>
+                  <View
+                    style={[
+                      { padding: 10, paddingLeft: 14, paddingRight: 14 },
+                      keylocation.name ===
+                        this.state.vehicle.key_board_location_name && {
+                        backgroundColor: '#727272',
+                      },
+                    ]}>
+                    <Text style={styles.header}>{keylocation.name}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -472,37 +679,62 @@ export default class TagModalView extends React.Component {
               </View>
             </View>
           </View>
-        )
+        );
       }
       return (
-        <View
-          style={styles.tagModalMainBody}>
+        <View style={styles.tagModalMainBody}>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.header}>{ model }, {vehicleColor} </Text>
-              <Text style={styles.header}>{ mileage } Miles, { age_in_days } Days</Text>
+              <Text style={styles.header}>
+                {model}, {vehicleColor}{' '}
+              </Text>
+              <Text style={styles.header}>
+                {mileage} Miles, {age_in_days} Days
+              </Text>
             </View>
             <View style={{ flex: 0 }}>
-              <TouchableOpacity onPress={()=> this.launchPage('history') }>
-                <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons type='ionicon' name={ 'ios-information-circle'} size={ 25 } style={{ color: '#FFF' }} /></View>
+              <TouchableOpacity onPress={() => this.launchPage('history')}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Ionicons
+                    type="ionicon"
+                    name={'ios-information-circle'}
+                    size={25}
+                    style={{ color: '#FFF' }}
+                  />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
-          <View
-            style={styles.tagButtonContainer}>
-
+          <View style={styles.tagButtonContainer}>
             <ButtonWithImageAndLabel
               text={'Test Drive'}
               source={require('../../assets/images/car-white.png')}
-              onPress={() => {this.launchPage('drive')}}
-              active={ this.state.drive.event_id !== null && this.state.drive.event_id !== undefined } />
+              onPress={() => {
+                this.launchPage('drive');
+              }}
+              active={
+                this.state.drive.event_id !== null &&
+                this.state.drive.event_id !== undefined
+              }
+            />
 
             <ButtonWithImageAndLabel
               text={'Fuel Vehicle'}
               source={require('../../assets/images/fuel-white.png')}
-              onPress={() => {this.launchPage('fuel')}}
-              active={ this.state.fuel.event_id !== null && this.state.fuel.event_id !== undefined }/>
+              onPress={() => {
+                this.launchPage('fuel');
+              }}
+              active={
+                this.state.fuel.event_id !== null &&
+                this.state.fuel.event_id !== undefined
+              }
+            />
 
             {/*
             <ButtonWithImageAndLabel
@@ -514,15 +746,21 @@ export default class TagModalView extends React.Component {
             <ButtonWithImageAndLabel
               text={'Note'}
               source={require('../../assets/images/note-white.png')}
-              onPress={() => {this.launchPage('note')}}/>
+              onPress={() => {
+                this.launchPage('note');
+              }}
+            />
           </View>
 
-          <View
-            style={pageStyles.rightButtonContainer}>
-
+          <View style={pageStyles.rightButtonContainer}>
             <TouchableOpacity
-              style={[buttonStyles.activeSecondaryModalButton, { marginRight: 'auto' }]}
-              onPress={() => this.setState({mileageOpen: !this.state.mileageOpen }) }>
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { marginRight: 'auto' },
+              ]}
+              onPress={() =>
+                this.setState({ mileageOpen: !this.state.mileageOpen })
+              }>
               <Text style={buttonStyles.activeSecondaryTextColor}>
                 ODO UPDATE
               </Text>
@@ -530,7 +768,9 @@ export default class TagModalView extends React.Component {
 
             <TouchableOpacity
               style={buttonStyles.activeSecondaryModalButton}
-              onPress={() => {this.showChooseSpaceView()}}>
+              onPress={() => {
+                this.showChooseSpaceView();
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>
                 CHANGE STALL
               </Text>
@@ -539,252 +779,427 @@ export default class TagModalView extends React.Component {
             <TouchableOpacity
               style={buttonStyles.activePrimaryModalButton}
               onPress={this.confirmSpaceData}>
-              <Text style={buttonStyles.activePrimaryTextColor}>
-                CONFIRM
-              </Text>
+              <Text style={buttonStyles.activePrimaryTextColor}>CONFIRM</Text>
             </TouchableOpacity>
           </View>
 
-            { this.state.mileageOpen &&
-              <View>
-                <TextInput
-                  multiline={false}
-                  style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
-                  value={ `${ this.state.mileage }` }
-                  keyboardType={'numeric'}
-                  onChangeText={(mileage) => this.setState({ mileage: mileage }) }
-                  autoFocus={true}
-                />
-                <View style={pageStyles.rightButtonContainer}>
-                  <TouchableOpacity
-                    style={buttonStyles.activeSecondaryModalButton}
-                    onPress={() => { this.setState({ mileageOpen: false, mileage: Number(this.state.vehicle.mileage) })}}>
-                    <Text style={buttonStyles.activeSecondaryTextColor}>
-                      CANCEL
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={buttonStyles.activePrimaryModalButton}
-                    onPress={()=> this.updateOdo( this.state.mileage ) }
-                  >
-                    <Text style={buttonStyles.activePrimaryTextColor}>
-                      UPDATE ODOMETER
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+          {this.state.mileageOpen && (
+            <View>
+              <TextInput
+                multiline={false}
+                style={[
+                  textStyles.greyBackgroundTextInput,
+                  textStyles.largeText,
+                  { textAlign: 'center' },
+                ]}
+                value={`${this.state.mileage}`}
+                keyboardType={'numeric'}
+                onChangeText={mileage => this.setState({ mileage: mileage })}
+                autoFocus={true}
+              />
+              <View style={pageStyles.rightButtonContainer}>
+                <TouchableOpacity
+                  style={buttonStyles.activeSecondaryModalButton}
+                  onPress={() => {
+                    this.setState({
+                      mileageOpen: false,
+                      mileage: Number(this.state.vehicle.mileage),
+                    });
+                  }}>
+                  <Text style={buttonStyles.activeSecondaryTextColor}>
+                    CANCEL
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={buttonStyles.activePrimaryModalButton}
+                  onPress={() => this.updateOdo(this.state.mileage)}>
+                  <Text style={buttonStyles.activePrimaryTextColor}>
+                    UPDATE ODOMETER
+                  </Text>
+                </TouchableOpacity>
               </View>
-            }
+            </View>
+          )}
         </View>
-      )
-
+      );
     } else if (this.state.modalContent == GlobalVariables.INFO_MODAL_TYPE) {
       return (
-       <View
-          style={styles.tagModalMainBody}>
-
+        <View style={styles.tagModalMainBody}>
           <Text style={styles.header}>
-            {this.state.vehicles[this.state.arrayPosition].year} {this.state.vehicles[this.state.arrayPosition].make} {this.state.vehicles[this.state.arrayPosition].model}</Text>
-          <View
-            style={{visible: this.state.modalContent}}>
-
+            {this.state.vehicles[this.state.arrayPosition].year}{' '}
+            {this.state.vehicles[this.state.arrayPosition].make}{' '}
+            {this.state.vehicles[this.state.arrayPosition].model}
+          </Text>
+          <View style={{ visible: this.state.modalContent }}>
             <View
-              style={[pageStyles.noteCard, {width: '100%', paddingTop: 20, borderRadius: 0}]}>
+              style={[
+                pageStyles.noteCard,
+                { width: '100%', paddingTop: 20, borderRadius: 0 },
+              ]}>
               <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={textStyles.modalDataHeader}>
-                  Mileage</Text>
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={textStyles.modalDataHeader}>Mileage</Text>
                 <Text style={textStyles.modalData}>
-                  {this.state.vehicles[this.state.arrayPosition].mileage} miles</Text>
+                  {this.state.vehicles[this.state.arrayPosition].mileage} miles
+                </Text>
               </View>
 
               <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={textStyles.modalDataHeader}>
-                  Time in Stock</Text>
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={textStyles.modalDataHeader}>Time in Stock</Text>
                 <Text style={textStyles.modalData}>
-                  {this.state.vehicles[this.state.arrayPosition].age_in_days} days</Text>
+                  {this.state.vehicles[this.state.arrayPosition].age_in_days}{' '}
+                  days
+                </Text>
               </View>
             </View>
           </View>
         </View>
-      )
-
-    } else if (this.state.modalContent == GlobalVariables.STALL_ENTRY_MODAL_TYPE) {
+      );
+    } else if (
+      this.state.modalContent == GlobalVariables.STALL_ENTRY_MODAL_TYPE
+    ) {
       return (
-        <View
-          style={styles.tagModalMainBody}>
-
+        <View style={styles.tagModalMainBody}>
           <Text style={styles.header}>
-            {this.props.year} {this.props.make} {this.props.model}</Text>
+            {this.props.year} {this.props.make} {this.props.model}
+          </Text>
           <View
-            style={{width: '100%', marginTop: 20, borderRadius: 0, paddingTop: 20}}>
-            <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
-              Stall Number</Text>
+            style={{
+              width: '100%',
+              marginTop: 20,
+              borderRadius: 0,
+              paddingTop: 20,
+            }}>
+            <Text style={[textStyles.modalDataHeader, { color: 'white' }]}>
+              Stall Number
+            </Text>
             <TextInput
-              autoCapitalize='characters'
+              autoCapitalize="characters"
               multiline={false}
-              style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
+              style={[
+                textStyles.greyBackgroundTextInput,
+                textStyles.largeText,
+                { textAlign: 'center' },
+              ]}
               placeholder={this.props.spaceId}
-              placeholderTextColor='rgba(237, 235, 232, 0.5)'
-              onChangeText={(stallNumber) => {this.newStallNumber = stallNumber}}
-              onSubmitEditing={(event) => this.props.updateLotAndDismissModal(event.nativeEvent.text, this.state.vehicles[this.state.arrayPosition].vehicleId)}
-              returnKeyType='send'
-              autoFocus={true}/>
+              placeholderTextColor="rgba(237, 235, 232, 0.5)"
+              onChangeText={stallNumber => {
+                this.newStallNumber = stallNumber;
+              }}
+              onSubmitEditing={event =>
+                this.props.updateLotAndDismissModal(
+                  event.nativeEvent.text,
+                  this.state.vehicles[this.state.arrayPosition].vehicleId,
+                )
+              }
+              returnKeyType="send"
+              autoFocus={true}
+            />
           </View>
         </View>
-      )
+      );
     } else if (this.state.modalContent == GlobalVariables.EMPTY_MODAL_TYPE) {
       //TODO(adwoa): EMPTY_MODAL_TYPE add feedback here
       return (
         <View
-          style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
-          <Text style={[textStyles.modalDataHeader, {color: 'white'}]}>
-            Populate Empty Space</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          style={[
+            styles.tagModalMainBody,
+            { width: '100%', borderRadius: 0, paddingTop: 20 },
+          ]}>
+          <Text style={[textStyles.modalDataHeader, { color: 'white' }]}>
+            Populate Empty Space
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
             <View style={{ flex: 1 }}>
               <TextInput
-                autoCapitalize='characters'
+                autoCapitalize="characters"
                 multiline={false}
-                style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center'}]}
-                placeholder='Stock Number'
-                placeholderTextColor='rgba(237, 235, 232, 0.5)'
-                onChangeText={(stockNumber) => {this.newStockNumber = stockNumber}}
-                onSubmitEditing={(event) => this.props.updateLotAndDismissModal(this.props.spaceId, null, event.nativeEvent.text, null, 'Attempting to Populate Empty Space...')}
-                returnKeyType='send'
-                autoFocus={true}/>
-              </View>
-            <TouchableOpacity onPress={()=> this.setState({ barcodeOpen: true })}>
-              <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
-                <Ionicons type='ionicon' name={ 'md-barcode'} size={ 25 } style={{ color: '#FFF' }} />
+                style={[
+                  textStyles.greyBackgroundTextInput,
+                  textStyles.largeText,
+                  { textAlign: 'center' },
+                ]}
+                placeholder="Stock Number"
+                placeholderTextColor="rgba(237, 235, 232, 0.5)"
+                onChangeText={stockNumber => {
+                  this.newStockNumber = stockNumber;
+                }}
+                onSubmitEditing={event =>
+                  this.props.updateLotAndDismissModal(
+                    this.props.spaceId,
+                    null,
+                    event.nativeEvent.text,
+                    null,
+                    'Attempting to Populate Empty Space...',
+                  )
+                }
+                returnKeyType="send"
+                autoFocus={true}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => this.setState({ barcodeOpen: true })}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: 10,
+                }}>
+                <Ionicons
+                  type="ionicon"
+                  name={'md-barcode'}
+                  size={25}
+                  style={{ color: '#FFF' }}
+                />
               </View>
             </TouchableOpacity>
           </View>
         </View>
-      )
-    } else if ( this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE) {
+      );
+    } else if (this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE) {
       if (this.state.createView) {
-        console.log('Vehicle Type: ', this.state.vehicleType)
-        return(
-          <View style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0 }]}>
-            <View style={{ borderBottomWidth: 1, borderBottomColor: '#FFF', paddingBottom: 5 }}>
-              { this.props.vin === null ?
-                <Text style={[styles.stallHeader, {textAlign: 'center', fontSize: 50, fontWeight: 'bold' }]}>{ this.state.sku }</Text>
-              :
+        console.log('Vehicle Type: ', this.state.vehicleType);
+        return (
+          <View
+            style={[
+              styles.tagModalMainBody,
+              { width: '100%', borderRadius: 0 },
+            ]}>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: '#FFF',
+                paddingBottom: 5,
+              }}>
+              {this.props.vin === null ? (
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    { textAlign: 'center', fontSize: 50, fontWeight: 'bold' },
+                  ]}>
+                  {this.state.sku}
+                </Text>
+              ) : (
                 <TextInput
                   multiline={false}
-                  style={[textStyles.greyBackgroundTextInput, textStyles.largeText, {textAlign: 'center', borderBottomWidth: 0, marginBottom: 0 }]}
-                  value={ this.state.sku !== null ? `${ this.state.sku }` : '' }
+                  style={[
+                    textStyles.greyBackgroundTextInput,
+                    textStyles.largeText,
+                    {
+                      textAlign: 'center',
+                      borderBottomWidth: 0,
+                      marginBottom: 0,
+                    },
+                  ]}
+                  value={this.state.sku !== null ? `${this.state.sku}` : ''}
                   keyboardType={'default'}
-                  onChangeText={(sku) => this.setState({ sku: sku }) }
+                  onChangeText={sku => this.setState({ sku: sku })}
                   autoFocus={true}
                 />
-              }
+              )}
             </View>
-            { this.state.sku !== null && this.state.sku !== '' && this.createVehicleButtons() }
+            {this.state.sku !== null &&
+              this.state.sku !== '' &&
+              this.createVehicleButtons()}
           </View>
-        )
+        );
       }
-      return(
-        <View style={[styles.tagModalMainBody, {width: '100%', borderRadius: 0, paddingTop: 20}]}>
-           <View style={pageStyles.rightButtonContainer}>
+      return (
+        <View
+          style={[
+            styles.tagModalMainBody,
+            { width: '100%', borderRadius: 0, paddingTop: 20 },
+          ]}>
+          <View style={pageStyles.rightButtonContainer}>
             <TouchableOpacity
               style={buttonStyles.activeSecondaryModalButton}
-              onPress={() => { this.tapOutsideModal() }}>
-              <Text style={buttonStyles.activeSecondaryTextColor}>
-                CLOSE
-              </Text>
+              onPress={() => {
+                this.tapOutsideModal();
+              }}>
+              <Text style={buttonStyles.activeSecondaryTextColor}>CLOSE</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={buttonStyles.activePrimaryModalButton}
-              onPress={()=> this.setState({ createView: true }) }>
+              onPress={() => this.setState({ createView: true })}>
               <Text style={buttonStyles.activePrimaryTextColor}>
                 CREATE VEHICLE
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-      )
+      );
     }
   }
 
   render() {
-    let isBasicModal = this.state.modalContent === GlobalVariables.BASIC_MODAL_TYPE;
-    let isCreateModal = this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
-    console.log('Render modal content: ' , this.state.modalContent)
+    let isBasicModal =
+      this.state.modalContent === GlobalVariables.BASIC_MODAL_TYPE;
+    let isCreateModal =
+      this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
+    console.log('Render modal content: ', this.state.modalContent);
     let isOnMap = this.props.spaceId;
-    console.log(this.state.vehicle)
-    let vehicleUsageType = ''
+    console.log(this.state.vehicle);
+    let vehicleUsageType = '';
     if (this.state.vehicle !== null) {
-      let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
-      if (usageType === 'is_new') { vehicleUsageType = 'New'}
-      if (usageType === 'is_used') { vehicleUsageType = 'Used'}
-      if (usageType === 'loaner') { vehicleUsageType = 'Loaner'}
-      if (usageType === 'wholesale_unit') { vehicleUsageType = 'Trade/Wholesale'}
-      if (usageType === 'lease_return') { vehicleUsageType = 'Lease Return'}
+      let usageType =
+        this.state.vehicle.usage_type !== null
+          ? this.state.vehicle.usage_type
+          : '';
+      if (usageType === 'is_new') {
+        vehicleUsageType = 'New';
+      }
+      if (usageType === 'is_used') {
+        vehicleUsageType = 'Used';
+      }
+      if (usageType === 'loaner') {
+        vehicleUsageType = 'Loaner';
+      }
+      if (usageType === 'wholesale_unit') {
+        vehicleUsageType = 'Trade/Wholesale';
+      }
+      if (usageType === 'lease_return') {
+        vehicleUsageType = 'Lease Return';
+      }
     }
-    let vehicleYear = this.state.vehicle !== null && this.state.vehicle.year ? this.state.vehicle.year : '';
-    let vehicleMake = this.state.vehicle !== null && this.state.vehicle.make ? this.state.vehicle.make : '';
-    let modalTitle = isBasicModal ? isOnMap ? vehicleUsageType + ' ' + vehicleYear + ' ' + vehicleMake : 'Not in Stall' : ' ';
-    if (this.state.vehicle!== null && this.state.vehicle.creation_source === 'user_created') {
+    let vehicleYear =
+      this.state.vehicle !== null && this.state.vehicle.year
+        ? this.state.vehicle.year
+        : '';
+    let vehicleMake =
+      this.state.vehicle !== null && this.state.vehicle.make
+        ? this.state.vehicle.make
+        : '';
+    let modalTitle = isBasicModal
+      ? isOnMap
+        ? vehicleUsageType + ' ' + vehicleYear + ' ' + vehicleMake
+        : 'Not in Stall'
+      : ' ';
+    if (
+      this.state.vehicle !== null &&
+      this.state.vehicle.creation_source === 'user_created'
+    ) {
       //console.log(this.state.vehicle)
-      let usageType = this.state.vehicle.usage_type !== null ? this.state.vehicle.usage_type : '';
-      modalTitle = ''
-      if (usageType === 'is_new') { modalTitle = 'New'}
-      if (usageType === 'is_used') { modalTitle = 'Used'}
-      if (usageType === 'loaner') { modalTitle = 'Loaner'}
-      if (usageType === 'wholesale_unit') {  modalTitle = 'Trade/Wholesale'}
-      if (usageType === 'lease_return') { modalTitle = 'Lease Return'}
+      let usageType =
+        this.state.vehicle.usage_type !== null
+          ? this.state.vehicle.usage_type
+          : '';
+      modalTitle = '';
+      if (usageType === 'is_new') {
+        modalTitle = 'New';
+      }
+      if (usageType === 'is_used') {
+        modalTitle = 'Used';
+      }
+      if (usageType === 'loaner') {
+        modalTitle = 'Loaner';
+      }
+      if (usageType === 'wholesale_unit') {
+        modalTitle = 'Trade/Wholesale';
+      }
+      if (usageType === 'lease_return') {
+        modalTitle = 'Lease Return';
+      }
     }
 
     if (this.state.loading) {
-      return(
+      return (
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={getStatusBarHeight()+40}>
-
+          style={styles.tagModalOverlay}
+          behavior="padding"
+          enabled
+          keyboardVerticalOffset={getStatusBarHeight() + 40}>
           <TouchableWithoutFeedback
             onPress={() => {
               this.props.findOnMap(false);
             }}>
-            <View
-              style={styles.tagModalBlankSpace}>
-            </View>
+            <View style={styles.tagModalBlankSpace}></View>
           </TouchableWithoutFeedback>
 
-        <View style={styles.modalBottomContainer}>
-          <View style={styles.tagModalStallBar}><Text style={styles.stallHeader}>LOADING...</Text></View>
-          <View style={[styles.tagModalMainBody, { paddingTop: 30, paddingBottom: 30, alignItems: 'center', justifyContent: 'center' }]}>
-          <ActivityIndicator size='large' color='#FFF' />
+          <View style={styles.modalBottomContainer}>
+            <View style={styles.tagModalStallBar}>
+              <Text style={styles.stallHeader}>LOADING...</Text>
+            </View>
+            <View
+              style={[
+                styles.tagModalMainBody,
+                {
+                  paddingTop: 30,
+                  paddingBottom: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                },
+              ]}>
+              <ActivityIndicator size="large" color="#FFF" />
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-      )
+        </KeyboardAvoidingView>
+      );
     }
     if (this.state.barcodeOpen) {
-      return(
+      return (
         <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-          <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
+          <View
+            style={{
+              flex: 0,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingLeft: 10,
+              paddingRight: 10,
+            }}>
             <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
-            <TouchableOpacity onPress={()=>this.setState({barcodeOpen: false})}>
-              <View style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons type='ionicon' name={ 'md-close'} size={ 25 } />
+            <TouchableOpacity
+              onPress={() => this.setState({ barcodeOpen: false })}>
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Ionicons type="ionicon" name={'md-close'} size={25} />
               </View>
             </TouchableOpacity>
           </View>
           <RNCamera
-            onStatusChange={(cameraStatus) => console.log('Camera Status: ', cameraStatus)}
-            onMountError={(e) => console.log('Camera mount error: ', e)}
-            onBarCodeRead={(e) => {
+            onStatusChange={cameraStatus =>
+              console.log('Camera Status: ', cameraStatus)
+            }
+            onMountError={e => console.log('Camera mount error: ', e)}
+            onBarCodeRead={e => {
               console.log('Barcode: ', e.data);
-              this.setState({barcodeOpen: false })
-              this.props.updateLotAndDismissModal(this.props.spaceId, null, null, e.data, 'Attempting to Populate Empty Space...')
+              this.setState({ barcodeOpen: false });
+              this.props.updateLotAndDismissModal(
+                this.props.spaceId,
+                null,
+                null,
+                e.data,
+                'Attempting to Populate Empty Space...',
+              );
             }}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
             mirrorImage={false}
             permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-            style={{flex: 1}}>
+            permissionDialogMessage={
+              'We need your permission to use your camera phone'
+            }
+            style={{ flex: 1 }}>
             <BarcodeMask showAnimatedLine={false} />
           </RNCamera>
         </View>
@@ -792,95 +1207,171 @@ export default class TagModalView extends React.Component {
     }
     // In the case of showing a blank map with one highlight
     if (this.props.findingOnMap) {
-      return(
+      return (
         <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={getStatusBarHeight()+40}>
-
-            <TouchableWithoutFeedback
-              onPress={() => {
-                this.props.findOnMap(false);
-              }}>
-              <View
-                style={styles.tagModalBlankSpace}>
-              </View>
-            </TouchableWithoutFeedback>
+          style={styles.tagModalOverlay}
+          behavior="padding"
+          enabled
+          keyboardVerticalOffset={getStatusBarHeight() + 40}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              this.props.findOnMap(false);
+            }}>
+            <View style={styles.tagModalBlankSpace}></View>
+          </TouchableWithoutFeedback>
 
           <View style={styles.modalBottomContainer}>
             <View style={styles.tagModalMainBody}>
               <View style={{ flexDirection: 'row' }}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <Text style={[styles.stallHeader, { marginRight: 10 }]}>
-                  {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'}</Text>
+                    {this.state.vehicle !== null &&
+                    this.state.vehicle.stock_number
+                      ? this.state.vehicle.stock_number
+                      : '   - -'}
+                  </Text>
                   <Text style={styles.stallHeader}>{modalTitle}</Text>
                 </View>
                 <View style={{ flex: 0 }}>
-                  <TouchableOpacity style={buttonStyles.activePrimaryModalButton} onPress={()=> this.props.findOnMap(false)}>
-                    <Text style={buttonStyles.activePrimaryTextColor}>OKAY</Text>
+                  <TouchableOpacity
+                    style={buttonStyles.activePrimaryModalButton}
+                    onPress={() => this.props.findOnMap(false)}>
+                    <Text style={buttonStyles.activePrimaryTextColor}>
+                      OKAY
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           </View>
         </KeyboardAvoidingView>
-      )
+      );
     }
     return (
       <KeyboardAvoidingView
-        style={styles.tagModalOverlay} behavior="padding" enabled keyboardVerticalOffset={getStatusBarHeight()+40}>
-
-          <TouchableWithoutFeedback
-            onPress={() => {
-              console.log('TOUCHING --OUTER-- VIEW');
-              this.tapOutsideModal();
-            }}>
-            <View
-              style={styles.tagModalBlankSpace}>
-            </View>
-          </TouchableWithoutFeedback>
+        style={styles.tagModalOverlay}
+        behavior="padding"
+        enabled
+        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            console.log('TOUCHING --OUTER-- VIEW');
+            this.tapOutsideModal();
+          }}>
+          <View style={styles.tagModalBlankSpace}></View>
+        </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
-          { this.state.vehicle !== null && this.state.vehicles.length > 1 &&
-            <View style={ styles.tagModalTabs }>
-              { this.state.vehicles.map((vehicle, index) => {
-                return(
-                  <TouchableOpacity key={index} onPress={()=> {
-                    this.props.setVehicleId(this.state.vehicles[index].id)
-                    this.setState({arrayPosition: index, vehicle: this.state.vehicles[index] }) }
-                  }><View style={[ styles.tagModalTab, index === this.state.arrayPosition &&  { backgroundColor: '#FFF' } ]}><Text style={[ index !== this.state.arrayPosition && {color: '#FFF' }]}>{ vehicle.stock_number}</Text></View></TouchableOpacity>
+          {this.state.vehicle !== null && this.state.vehicles.length > 1 && (
+            <View style={styles.tagModalTabs}>
+              {this.state.vehicles.map((vehicle, index) => {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      this.props.setVehicleId(this.state.vehicles[index].id);
+                      this.setState({
+                        arrayPosition: index,
+                        vehicle: this.state.vehicles[index],
+                      });
+                    }}>
+                    <View
+                      style={[
+                        styles.tagModalTab,
+                        index === this.state.arrayPosition && {
+                          backgroundColor: '#FFF',
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          index !== this.state.arrayPosition && {
+                            color: '#FFF',
+                          },
+                        ]}>
+                        {vehicle.stock_number}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
-          }
-          <View style={[styles.tagModalStallBar, { borderBottomWidth: 0, height: 'auto'}]}>
-          { this.state.vehicle !== null &&
-            <TouchableOpacity onPress={()=> {
-              this.loadKeyBoardData();
-              this.setState({screen: 'keys'})
-            }}>
-              <View style={{ marginLeft: -5, marginRight: -5, width: Dimensions.get('window').width, padding: 5, backgroundColor: '#727272'}}><Text style={[styles.stallHeader, { fontSize: 16}]}>{ this.state.vehicle.key_board_location_name !== null? `Key Location: ${ this.state.vehicle.key_board_location_name }` : 'Select Keyboard' }</Text></View>
-            </TouchableOpacity>
-          }
+          )}
+          <View
+            style={[
+              styles.tagModalStallBar,
+              { borderBottomWidth: 0, height: 'auto' },
+            ]}>
+            {this.state.vehicle !== null && (
+              <TouchableOpacity
+                onPress={() => {
+                  this.loadKeyBoardData();
+                  this.setState({ screen: 'keys' });
+                }}>
+                <View
+                  style={{
+                    marginLeft: -5,
+                    marginRight: -5,
+                    width: Dimensions.get('window').width,
+                    padding: 5,
+                    backgroundColor: '#727272',
+                  }}>
+                  <Text style={[styles.stallHeader, { fontSize: 16 }]}>
+                    {this.state.vehicle.key_board_location_name !== null
+                      ? `Key Location: ${this.state.vehicle.key_board_location_name}`
+                      : 'Select Keyboard'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
-          { isCreateModal ?
-            <View style={[styles.tagModalStallBar, { borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
-              <Text style={styles.stallHeader}> Vehicle not found: { this.props.vin === null && this.state.sku } { this.props.vin !== null && `VIN: ${this.props.vin}` }</Text>
+          {isCreateModal ? (
+            <View
+              style={[
+                styles.tagModalStallBar,
+                {
+                  borderTopWidth: 0,
+                  height: 'auto',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                },
+              ]}>
+              <Text style={styles.stallHeader}>
+                {' '}
+                Vehicle not found: {this.props.vin === null &&
+                  this.state.sku}{' '}
+                {this.props.vin !== null && `VIN: ${this.props.vin}`}
+              </Text>
             </View>
-          :
-            <View style={[styles.tagModalStallBar, { flexDirection: 'column', borderTopWidth: 0, height: 'auto', paddingTop: 10, paddingBottom: 10}]}>
-              <View style={ styles.tagModalStallBarHeader }>
-                <Text style={styles.stallHeader}> {this.state.vehicle !== null && this.state.vehicle.stock_number ? this.state.vehicle.stock_number : '   - -'} </Text>
-                <Text style={styles.stallHeader}>{ modalTitle }</Text>
+          ) : (
+            <View
+              style={[
+                styles.tagModalStallBar,
+                {
+                  flexDirection: 'column',
+                  borderTopWidth: 0,
+                  height: 'auto',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                },
+              ]}>
+              <View style={styles.tagModalStallBarHeader}>
+                <Text style={styles.stallHeader}>
+                  {' '}
+                  {this.state.vehicle !== null &&
+                  this.state.vehicle.stock_number
+                    ? this.state.vehicle.stock_number
+                    : '   - -'}{' '}
+                </Text>
+                <Text style={styles.stallHeader}>{modalTitle}</Text>
               </View>
-              { this._renderSalesState() }
+              {this._renderSalesState()}
             </View>
-          }
+          )}
 
           {this._renderAltActionView()}
-
         </View>
       </KeyboardAvoidingView>
-
-  	);
+    );
   }
 }
 
@@ -894,16 +1385,30 @@ class ButtonWithImageAndLabel extends React.Component {
       <TouchableOpacity
         activeOpacity={0.5}
         onPress={this.props.onPress}
-        style={{width: 80, height: 50,}}>
-        <View style={{flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+        style={{ width: 80, height: 50 }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
           <Image
             source={this.props.source}
             style={buttonStyles.icon}
-            resizeMode={"contain"}/>
-          <Text style={[buttonStyles.label, {marginTop: 5}, this.props.active && { fontWeight: 'bold' }]}>{this.props.text}</Text>
+            resizeMode={'contain'}
+          />
+          <Text
+            style={[
+              buttonStyles.label,
+              { marginTop: 5 },
+              this.props.active && { fontWeight: 'bold' },
+            ]}>
+            {this.props.text}
+          </Text>
         </View>
       </TouchableOpacity>
-    )
+    );
   }
 }
 
@@ -983,11 +1488,11 @@ const styles = StyleSheet.create({
     borderColor: '#828282',
   },
   tagModalTabs: {
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   tagModalTab: {
     padding: 10,
-    backgroundColor: '#828282'
+    backgroundColor: '#828282',
   },
   icon: {
     width: 20,
@@ -996,7 +1501,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 5
+    marginRight: 5,
   },
   triangle: {
     width: 0,
@@ -1011,6 +1516,6 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderBottomColor: '#FFA500',
     borderLeftColor: 'transparent',
-    marginRight: 5
+    marginRight: 5,
   },
 });
