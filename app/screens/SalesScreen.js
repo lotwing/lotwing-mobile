@@ -15,7 +15,13 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
 class SalesScreen extends Component {
-  state = { loading: true, mtd_data: [], today_data: [], dealership_data: [], users: [] };
+  state = {
+    loading: true,
+    mtd_data: [],
+    today_data: [],
+    dealership_data: [],
+    users: [],
+  };
 
   componentWillMount() {
     this.loadSalesData();
@@ -76,7 +82,7 @@ class SalesScreen extends Component {
         return response.json();
       })
       .then(result => {
-        console.log('DEALERSHIP RESULT:', result)
+        console.log('DEALERSHIP RESULT:', result);
         this.setState({
           loading: false,
           mtd_data: mtd_data.filter(s => s.stored === false),
@@ -349,7 +355,7 @@ class SalesScreen extends Component {
             <Text style={h}>Reps</Text>
             {reps.map(rep => {
               const user = this.state.users.find(user => user.id === rep.id);
-              console.log('USER: ', user)
+              console.log('USER: ', user);
               return (
                 <View style={row}>
                   <View style={[cell, { flex: 2 }]}>
