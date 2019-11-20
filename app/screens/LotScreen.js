@@ -1609,20 +1609,18 @@ class LotView extends React.Component {
           onRegionDidChange={args => {
             this.currentCenter = args.geometry.coordinates;
             this.zoom = args.properties.zoomLevel;
-          }}
-          onUserLocationUpdate={location =>
-            this.setState({ userLocation: location })
-          }>
+          }}>
           <Mapbox.Camera
             zoomLevel={this.zoom}
             centerCoordinate={this.state.centerCoordinate}
             animationMode="none"
             animationDuration={0}
-            followPitch
-            followHeading
-            // followZoomLevel
           />
-          <Mapbox.UserLocation />
+          <Mapbox.UserLocation
+            onUpdate={location => {
+              this.setState({ userLocation: location });
+            }}
+          />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
             <Mapbox.FillLayer
               id="fill_parking_lot"
