@@ -70,6 +70,8 @@ export default class TagModalView extends React.Component {
       fuel: { event_id: null, started_at: null, summary: '' },
       sku: this.props.sku,
       barcodeOpen: false,
+      confirmActive: true,
+      confirmText: 'CONFIRM'
     };
   }
   componentWillMount() {
@@ -260,35 +262,40 @@ export default class TagModalView extends React.Component {
   }
 
   confirmSpaceData() {
-    console.log('\nconfirmSpaceData called');
-    let space_data = this.structureTagPayload('tag');
+    if (this.state.confirmActive) {
+      this.setState({ confirmActive: false, confirmText: 'SENDING' })
+      console.log('\nconfirmSpaceData called');
+      let space_data = this.structureTagPayload('tag');
 
-    console.log('TAG DATA: ', space_data);
+      console.log('TAG DATA: ', space_data);
 
-    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
-      },
-      body: JSON.stringify(space_data),
-    })
+      return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+        body: JSON.stringify(space_data),
+      })
       .then(response => {
         return response.json();
       })
       .then(responseJson => {
         if (this.state.reopenOnDismiss) {
-          this.setState({ reopenOnDismiss: false });
+          this.setState({ reopenOnDismiss: false, confirmActive: true, confirmText: 'CONFIRM' });
           this.props.updateLotAndReopenModal(this.props.spaceId);
         } else {
+          this.setState({ confirmActive: true, confirmText: 'CONFIRM' })
           this.updateLotAndDismissModal();
         }
       })
       .catch(err => {
+        this.setState({ confirmActive: true, confirmText: 'CONFIRM' })
         console.log('\nCAUGHT ERROR: \n', err, err.name);
         return err;
       });
+    }
   }
 
   launchPage(page_name) {
@@ -779,7 +786,7 @@ export default class TagModalView extends React.Component {
             <TouchableOpacity
               style={buttonStyles.activePrimaryModalButton}
               onPress={this.confirmSpaceData}>
-              <Text style={buttonStyles.activePrimaryTextColor}>CONFIRM</Text>
+              <Text style={buttonStyles.activePrimaryTextColor}>{ this.state.confirmText }</Text>
             </TouchableOpacity>
           </View>
 
