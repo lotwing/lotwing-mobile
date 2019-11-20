@@ -1620,7 +1620,7 @@ class LotView extends React.Component {
             animationDuration={0}
             followPitch
             followHeading
-            followZoomLevel
+            // followZoomLevel
           />
           <Mapbox.UserLocation />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>

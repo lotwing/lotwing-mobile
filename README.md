@@ -42,7 +42,7 @@ Execute the following command from within the <i>/lotwing-mobile</i> folder:
 
 1. (MAC) Open Keychain Access
 2. Add a new password by pressing the plus sign
-3. As name, put 'lotwing_mobile_keystore'. Fill in the account name as 'lotwing'. The password is a secret and you can get it from product owners (it should be kept in a safe place and not transmitted unencrypted)
+3. As name, put 'com_lotwing_keystore'. Fill in the account name as 'lotwing'. The password is a secret and you can get it from product owners (it should be kept in a safe place and not transmitted unencrypted)
 4. Using the [generated](https://medium.com/@hasangi/making-a-signed-apk-for-your-react-native-application-98e8529678db) signing file, put it into the `android/app` folder. Don't commit the file
 
 - Build apk
