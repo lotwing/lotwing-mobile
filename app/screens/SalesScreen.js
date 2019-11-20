@@ -15,7 +15,7 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
 class SalesScreen extends Component {
-  state = { loading: true, mtd_data: [], today_data: [], dealership_data: [] };
+  state = { loading: true, mtd_data: [], today_data: [], dealership_data: [], users: [] };
 
   componentWillMount() {
     this.loadSalesData();
@@ -76,12 +76,13 @@ class SalesScreen extends Component {
         return response.json();
       })
       .then(result => {
-        console.log(result);
+        console.log('DEALERSHIP RESULT:', result)
         this.setState({
           loading: false,
           mtd_data: mtd_data.filter(s => s.stored === false),
           today_data: today_data.filter(s => s.stored === false),
-          dealership_data: result,
+          dealership_data: result.dealership,
+          users: result.users,
         });
       });
   }
@@ -148,20 +149,20 @@ class SalesScreen extends Component {
     let mtd_new = [];
     let mtd_used = [];
     this.state.mtd_data.forEach(sale => {
-      if (!reps.some(rep => rep.name === sale.sales_rep)) {
+      if (!reps.some(rep => rep.id === sale.sales_rep_id)) {
         reps.push({
-          name: sale.sales_rep,
+          id: sale.sales_rep_id,
           newSales: 0,
           usedSales: 0,
           totalSales: 0,
         });
       }
       if (
-        !reps.some(rep => rep.name === sale.split_rep) &&
-        sale.split_rep !== ''
+        !reps.some(rep => rep.id === sale.split_rep_id) &&
+        sale.split_rep_id !== null
       ) {
         reps.push({
-          name: sale.split_rep,
+          id: sale.split_rep_id,
           newSales: 0,
           usedSales: 0,
           totalSales: 0,
@@ -178,24 +179,24 @@ class SalesScreen extends Component {
       let usedSales = 0;
       let newSales = 0;
       mtd_used.forEach(sale => {
-        if (sale.sales_rep === rep.name) {
-          if (sale.split_rep === '') {
+        if (sale.sales_rep_id === rep.id) {
+          if (sale.split_rep_id === null) {
             usedSales += 1;
           } else {
             usedSales += 0.5;
           }
-        } else if (sale.split_rep === rep.name) {
+        } else if (sale.split_rep_id === rep.id) {
           usedSales += 0.5;
         }
       });
       mtd_new.forEach(sale => {
-        if (sale.sales_rep === rep.name) {
-          if (sale.split_rep === '') {
+        if (sale.sales_rep_id === rep.id) {
+          if (sale.split_rep_id === null) {
             newSales += 1;
           } else {
             newSales += 0.5;
           }
-        } else if (sale.split_rep === rep.name) {
+        } else if (sale.split_rep_id === rep.id) {
           newSales += 0.5;
         }
       });
@@ -260,7 +261,7 @@ class SalesScreen extends Component {
               />
             </TouchableOpacity>
             <View style={{ position: 'absolute', right: 10, top: 5 }}>
-              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.0.19.10</Text>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.1.0</Text>
             </View>
           </View>
           <View style={{ padding: 20 }}>
@@ -347,10 +348,12 @@ class SalesScreen extends Component {
           <View style={{ padding: 20 }}>
             <Text style={h}>Reps</Text>
             {reps.map(rep => {
+              const user = this.state.users.find(user => user.id === rep.id);
+              console.log('USER: ', user)
               return (
                 <View style={row}>
                   <View style={[cell, { flex: 2 }]}>
-                    <Text style={t}>{this.toCamelCase(rep.name)}</Text>
+                    <Text style={t}>{this.toCamelCase(user.full_name)}</Text>
                   </View>
                   <View style={cell}>
                     <Text style={t}>{rep.newSales} New</Text>
