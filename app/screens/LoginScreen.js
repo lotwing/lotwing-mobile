@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   AsyncStorage,
   Button,
   Image,
@@ -119,11 +120,15 @@ class LoginButton extends React.Component {
     try {
       const response = await fetch(GlobalVariables.BASE_ROUTE + Route.LOGIN, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        // Posting FormData should automatically set the headers - this breaks android
+        // headers: {
+        //   'Content-Type': 'application/x-www-form-urlencoded',
+        // },
         body: login_formdata,
       });
+      if (!response.ok) {
+        throw response;
+      }
       const responseJson = await response.json();
       if (responseJson.message == GlobalVariables.SUCCESSFUL_LOGIN) {
         GlobalVariables.LOTWING_ACCESS_TOKEN = responseJson.access_token;
@@ -144,7 +149,34 @@ class LoginButton extends React.Component {
         console.log('There was an error with login', responseJson);
       }
     } catch (err) {
-      console.error(err.message);
+      console.log(err);
+      if (err instanceof Error) {
+        Alert.alert(
+          `An Error has occurred`,
+          `
+            Error: ${err.name} ${err.message}
+          `,
+          [
+            {
+              text: 'OK',
+            },
+          ],
+        );
+        console.error(err.message);
+      } else if (err.statusText) {
+        Alert.alert(
+          `An Error has occurred`,
+          `
+            Error: ${err.statusCode} ${err.statusText}
+          `,
+          [
+            {
+              text: 'OK',
+            },
+          ],
+        );
+        console.error(err.statusText);
+      }
     }
   }
 

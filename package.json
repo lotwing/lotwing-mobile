@@ -6,6 +6,7 @@
     "start": "react-native start",
     "reset": "watchman watch-del-all && rm -rf node_modules && npm i",
     "reset-cache": "npm start -- --reset-cache",
+    "heavy-reset-cache": "watchman watch-del-all && rm -rf $TMPDIR/react-native-packager-cache-* && rm -rf $TMPDIR/metro-bundler-cache-* && rm -rf node_modules/ && npm i && npm start -- --reset-cache",
     "lint": "eslint app",
     "ios": "react-native run-ios --simulator=\"iPhone 11\"",
     "ios-release": "react-native run-ios --configuration Release --simulator=\"iPhone 11\"",
