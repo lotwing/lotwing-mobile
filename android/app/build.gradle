@@ -108,7 +108,7 @@ def pass = getPassword("lotwing", MYAPP_RELEASE_KEY_NAME)
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore.
@@ -142,8 +142,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         vectorDrawables.useSupportLibrary true
-        versionCode 4
+        versionCode 5
         versionName "1.0.0"
+        multiDexEnabled false // Requires changes to MainApplication.java
     }
     splits {
         abi {
