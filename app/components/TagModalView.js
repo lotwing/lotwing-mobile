@@ -701,6 +701,58 @@ export default class TagModalView extends React.Component {
           </View>
         );
       }
+      if (
+        this.state.drive.event_id !== null &&
+        this.state.drive.event_id !== undefined
+      ) {
+        return (
+          <View style={styles.tagModalMainBody}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={[styles.header, { fontWeight: 'bold' }]}>
+                VEHICLE IS ON A TEST DRIVE
+              </Text>
+              <TouchableOpacity
+                style={buttonStyles.activePrimaryModalButton}
+                onPress={() => this.launchPage('drive')}>
+                <Text style={buttonStyles.activePrimaryTextColor}>
+                  VIEW TEST DRIVE
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      }
+      if (
+        this.state.fuel.event_id !== null &&
+        this.state.fuel.event_id !== undefined
+      ) {
+        return (
+          <View style={styles.tagModalMainBody}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={[styles.header, { fontWeight: 'bold' }]}>
+                VEHICLE IS BEING FUELLED
+              </Text>
+              <TouchableOpacity
+                style={buttonStyles.activePrimaryModalButton}
+                onPress={() => this.launchPage('fuel')}>
+                <Text style={buttonStyles.activePrimaryTextColor}>
+                  VIEW FUELLING
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      }
       return (
         <View style={styles.tagModalMainBody}>
           <View style={{ flexDirection: 'row' }}>
@@ -1136,7 +1188,6 @@ export default class TagModalView extends React.Component {
         modalTitle = 'Lease Return';
       }
     }
-
     if (this.state.loading) {
       return (
         <KeyboardAvoidingView

@@ -40,7 +40,7 @@ module.exports = {
   rules: {
     'comma-dangle': 0,
     'no-cond-assign': 1,
-    'no-console': 1,
+    'no-console': 0,
     'no-const-assign': 2,
     'no-constant-condition': 0,
     'no-control-regex': 1,
@@ -196,5 +196,6 @@ module.exports = {
     'react/react-in-jsx-scope': 1,
     'react/self-closing-comp': 1,
     'react/wrap-multilines': 0,
+    'react-native/no-inline-styles': 0,
   },
 };

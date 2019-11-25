@@ -50,12 +50,14 @@ export default class MultiScreen extends React.Component {
   }
 }
 
+const lotCenterCoordinates = [-122.00704220157868, 37.352814585339715];
 class LotView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       initialLoad: [],
-      centerCoordinate: [-122.00704220157868, 37.352814585339715],
+      centerCoordinate: lotCenterCoordinates,
+      userLocation: { coords: lotCenterCoordinates },
       lotShapes: null,
       errorLoading: false,
       newVehicleSpaces: [],
@@ -79,6 +81,7 @@ class LotView extends React.Component {
       leaseRt: false,
       vehicles: [],
       vehicleId: 0,
+      zoomLevel: 20,
     };
     let loadPromise = this._loadLotView();
     loadPromise.then(result => {
@@ -92,7 +95,6 @@ class LotView extends React.Component {
     this.setVehicleHighlight = this.setVehicleHighlight.bind(this);
     this.dismissInput = this.dismissInput.bind(this);
     this._loadLotView = this._loadLotView.bind(this);
-    this.zoom = 20;
   }
 
   componentWillMount() {
@@ -858,7 +860,10 @@ class LotView extends React.Component {
       );
     }
   }
-
+  async onRegionDidChange() {
+    const zoom = await this._map.getZoom();
+    this.setState({ zoomLevel: zoom });
+  }
   render() {
     return (
       <KeyboardAvoidingView
@@ -871,17 +876,37 @@ class LotView extends React.Component {
         {this.state.modalVisible && this._renderTagModal()}
         {this.maybeRenderKeyboard()}
         <Mapbox.MapView
+          showUserLocation={true}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          ref={'_map'}>
+          ref={c => (this._map = c)}
+          onRegionDidChange={() => this.onRegionDidChange()}>
           <Mapbox.Camera
-            zoomLevel={this.zoom}
-            animationMode="none"
+            zoomLevel={this.state.zoomLevel}
+            animationMode="flyTo"
             animationDuration={0}
-            followUserLocation={true}
-            followUserMode="normal"
+            centerCoordinate={this.state.centerCoordinate}
+            userTrackingMode={Mapbox.UserTrackingModes.Follow}
           />
-          <Mapbox.UserLocation />
+          <Mapbox.UserLocation
+            onUpdate={location => {
+              if (
+                this.state.userLocation !== null &&
+                [location.coords.latitude, location.coords.longitude] !==
+                  [
+                    this.state.userLocation.coords.latitude,
+                    this.state.userLocation.coords.longitude,
+                  ]
+              ) {
+                this.setState({
+                  centerCoordinate: [
+                    location.coords.longitude,
+                    location.coords.latitude,
+                  ],
+                });
+              }
+            }}
+          />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
             <Mapbox.FillLayer
               id="fill_parking_lot"

@@ -1,10 +1,8 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   AsyncStorage,
   Image,
   Keyboard,
-  Modal,
   Platform,
   StatusBar,
   StyleSheet,
@@ -59,21 +57,13 @@ export default class LotScreen extends React.Component {
 
 const lotCenterCoordinates = [-122.00704220157868, 37.352814585339715];
 
-const VehicleInfo = posed.View({
-  closed: {
-    y: Dimensions.get('window').height,
-    transition: { type: 'spring', stiffness: 300 },
-  },
-  open: { y: 0, transition: { ease: 'easeOut', duration: 300 } },
-});
-
 class LotView extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       centerCoordinate: lotCenterCoordinates,
-      userCoordinate: null,
+      userLocation: { coords: lotCenterCoordinates },
       zoomLevel: 17,
       lotShapes: null,
       errorLoading: false,
@@ -93,7 +83,7 @@ class LotView extends React.Component {
       noteEventSpaces: [],
       parkingShapes: {},
       spaceVehicleMap: {},
-      spaceId: 0,
+      spaceId: null,
       vehicles: [],
       vehicleId: 0,
       modalType: GlobalVariables.BASIC_MODAL_TYPE,
@@ -138,8 +128,6 @@ class LotView extends React.Component {
     this.vinEntered = 0;
     this._loadLotView = this._loadLotView.bind(this);
     this.updateSpaceVehicleMap = false;
-    this.currentCenter = lotCenterCoordinates;
-    this.zoom = 17;
   }
   /**
    * Loads all of the data associated with a lot and updates
@@ -160,7 +148,7 @@ class LotView extends React.Component {
       let centerCoordinate = this._calculateCenter(
         space_coords.geometry.coordinates[0],
       );
-      this.zoom = 18.5;
+      console.log('set modal state true');
       this.setState({
         findingOnMap: findingOnMap,
         modalVisible: true,
@@ -191,21 +179,19 @@ class LotView extends React.Component {
           //this.cancelDrive(driveEventId, spaceId);
           // update location
         } else if (extras.updateLocation && extras.updateLocation === true) {
-          console.log('Update Location Event');
           this.setVehicleHighlight(null);
           this.setState({
             postLoadAction: 'chooseEmptySpace',
             modalVisible: false,
           });
         } else if (extras.showModalonExit && extras.showModalonExit === true) {
-          console.log('Show modal on exit');
+          console.log('set modal state true');
           this.setState({
             findingOnMap: false,
             modalType: GlobalVariables.BASIC_MODAL_TYPE,
             modalVisible: true,
           });
         } else {
-          console.log('NAVIGATION: extras exist');
           this.setVehicleHighlight(null);
           this.setState({
             findingOnMap: false,
@@ -215,9 +201,11 @@ class LotView extends React.Component {
           return this._loadLotView();
         }
       } else {
+        console.log('set modal state true');
         this.setState({ findingOnMap: false, modalVisible: true });
       }
     } else {
+      console.log('set modal state true');
       this.setState({ findingOnMap: false, modalVisible: true });
     }
     if (
@@ -285,12 +273,11 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
+        console.log('\nLOADLOTVIEW RESPONSE: ', responseJson, '\n');
         if (responseJson.message == 'Signature has expired') {
           console.log('Throwing Error');
           throw Error('Unauthorized user');
         }
-
         GlobalVariables.LOT_DATA = responseJson;
         let lot_geometry =
           GlobalVariables.LOT_DATA.parking_lots[0].geo_info.geometry;
@@ -301,7 +288,6 @@ class LotView extends React.Component {
           lotParkingSpaceMap[space.id] = space;
         });
         console.log('     resetting state: _loadLotView');
-        //console.log('_loadLotView coords: ', lot_coords);
 
         lotview._loadParkingSpaceMetadata({
           centerCoordinate:
@@ -328,6 +314,7 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        console.log('load parking space metadata setState');
         lotview.setState({
           newVehicleSpaces: responseJson.new_vehicle_occupied_spaces.map(
             space => space.id,
@@ -362,9 +349,6 @@ class LotView extends React.Component {
           errorLoading: false,
           modalVisible: false,
           spaceVehicleMap: {},
-          //spaceId: 0,
-          //vehicles: [],
-          //vehicleId: 0,
           modalType: GlobalVariables.BASIC_MODAL_TYPE,
           sku: null,
           vin: null,
@@ -373,7 +357,6 @@ class LotView extends React.Component {
           stockNumberVehicleMap: {},
           extraVehicleData: {},
           clickToPopulateStall: null,
-          //clickedStall: null,
           feedbackText: '',
           leaseRt: false,
           skuInputEntered: '',
@@ -410,7 +393,6 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        //console.log(responseJson)
         lotview.setState({
           driveEventSpaces: responseJson.test_drive_events.map(
             space => space.data.attributes,
@@ -521,24 +503,26 @@ class LotView extends React.Component {
     console.log('Set modal visibility');
     if (modalType !== null) {
       let textToShow = null;
-      if (modalType == GlobalVariables.CHOOSE_EMPTY_SPACE) {
+      if (modalType === GlobalVariables.CHOOSE_EMPTY_SPACE) {
         Keyboard.dismiss();
         this.setState({ skuCollectorVisible: false });
         textToShow = 'Choose the stall to populate...';
         console.log('Should populate VEHICLE ', vehicleId);
       } else if (
-        modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE &&
-        visibility == false &&
+        modalType === GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE &&
+        visibility === false &&
         opt_basic_modal_action_fb_msg
       ) {
         textToShow = opt_basic_modal_action_fb_msg;
       }
+      console.log('set modal state visibility:', visibility);
       this.setState({
         modalVisible: visibility,
         modalType: modalType,
         feedbackText: textToShow,
       });
     } else {
+      console.log('set modal state visibility:', visibility);
       this.setState({
         modalVisible: visibility,
         modalType: GlobalVariables.BASIC_MODAL_TYPE,
@@ -547,6 +531,7 @@ class LotView extends React.Component {
   }
 
   setPopulateViewVisibility(visibility, modalType = null, vehicleId = null) {
+    console.log('set modal state visibility:', visibility);
     this.setState({
       modalVisible: visibility,
       modalType: modalType,
@@ -662,7 +647,7 @@ class LotView extends React.Component {
           }
         });
     } else {
-      console.log('nog vehicleID or sku_number');
+      console.log('no vehicleID or sku_number');
       this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
@@ -703,7 +688,6 @@ class LotView extends React.Component {
         return response.json();
       })
       .then(responseJson => {
-        //console.log(responseJson);
         return responseJson;
       })
       .catch(err => {
@@ -715,7 +699,7 @@ class LotView extends React.Component {
   }
   setModalValues(modal_type, space_id, vehiclesArray) {
     // IF stall is empty only space_id needed
-    if (modal_type == GlobalVariables.EMPTY_MODAL_TYPE) {
+    if (modal_type === GlobalVariables.EMPTY_MODAL_TYPE) {
       if (!space_id) {
         throw Error('No space id was passed to display the empty tag modal');
       }
@@ -725,7 +709,6 @@ class LotView extends React.Component {
       // special case where we don't have a space id
       this.setState({ vehicles: vehiclesArray });
     }
-
     this.setState({
       modalType: modal_type,
       spaceId: space_id,
@@ -733,13 +716,11 @@ class LotView extends React.Component {
   }
 
   setVehicleHighlight(polygonClicked) {
-    //console.log('Map Center', this.refs._map.getCenter())
-    let centerCoordinate = this.currentCenter;
+    let centerCoordinate = this.state.centerCoordinate;
     if (polygonClicked !== null) {
       centerCoordinate = this._calculateCenter(
         polygonClicked.geometry.coordinates[0],
       );
-      this.currentCenter = centerCoordinate;
     }
     console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate);
     this.setState({
@@ -1165,15 +1146,18 @@ class LotView extends React.Component {
   }
 
   buildLeaseRt() {
+    console.log('buildLeaseRT');
     const tempSku =
       this.state.leaseRtInput1 +
       this.state.leaseRtInput2 +
       this.state.leaseRtInput3 +
       this.state.leaseRtInput4 +
       this.state.leaseRtInput5;
-    this.setState({ skuInputEntered: tempSku, skuCollectorVisible: false });
-
-    this.locateVehicle('sku');
+    this.setState({
+      skuInputEntered: tempSku,
+      skuCollectorVisible: tempSku !== '',
+    });
+    tempSku !== '' && this.locateVehicle('sku');
   }
 
   maybeRenderTextInput() {
@@ -1356,7 +1340,10 @@ class LotView extends React.Component {
                   onChangeText={text =>
                     this.setState({ skuInputEntered: text })
                   }
-                  onSubmitEditing={event => this.locateVehicle('sku')}
+                  onSubmitEditing={event => {
+                    this.state.skuInputEntered !== '' &&
+                      this.locateVehicle('sku');
+                  }}
                   autoFocus={true}
                   value={this.state.skuInputEntered}
                 />
@@ -1409,7 +1396,14 @@ class LotView extends React.Component {
                     buttonStyles.activePrimaryModalButton,
                     { borderColor: 'gray', borderWidth: 1 },
                   ]}
-                  onPress={() => this.locateVehicle('sku')}>
+                  onPress={() => {
+                    if (this.state.leaseRt) {
+                      this.buildLeaseRt();
+                    } else {
+                      this.state.skuInputEntered !== '' &&
+                        this.locateVehicle('sku');
+                    }
+                  }}>
                   <Text style={[buttonStyles.activePrimaryTextColor]}>
                     SEARCH
                   </Text>
@@ -1437,8 +1431,8 @@ class LotView extends React.Component {
         ? this.state.stockNumber
         : null;
     return (
-      <VehicleInfo
-        pose={this.state.modalVisible ? 'open' : 'closed'}
+      <View
+        //pose={this.state.modalVisible ? 'open' : 'closed'}
         style={{
           flex: 1,
           width: Dimensions.get('window').width,
@@ -1467,7 +1461,7 @@ class LotView extends React.Component {
           vin={this.state.vin}
           leaseRt={this.state.leaseRt}
         />
-      </VehicleInfo>
+      </View>
     );
   }
 
@@ -1532,8 +1526,15 @@ class LotView extends React.Component {
     return null;
   }
 
+  async onRegionDidChange() {
+    const zoom = await this._map.getZoom();
+    const center = await this._map.getCenter();
+    this.setState({ zoomLevel: zoom, centerCoordinate: center });
+  }
+
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
+    console.log('this.state.modalVisible', this.state.modalVisible);
     console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
       console.log('Barcode Open, Selected stall: ', this.state.clickedStall);
@@ -1605,20 +1606,22 @@ class LotView extends React.Component {
           showUserLocation={true}
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
-          ref={'_map'}
-          onRegionDidChange={args => {
-            this.currentCenter = args.geometry.coordinates;
-            this.zoom = args.properties.zoomLevel;
-          }}>
+          ref={c => (this._map = c)}
+          onRegionDidChange={() => this.onRegionDidChange()}>
           <Mapbox.Camera
-            zoomLevel={this.zoom}
+            zoomLevel={this.state.zoomLevel}
             centerCoordinate={this.state.centerCoordinate}
-            animationMode="none"
+            animationMode="flyTo"
             animationDuration={0}
           />
           <Mapbox.UserLocation
             onUpdate={location => {
-              this.setState({ userLocation: location });
+              if (
+                location !== undefined &&
+                location.coords !== this.state.userLocation.coords
+              ) {
+                this.setState({ userLocation: location });
+              }
             }}
           />
           <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
@@ -1794,21 +1797,6 @@ class LotView extends React.Component {
             recent={false}
             blank={this.state.findingOnMap}
           />
-
-          {/*
-          <VehicleSpaceLayer
-            ids={this.state.duplicateSpaces}
-            style={lotLayerStyles.duplicate_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.duplicateSpaces}
-            sendMapCallback={this.getMapCallback}
-            showAndPopulateModal={this.showAndPopulateModal}
-            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type='duplicates'
-            recent={false}
-            blank={this.state.findingOnMap}>
-          </VehicleSpaceLayer>
-          */}
 
           <DuplicatesLayer
             ids={this.state.duplicateSpaces}
