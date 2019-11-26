@@ -1,18 +1,12 @@
 import React from 'react';
 import {
-  Animated,
   View,
-  ScrollView,
   Text,
   TextInput,
-  Button,
   Image,
-  Platform,
   StyleSheet,
-  ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
   ActivityIndicator,
   Dimensions,
@@ -27,8 +21,6 @@ import buttonStyles from '../constants/ButtonStyles';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
-
-import Mapbox from '@react-native-mapbox-gl/maps';
 
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
@@ -554,24 +546,29 @@ export default class TagModalView extends React.Component {
     }
     if (this.state.vehicle.service_hold) {
       return (
-        <View
-          style={{
-            width: '100%',
-            alignItems: 'baseline',
-            justifyContent: 'flex-start',
-            flexDirection: 'row',
-          }}>
-          <View style={styles.triangle} />
-          <Text
-            style={[
-              styles.stallHeader,
-              { fontWeight: 'bold', color: '#FFA500' },
-            ]}>
-            Service Hold
-          </Text>
-          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-            {this.state.vehicle.service_hold_notes}
-          </Text>
+        <View style={{ width: '100%' }}>
+          <View
+            style={{
+              width: '100%',
+              alignItems: 'baseline',
+              justifyContent: 'flex-start',
+              flexDirection: 'row',
+            }}>
+            <View style={styles.triangle} />
+            <Text
+              style={[
+                styles.stallHeader,
+                { fontWeight: 'bold', color: '#FFA500' },
+              ]}>
+              Service Hold
+            </Text>
+            <Text
+              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
+              {this.state.vehicle.service_hold_notes !== null &&
+                this.state.vehicle.service_hold_notes}
+            </Text>
+          </View>
+          {this._renderSoldState()}
         </View>
       );
     }
@@ -632,9 +629,37 @@ export default class TagModalView extends React.Component {
           {this.state.vehicle.sold_status === null && (
             <Text
               style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-              {this.state.vehicle.sales_hold_notes}
+              {this.state.vehicle.sales_hold_notes !== null &&
+                this.state.vehicle.sales_hold_notes}
             </Text>
           )}
+        </View>
+      );
+    }
+    return null;
+  }
+  _renderSoldState() {
+    console.log('SOLD STATUS: ', this.state.vehicle.sold_status);
+    if (this.state.vehicle.sold_status !== null) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <View style={styles.icon}>
+            <Text
+              style={[
+                styles.stallHeader,
+                {
+                  fontWeight: 'bold',
+                  color: '#FFF',
+                  fontSize: 14,
+                  lineHeight: 16,
+                },
+              ]}>
+              $
+            </Text>
+          </View>
+          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
+            {this.state.vehicle.sold_status}
+          </Text>
         </View>
       );
     }
@@ -645,16 +670,18 @@ export default class TagModalView extends React.Component {
     // car features that can be displayed
     // spaceId, make, model, year, color, sku
     console.log('MODAL CONTENT TYPE: ', this.state.modalContent);
-    if (this.state.modalContent == GlobalVariables.BASIC_MODAL_TYPE) {
+    if (this.state.modalContent === GlobalVariables.BASIC_MODAL_TYPE) {
       let vehicleColor = this.state.vehicles[this.state.arrayPosition].color
         ? this.state.vehicles[this.state.arrayPosition].color
         : '- -';
+      console.log(vehicleColor);
       const {
         model,
         mileage,
         age_in_days,
-        key_board_location_id,
+        key_board_location_name,
       } = this.state.vehicles[this.state.arrayPosition];
+      console.log(model, mileage, age_in_days, key_board_location_name);
       if (this.state.screen === 'keys') {
         return (
           <View
@@ -896,7 +923,7 @@ export default class TagModalView extends React.Component {
           )}
         </View>
       );
-    } else if (this.state.modalContent == GlobalVariables.INFO_MODAL_TYPE) {
+    } else if (this.state.modalContent === GlobalVariables.INFO_MODAL_TYPE) {
       return (
         <View style={styles.tagModalMainBody}>
           <Text style={styles.header}>
@@ -937,7 +964,7 @@ export default class TagModalView extends React.Component {
         </View>
       );
     } else if (
-      this.state.modalContent == GlobalVariables.STALL_ENTRY_MODAL_TYPE
+      this.state.modalContent === GlobalVariables.STALL_ENTRY_MODAL_TYPE
     ) {
       return (
         <View style={styles.tagModalMainBody}>
@@ -979,7 +1006,7 @@ export default class TagModalView extends React.Component {
           </View>
         </View>
       );
-    } else if (this.state.modalContent == GlobalVariables.EMPTY_MODAL_TYPE) {
+    } else if (this.state.modalContent === GlobalVariables.EMPTY_MODAL_TYPE) {
       //TODO(adwoa): EMPTY_MODAL_TYPE add feedback here
       return (
         <View
@@ -1194,7 +1221,9 @@ export default class TagModalView extends React.Component {
           style={styles.tagModalOverlay}
           behavior="padding"
           enabled
-          keyboardVerticalOffset={getStatusBarHeight() + 40}>
+          keyboardVerticalOffset={
+            getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+          }>
           <TouchableWithoutFeedback
             onPress={() => {
               this.props.findOnMap(false);
@@ -1285,7 +1314,9 @@ export default class TagModalView extends React.Component {
           style={styles.tagModalOverlay}
           behavior="padding"
           enabled
-          keyboardVerticalOffset={getStatusBarHeight() + 40}>
+          keyboardVerticalOffset={
+            getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+          }>
           <TouchableWithoutFeedback
             onPress={() => {
               this.props.findOnMap(false);
@@ -1325,7 +1356,9 @@ export default class TagModalView extends React.Component {
         style={styles.tagModalOverlay}
         behavior="padding"
         enabled
-        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        keyboardVerticalOffset={
+          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+        }>
         <TouchableWithoutFeedback
           onPress={() => {
             console.log('TOUCHING --OUTER-- VIEW');
@@ -1569,7 +1602,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 20,
-    height: 20,
     borderRadius: 10,
     backgroundColor: '#000',
     justifyContent: 'center',

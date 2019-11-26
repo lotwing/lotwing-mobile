@@ -30,4 +30,8 @@ export default {
   BEGIN_FUELING: 'fuel_vehicle',
   BEGIN_DRIVE: 'test_drive',
   ODO_UPDATE: 'odometer_update',
+
+  // DESIGN LAYOUT
+
+  HEADER_HEIGHT: 40,
 };

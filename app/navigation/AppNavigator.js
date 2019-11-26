@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { Image, TouchableOpacity, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Tabs from './Tabs';
+import GlobalVariables from '../constants/GlobalVariables';
 
 import LoginScreen from '../screens/LoginScreen';
 import LotScreen from '../screens/LotScreen';
@@ -135,6 +136,7 @@ const LotStack = createStackNavigator(
     defaultNavigationOptions: ({ navigation }) => ({
       headerStyle: {
         backgroundColor: '#BE1E2D',
+        height: GlobalVariables.HEADER_HEIGHT,
       },
       headerTitle: <NavigationMenu navigation={navigation} />,
       headerTintColor: 'white',

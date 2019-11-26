@@ -14,7 +14,6 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import posed from 'react-native-pose';
 import { RNCamera } from 'react-native-camera';
 import BarcodeMask from 'react-native-barcode-mask';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -1174,7 +1173,9 @@ class LotView extends React.Component {
             justifyContent: 'center',
           }}
           enabled
-          keyboardVerticalOffset={getStatusBarHeight() + 40}>
+          keyboardVerticalOffset={
+            getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+          }>
           <TouchableWithoutFeedback
             onPress={this.dismissInput}
             accessible={false}>
@@ -1436,7 +1437,8 @@ class LotView extends React.Component {
         style={{
           flex: 1,
           width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height - getStatusBarHeight() - 40,
+          height:
+            Dimensions.get('window').height - getStatusBarHeight(true) - 40,
           position: 'absolute',
           bottom: 0,
           zIndex: 10,
@@ -1597,7 +1599,7 @@ class LotView extends React.Component {
         behavior="padding"
         style={styles.container}
         enabled
-        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        keyboardVerticalOffset={getStatusBarHeight(true) + 40}>
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}

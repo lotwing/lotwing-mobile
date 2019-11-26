@@ -1,26 +1,19 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   AsyncStorage,
-  Image,
   Keyboard,
-  Modal,
-  Platform,
   StatusBar,
   StyleSheet,
   KeyboardAvoidingView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Text,
-  TextInput,
   View,
   Dimensions,
+  Platform,
 } from 'react-native';
-import posed from 'react-native-pose';
-
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -32,9 +25,6 @@ import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
 
 import Mapbox from '@react-native-mapbox-gl/maps';
-
-import pageStyles from '../constants/PageStyles';
-import textStyles from '../constants/TextStyles';
 
 /**
  *
@@ -753,7 +743,10 @@ class LotView extends React.Component {
           style={{
             flex: 1,
             width: Dimensions.get('window').width,
-            height: Dimensions.get('window').height - getStatusBarHeight() - 40,
+            height:
+              Dimensions.get('window').height -
+              getStatusBarHeight(true) -
+              GlobalVariables.HEADER_HEIGHT,
             position: 'absolute',
             bottom: 0,
             zIndex: 10,
@@ -812,7 +805,7 @@ class LotView extends React.Component {
           style={{
             position: 'absolute',
             zIndex: 10,
-            width: Dimensions.get('window').width - 40,
+            width: Dimensions.get('window').width - 100,
             left: 20,
             top: 40,
             backgroundColor: '#828282',
@@ -860,17 +853,51 @@ class LotView extends React.Component {
       );
     }
   }
+  maybeRenderMapControls() {
+    if (
+      this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE &&
+      !this.state.barcodeOpen
+    ) {
+      return (
+        <View style={{ position: 'absolute', zIndex: 2, right: 10, top: 10 }}>
+          <TouchableOpacity
+            onPress={() =>
+              this.setState({
+                centerCoordinate: [
+                  this.state.userLocation.coords.longitude,
+                  this.state.userLocation.coords.latitude,
+                ],
+              })
+            }
+            style={styles.floatingActionButton}>
+            <Ionicons
+              type="ionicon"
+              name={'md-locate'}
+              size={35}
+              style={{
+                color: '#FFF',
+                marginTop: Platform.OS === 'ios' ? 2 : 0,
+                marginLeft: Platform.OS === 'ios' ? 2 : 0,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return null;
+  }
   async onRegionDidChange() {
     const zoom = await this._map.getZoom();
     this.setState({ zoomLevel: zoom });
   }
   render() {
+    console.log('Status Bar HEight: ', getStatusBarHeight(true));
     return (
       <KeyboardAvoidingView
         behavior="padding"
         style={styles.container}
         enabled
-        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        keyboardVerticalOffset={getStatusBarHeight(true) + 40}>
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}
@@ -891,19 +918,10 @@ class LotView extends React.Component {
           <Mapbox.UserLocation
             onUpdate={location => {
               if (
-                this.state.userLocation !== null &&
-                [location.coords.latitude, location.coords.longitude] !==
-                  [
-                    this.state.userLocation.coords.latitude,
-                    this.state.userLocation.coords.longitude,
-                  ]
+                location !== undefined &&
+                location.coords !== this.state.userLocation.coords
               ) {
-                this.setState({
-                  centerCoordinate: [
-                    location.coords.longitude,
-                    location.coords.latitude,
-                  ],
-                });
+                this.setState({ userLocation: location });
               }
             }}
           />
@@ -963,6 +981,7 @@ class LotView extends React.Component {
         </Mapbox.MapView>
 
         {this.maybeRenderActionFeedbackView()}
+        {this.maybeRenderMapControls()}
       </KeyboardAvoidingView>
     );
   }

@@ -1,21 +1,13 @@
 import React from 'react';
 import {
-  Animated,
   View,
-  ScrollView,
   Text,
   TextInput,
-  Button,
-  Image,
-  Platform,
   StyleSheet,
-  ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
   ActivityIndicator,
-  Dimensions,
 } from 'react-native';
 
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
@@ -28,14 +20,10 @@ import buttonStyles from '../constants/ButtonStyles';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
-import Mapbox from '@react-native-mapbox-gl/maps';
-
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import LotActionHelper from '../helpers/LotActionHelper';
 
 /**
  *
@@ -536,7 +524,9 @@ export default class TagModalView extends React.Component {
           style={styles.tagModalOverlay}
           behavior="padding"
           enabled
-          keyboardVerticalOffset={getStatusBarHeight() + 40}>
+          keyboardVerticalOffset={
+            getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+          }>
           <TouchableWithoutFeedback
             onPress={() => {
               this.props.findOnMap(false);
@@ -626,7 +616,9 @@ export default class TagModalView extends React.Component {
         style={styles.tagModalOverlay}
         behavior="padding"
         enabled
-        keyboardVerticalOffset={getStatusBarHeight() + 40}>
+        keyboardVerticalOffset={
+          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+        }>
         <TouchableWithoutFeedback
           onPress={() => {
             console.log('TOUCHING --OUTER-- VIEW');
