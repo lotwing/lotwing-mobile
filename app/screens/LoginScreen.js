@@ -70,6 +70,7 @@ export default class LoginScreen extends React.Component {
           />
 
           <TextInput
+            autoCapitalize="none"
             style={{
               height: 50,
               margin: 10,
