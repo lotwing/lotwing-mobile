@@ -109,6 +109,7 @@ class LotView extends React.Component {
       leaseRtInput3: '',
       leaseRtInput4: '',
       leaseRtInput5: '',
+      eventEnding: null,
     };
 
     let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
@@ -177,6 +178,19 @@ class LotView extends React.Component {
           return this._loadLotView();
           //this.cancelDrive(driveEventId, spaceId);
           // update location
+        } else if (extras.endPackage) {
+          //EVENT NEEDS TO BE ENDED
+          const { endPackage, eventId } = extras;
+          console.log('EVENT NEEDS TO BE ENDED');
+          this.setVehicleHighlight(null);
+          this.setState({
+            postLoadAction: 'chooseEmptySpace',
+            modalVisible: false,
+            eventEnding: {
+              endPackage: endPackage,
+              eventId: eventId,
+            },
+          });
         } else if (extras.updateLocation && extras.updateLocation === true) {
           this.setVehicleHighlight(null);
           this.setState({
@@ -272,7 +286,7 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log('\nLOADLOTVIEW RESPONSE: ', responseJson, '\n');
+        //console.log('\nLOADLOTVIEW RESPONSE: ', responseJson, '\n');
         if (responseJson.message == 'Signature has expired') {
           console.log('Throwing Error');
           throw Error('Unauthorized user');
@@ -802,6 +816,19 @@ class LotView extends React.Component {
       // 2. Update Stall Number & Fetch updated lot
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
+
+        // EVENT ENDING NEEDED HERE
+        console.log('ADD EVENT ENDING HERE!');
+        if (this.state.eventEnding !== null) {
+          const { endPackage, eventId } = this.state.eventEnding;
+          let eventIdPromise = LotActionHelper.endTimeboundTagAction(
+            endPackage,
+            eventId,
+          ).then(result => {
+            this.setState({ eventEnding: null });
+          });
+        }
+
         let stallUpdatedPromise = this.updateStallNumber(
           space_id,
           this.state.vehicleId,
@@ -1536,8 +1563,8 @@ class LotView extends React.Component {
 
   render() {
     console.log('\n\n\n+ + + Render Lot Screen + + +');
-    console.log('this.state.modalVisible', this.state.modalVisible);
-    console.log('Current Vehicle ID: ', this.state.vehicleId);
+    //console.log('this.state.modalVisible', this.state.modalVisible);
+    //console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
       console.log('Barcode Open, Selected stall: ', this.state.clickedStall);
       return (
@@ -1622,7 +1649,7 @@ class LotView extends React.Component {
                 location !== undefined &&
                 location.coords !== this.state.userLocation.coords
               ) {
-                this.setState({ userLocation: location });
+                //this.setState({ userLocation: location });
               }
             }}
           />

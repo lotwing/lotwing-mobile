@@ -106,7 +106,26 @@ export default class DriveScreen extends React.Component {
 
   // end test drive and send ended_at time to the server, then redirect user to place vehicle
   endTestDrive(shouldAcknowledgeAction) {
-    this.props.navigation.setParams({ extras: { updateLocation: true } });
+    const endPackage = {
+      ended_at: this.formatDate(Date.now()),
+      acknowledged: true, // shouldAcknowledgeAction
+      event_details:
+        'Test driven for ' +
+        this.state.driveTime +
+        '. \nTest drive ended by ' +
+        GlobalVariables.USER_NAME,
+    };
+
+    this.props.navigation.navigate('Lot', {
+      extras: { endPackage: endPackage, eventId: this.eventId },
+      modalVisible: true,
+      refresh: true,
+      findingOnMap: false,
+    });
+
+    /*
+
+
     const endPackage = {
       ended_at: this.formatDate(Date.now()),
       acknowledged: true, // shouldAcknowledgeAction
@@ -129,6 +148,8 @@ export default class DriveScreen extends React.Component {
       });
       //LotActionHelper.backAction(driveScreen.props.navigation);
     });
+
+    */
   }
 
   formatDate(date) {

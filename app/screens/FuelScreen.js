@@ -114,7 +114,7 @@ export default class FuelScreen extends React.Component {
   }
 
   endFueling(shouldAcknowledgeAction) {
-    this.props.navigation.setParams({ extras: { updateLocation: true } });
+    //this.props.navigation.setParams({ extras: { updateLocation: true } });
 
     const endPackage = {
       ended_at: this.formatDate(Date.now()),
@@ -126,6 +126,14 @@ export default class FuelScreen extends React.Component {
         GlobalVariables.USER_NAME,
     };
 
+    this.props.navigation.navigate('Lot', {
+      extras: { endPackage: endPackage, eventId: this.eventId },
+      modalVisible: true,
+      refresh: true,
+      findingOnMap: false,
+    });
+
+    /*
     let eventIdPromise = LotActionHelper.endTimeboundTagAction(
       endPackage,
       this.eventId,
@@ -137,6 +145,7 @@ export default class FuelScreen extends React.Component {
         findingOnMap: false,
       });
     });
+    */
   }
 
   formatDate(date) {

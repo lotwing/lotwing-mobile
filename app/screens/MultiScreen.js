@@ -888,7 +888,8 @@ class LotView extends React.Component {
   }
   async onRegionDidChange() {
     const zoom = await this._map.getZoom();
-    this.setState({ zoomLevel: zoom });
+    const center = await this._map.getCenter();
+    this.setState({ zoomLevel: zoom, centerCoordinate: center });
   }
   render() {
     console.log('Status Bar HEight: ', getStatusBarHeight(true));
@@ -913,7 +914,7 @@ class LotView extends React.Component {
             animationMode="flyTo"
             animationDuration={0}
             centerCoordinate={this.state.centerCoordinate}
-            userTrackingMode={Mapbox.UserTrackingModes.Follow}
+            //userTrackingMode={Mapbox.UserTrackingModes.Follow}
           />
           <Mapbox.UserLocation
             onUpdate={location => {
