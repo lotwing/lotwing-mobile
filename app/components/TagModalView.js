@@ -540,11 +540,13 @@ export default class TagModalView extends React.Component {
       </View>
     );
   }
+
   _renderSalesState() {
     if (this.state.vehicle === null) {
       return null;
     }
-    if (this.state.vehicle.service_hold) {
+    const { service_hold, sales_hold, sold_status } = this.state.vehicle;
+    if (service_hold || sales_hold || sold_status !== null) {
       return (
         <View style={{ width: '100%' }}>
           <View
@@ -554,117 +556,93 @@ export default class TagModalView extends React.Component {
               justifyContent: 'flex-start',
               flexDirection: 'row',
             }}>
-            <View style={styles.triangle} />
-            <Text
-              style={[
-                styles.stallHeader,
-                { fontWeight: 'bold', color: '#FFA500' },
-              ]}>
-              Service Hold
-            </Text>
-            <Text
-              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-              {this.state.vehicle.service_hold_notes !== null &&
-                this.state.vehicle.service_hold_notes}
-            </Text>
+            {service_hold && <View style={styles.triangle} />}
+            {sales_hold && (
+              <View style={styles.icon}>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    {
+                      fontWeight: 'bold',
+                      color: '#FFF',
+                      fontSize: 14,
+                      lineHeight: 16,
+                    },
+                  ]}>
+                  H
+                </Text>
+              </View>
+            )}
+            {sold_status !== null && (
+              <View style={styles.icon}>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    {
+                      fontWeight: 'bold',
+                      color: '#FFF',
+                      fontSize: 14,
+                      lineHeight: 16,
+                    },
+                  ]}>
+                  $
+                </Text>
+              </View>
+            )}
+            {sold_status !== null ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    { fontWeight: 'bold', color: '#000' },
+                  ]}>
+                  SOLD
+                </Text>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    { marginLeft: 10, fontSize: 15 },
+                  ]}>
+                  {this.state.vehicle.sold_status}
+                </Text>
+              </View>
+            ) : (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    { fontWeight: 'bold' },
+                    service_hold ? { color: '#FFA500' } : { color: '#000' },
+                  ]}>
+                  Service Hold
+                </Text>
+                <Text
+                  style={[
+                    styles.stallHeader,
+                    { marginLeft: 10, fontSize: 15 },
+                  ]}>
+                  {this.state.vehicle.service_hold_notes !== null &&
+                    this.state.vehicle.service_hold_notes}
+                  {this.state.vehicle.sales_hold_notes !== null &&
+                    this.state.vehicle.sales_hold_notes}
+                </Text>
+              </View>
+            )}
           </View>
-          {this._renderSoldState()}
-        </View>
-      );
-    }
-    if (
-      this.state.vehicle.sales_hold ||
-      this.state.vehicle.sold_status !== null
-    ) {
-      return (
-        <View
-          style={{
-            width: '100%',
-            alignItems: 'baseline',
-            justifyContent: 'flex-start',
-            flexDirection: 'row',
-          }}>
-          {this.state.vehicle.sales_hold && (
-            <View style={styles.icon}>
-              <Text
-                style={[
-                  styles.stallHeader,
-                  {
-                    fontWeight: 'bold',
-                    color: '#FFF',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  },
-                ]}>
-                H
-              </Text>
-            </View>
-          )}
-          {this.state.vehicle.sold_status !== null && (
-            <View style={styles.icon}>
-              <Text
-                style={[
-                  styles.stallHeader,
-                  {
-                    fontWeight: 'bold',
-                    color: '#FFF',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  },
-                ]}>
-                $
-              </Text>
-            </View>
-          )}
-          <Text
-            style={[styles.stallHeader, { fontWeight: 'bold', color: '#000' }]}>
-            {this.state.vehicle.sold_status === null ? 'HOLD' : 'SOLD'}
-          </Text>
-          {this.state.vehicle.sold_status !== null && (
-            <Text
-              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-              {this.state.vehicle.sold_status}
-            </Text>
-          )}
-          {this.state.vehicle.sold_status === null && (
-            <Text
-              style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-              {this.state.vehicle.sales_hold_notes !== null &&
-                this.state.vehicle.sales_hold_notes}
-            </Text>
-          )}
         </View>
       );
     }
     return null;
   }
-  _renderSoldState() {
-    console.log('SOLD STATUS: ', this.state.vehicle.sold_status);
-    if (this.state.vehicle.sold_status !== null) {
-      return (
-        <View style={{ flexDirection: 'row' }}>
-          <View style={styles.icon}>
-            <Text
-              style={[
-                styles.stallHeader,
-                {
-                  fontWeight: 'bold',
-                  color: '#FFF',
-                  fontSize: 14,
-                  lineHeight: 16,
-                },
-              ]}>
-              $
-            </Text>
-          </View>
-          <Text style={[styles.stallHeader, { marginLeft: 10, fontSize: 15 }]}>
-            {this.state.vehicle.sold_status}
-          </Text>
-        </View>
-      );
-    }
-    return null;
-  }
+
   _renderAltActionView() {
     // either stallChange, info, or base
     // car features that can be displayed
