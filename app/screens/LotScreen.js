@@ -816,9 +816,7 @@ class LotView extends React.Component {
       // 2. Update Stall Number & Fetch updated lot
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
-
-        // EVENT ENDING NEEDED HERE
-        console.log('ADD EVENT ENDING HERE!');
+        // EVENT ENDING
         if (this.state.eventEnding !== null) {
           const { endPackage, eventId } = this.state.eventEnding;
           let eventIdPromise = LotActionHelper.endTimeboundTagAction(
@@ -1649,7 +1647,7 @@ class LotView extends React.Component {
                 location !== undefined &&
                 location.coords !== this.state.userLocation.coords
               ) {
-                //this.setState({ userLocation: location });
+                this.setState({ userLocation: location });
               }
             }}
           />
