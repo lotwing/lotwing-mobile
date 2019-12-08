@@ -112,6 +112,7 @@ class LotView extends React.Component {
       eventEnding: null,
     };
 
+    // required for android
     hasLocationPermission();
 
     let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})

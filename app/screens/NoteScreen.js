@@ -134,84 +134,80 @@ export default class NoteScreen extends React.Component {
   _renderProperNoteActionView() {
     if (this.state.isNoteActionVisible) {
       return (
-        <KeyboardAvoidingView
-          behavior="padding"
-          keyboardVerticalOffset={getStatusBarHeight() + 40}
-          enabled
-          style={{ flex: 1 }}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss();
-            }}
-            accessible={false}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Keyboard.dismiss();
+          }}
+          accessible={false}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              marginTop: 20,
+              alignItems: 'center',
+            }}>
             <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <View
-                style={[
-                  pageStyles.noteCard,
-                  {
-                    flex: 1,
-                    width: Dimensions.get('window').width - 40,
-                    margin: 20,
-                  },
-                ]}>
-                <TextInput
-                  style={{ flex: 1 }}
-                  editable={true}
-                  multiline={true}
-                  onChangeText={noteText => this.setState({ noteText })}
-                  placeholder="Write your vehicle note here."
-                />
-              </View>
-              {/*
+              style={[
+                pageStyles.noteCard,
+                {
+                  width: Dimensions.get('window').width - 40,
+                },
+              ]}>
+              <TextInput
+                onSubmitEditing={() => Keyboard.dismiss()}
+                // style={{ flex: 1 }}
+                returnKeyLabel="Done"
+                returnKeyType={'done'}
+                editable={true}
+                multiline={true}
+                onChangeText={noteText => this.setState({ noteText })}
+                placeholder="Write your vehicle note here."
+              />
+            </View>
+            {/*
 			  			<View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
 				  			{ this.state.photos.map((photo) => { return <Text>{ photo.uri }</Text> })
 				  			}
 			  			</View>
 			  		*/}
-              <View
-                style={{
-                  flex: 0,
-                  width: Dimensions.get('window').width - 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  margin: 20,
-                  flexDirection: 'column',
-                }}>
-                <TouchableOpacity
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'flex-end',
+                width: Dimensions.get('window').width - 40,
+                alignItems: 'center',
+                margin: 20,
+                flexDirection: 'column',
+              }}>
+              <TouchableOpacity
+                style={[
+                  buttonStyles.activeSecondaryModalButton,
+                  {
+                    width: '100%',
+                    paddingTop: 15,
+                    paddingBottom: 15,
+                    marginRight: 0,
+                  },
+                ]}
+                onPress={this.sendNoteData}>
+                <Text
                   style={[
-                    buttonStyles.activeSecondaryModalButton,
-                    {
-                      width: '100%',
-                      paddingTop: 15,
-                      paddingBottom: 15,
-                      marginRight: 0,
-                    },
-                  ]}
-                  onPress={this.sendNoteData}>
-                  <Text
-                    style={[
-                      buttonStyles.activeSecondaryTextColor,
-                      { fontWeight: '300', fontSize: 20 },
-                    ]}>
-                    SAVE NOTE
-                  </Text>
-                </TouchableOpacity>
+                    buttonStyles.activeSecondaryTextColor,
+                    { fontWeight: '300', fontSize: 20 },
+                  ]}>
+                  SAVE NOTE
+                </Text>
+              </TouchableOpacity>
 
-                {/*
+              {/*
 				  				<TouchableOpacity style={[ buttonStyles.activePrimaryModalButton, { width: '90%', paddingTop: 15, paddingBottom: 15, marginTop: 15, marginLeft: 0 }]}
 			  				onPress={() => this.setState({cameraOpen: true })}>
 				  				<Text style={[buttonStyles.activePrimaryTextColor, {fontWeight: '300', fontSize: 20}]}>CAMERA</Text>
 				  			</TouchableOpacity>
 				  		*/}
-              </View>
             </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+          </View>
+        </TouchableWithoutFeedback>
       );
     } else {
       // This batch of code is not currently ever reached.... we don't need a
@@ -308,37 +304,51 @@ export default class NoteScreen extends React.Component {
 			}
 		}*/
     return (
-      <View
+      <KeyboardAvoidingView
         style={[
           pageStyles.container,
-          { justifyContent: 'flex-start', backgroundColor: '#E6E4E0' },
-        ]}>
+          {
+            flex: 1,
+            backgroundColor: '#E6E4E0',
+          },
+        ]}
+        keyboardVerticalOffset={Platform.select({ ios: 0, android: 25 })}
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        keyboardVerticalOffset={getStatusBarHeight() + 40}
+        enabled>
         <View
           style={[
-            pageStyles.darkBody,
-            pageStyles.row,
-            { justifyContent: 'space-between' },
+            {
+              height: '100%',
+            },
           ]}>
-          <View style={[pageStyles.darkBody, pageStyles.column]}>
-            <Text style={textStyles.header}>
-              {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
-            </Text>
-            <Text style={textStyles.subtitle}>
-              SKU {this.vehicle.stockNumber}
-            </Text>
+          <View
+            style={[
+              pageStyles.darkBody,
+              pageStyles.row,
+              { justifyContent: 'space-between' },
+            ]}>
+            <View style={[pageStyles.darkBody, pageStyles.column]}>
+              <Text style={textStyles.header}>
+                {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
+              </Text>
+              <Text style={textStyles.subtitle}>
+                SKU {this.vehicle.stockNumber}
+              </Text>
+            </View>
+
+            <View style={pageStyles.column}>
+              <Image
+                source={require('../../assets/images/note-white.png')}
+                style={[buttonStyles.icon, { padding: 10, minWidth: 30 }]}
+                resizeMode={'contain'}
+              />
+            </View>
           </View>
 
-          <View style={pageStyles.column}>
-            <Image
-              source={require('../../assets/images/note-white.png')}
-              style={[buttonStyles.icon, { padding: 10, minWidth: 30 }]}
-              resizeMode={'contain'}
-            />
-          </View>
+          {this._renderProperNoteActionView()}
         </View>
-
-        {this._renderProperNoteActionView()}
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
