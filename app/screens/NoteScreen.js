@@ -312,7 +312,6 @@ export default class NoteScreen extends React.Component {
             backgroundColor: '#E6E4E0',
           },
         ]}
-        keyboardVerticalOffset={Platform.select({ ios: 0, android: 25 })}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={getStatusBarHeight() + 40}
         enabled>
