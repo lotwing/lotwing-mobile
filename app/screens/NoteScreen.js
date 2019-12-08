@@ -150,7 +150,9 @@ export default class NoteScreen extends React.Component {
               style={[
                 pageStyles.noteCard,
                 {
-                  width: Dimensions.get('window').width - 40,
+                  width:
+                    Dimensions.get('window').width -
+                    GlobalVariables.HEADER_HEIGHT,
                 },
               ]}>
               <TextInput
@@ -174,7 +176,9 @@ export default class NoteScreen extends React.Component {
               style={{
                 flex: 1,
                 justifyContent: 'flex-end',
-                width: Dimensions.get('window').width - 40,
+                width:
+                  Dimensions.get('window').width -
+                  GlobalVariables.HEADER_HEIGHT,
                 alignItems: 'center',
                 margin: 20,
                 flexDirection: 'column',
@@ -226,7 +230,11 @@ export default class NoteScreen extends React.Component {
             </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', marginTop: 40 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              marginTop: GlobalVariables.HEADER_HEIGHT,
+            }}>
             <TouchableOpacity
               style={[
                 buttonStyles.activeSecondaryModalButton,

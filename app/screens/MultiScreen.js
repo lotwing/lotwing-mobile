@@ -893,6 +893,7 @@ class LotView extends React.Component {
   }
   render() {
     console.log('Status Bar HEight: ', getStatusBarHeight(true));
+
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}

@@ -1190,9 +1190,10 @@ class LotView extends React.Component {
   maybeRenderTextInput() {
     if (this.state.skuCollectorVisible) {
       // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
+
       return (
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
           style={{
             position: 'absolute',
             height: '100%',
@@ -1466,7 +1467,9 @@ class LotView extends React.Component {
           flex: 1,
           width: Dimensions.get('window').width,
           height:
-            Dimensions.get('window').height - getStatusBarHeight(true) - 40,
+            Dimensions.get('window').height -
+            getStatusBarHeight(true) -
+            GlobalVariables.HEADER_HEIGHT,
           position: 'absolute',
           bottom: 0,
           zIndex: 10,
