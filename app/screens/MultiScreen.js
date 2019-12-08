@@ -895,10 +895,12 @@ class LotView extends React.Component {
     console.log('Status Bar HEight: ', getStatusBarHeight(true));
     return (
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
         style={styles.container}
         enabled
-        keyboardVerticalOffset={getStatusBarHeight(true) + 40}>
+        keyboardVerticalOffset={
+          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+        }>
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}

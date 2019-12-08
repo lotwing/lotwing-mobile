@@ -1192,7 +1192,7 @@ class LotView extends React.Component {
       // console.log('SKU COLLECTOR should be visible? ', this.state.skuCollectorVisible);
       return (
         <KeyboardAvoidingView
-          behavior="padding"
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
           style={{
             position: 'absolute',
             height: '100%',
@@ -1624,10 +1624,12 @@ class LotView extends React.Component {
     }
     return (
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
         style={styles.container}
         enabled
-        keyboardVerticalOffset={getStatusBarHeight(true) + 40}>
+        keyboardVerticalOffset={
+          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+        }>
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}

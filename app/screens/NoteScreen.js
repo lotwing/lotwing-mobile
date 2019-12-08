@@ -313,7 +313,9 @@ export default class NoteScreen extends React.Component {
           },
         ]}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
-        keyboardVerticalOffset={getStatusBarHeight() + 40}
+        keyboardVerticalOffset={
+          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+        }
         enabled>
         <View
           style={[

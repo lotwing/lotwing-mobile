@@ -11,7 +11,6 @@ import {
   ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
 } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';

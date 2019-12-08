@@ -2,6 +2,7 @@ import React from 'react';
 import {
   View,
   Text,
+  Platform,
   TextInput,
   Image,
   StyleSheet,
@@ -1197,7 +1198,7 @@ export default class TagModalView extends React.Component {
       return (
         <KeyboardAvoidingView
           style={styles.tagModalOverlay}
-          behavior="padding"
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
           enabled
           keyboardVerticalOffset={
             getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
@@ -1290,7 +1291,7 @@ export default class TagModalView extends React.Component {
       return (
         <KeyboardAvoidingView
           style={styles.tagModalOverlay}
-          behavior="padding"
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
           enabled
           keyboardVerticalOffset={
             getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
@@ -1329,10 +1330,11 @@ export default class TagModalView extends React.Component {
         </KeyboardAvoidingView>
       );
     }
+
     return (
       <KeyboardAvoidingView
         style={styles.tagModalOverlay}
-        behavior="padding"
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={
           getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
