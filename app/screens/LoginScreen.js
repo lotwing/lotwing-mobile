@@ -65,7 +65,7 @@ export default class LoginScreen extends React.Component {
             }}
             onChangeText={email => this.setState({ email })}
             keyboardType="email-address"
-            placeholder={'Email Address'}
+            placeholder="Email Address"
             placeholderTextColor={'rgba(0,0,0,0.5)'}
           />
 
@@ -82,7 +82,7 @@ export default class LoginScreen extends React.Component {
             }}
             onChangeText={pwd => this.setState({ pwd })}
             secureTextEntry={true}
-            placeholder={'Password'}
+            placeholder="Password"
             placeholderTextColor={'rgba(0,0,0,0.5)'}
           />
         </View>

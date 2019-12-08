@@ -32,8 +32,8 @@ import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
+import { hasLocationPermission } from '../helpers/PermissionHelper';
 import buttonStyles from '../constants/ButtonStyles';
-
 import Mapbox from '@react-native-mapbox-gl/maps';
 
 import pageStyles from '../constants/PageStyles';
@@ -111,6 +111,8 @@ class LotView extends React.Component {
       leaseRtInput5: '',
       eventEnding: null,
     };
+
+    hasLocationPermission();
 
     let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
     loadPromise.then(result => {

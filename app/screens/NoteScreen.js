@@ -41,7 +41,7 @@ export default class NoteScreen extends React.Component {
 
     this.state = {
       isNoteActionVisible: true,
-      placeholderText: 'Write your vehicle note here.',
+      noteText: '',
       //cameraOpen: false,
       //hasCameraPermission: null,
       //type: Camera.Constants.Type.back,
@@ -98,13 +98,13 @@ export default class NoteScreen extends React.Component {
 
   sendNoteData() {
     console.log('\nsendFuelData called');
-    console.log('\nNote: ', this.state.placeholderText);
+    console.log('\nNote: ', this.state.noteText);
 
     //TODO(adwoa): make save button unclickable, process this action
     let space_data = LotActionHelper.structureTagPayload(
       'note',
       { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-      this.state.placeholderText,
+      this.state.noteText,
     );
     let noteScreen = this;
     console.log('TAG DATA: ', space_data);
@@ -163,10 +163,8 @@ export default class NoteScreen extends React.Component {
                   style={{ flex: 1 }}
                   editable={true}
                   multiline={true}
-                  onChangeText={placeholderText =>
-                    this.setState({ placeholderText })
-                  }
-                  placeholder={this.state.placeholderText}
+                  onChangeText={noteText => this.setState({ noteText })}
+                  placeholder="Write your vehicle note here."
                 />
               </View>
               {/*
@@ -228,7 +226,7 @@ export default class NoteScreen extends React.Component {
           <View style={pageStyles.noteCard}>
             <Text style={textStyles.actionSummaryHeader}>Summary</Text>
             <Text style={[textStyles.actionSummaryText, { marginTop: 15 }]}>
-              Vehicle note: {this.state.placeholderText}
+              Vehicle note: {this.state.noteText}
             </Text>
           </View>
 

@@ -144,7 +144,7 @@ android {
         vectorDrawables.useSupportLibrary true
         versionCode 5
         versionName "1.0.0"
-        multiDexEnabled false // Requires changes to MainApplication.java
+        multiDexEnabled true // Requires changes to MainApplication.java
     }
     splits {
         abi {
@@ -171,6 +171,17 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex') ) {
+                details.useVersion "27.1.0"
+            }
+        }
+    }
+
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -211,6 +222,7 @@ dependencies {
     implementation project(':react-native-reanimated')
     implementation project(':react-native-gesture-handler')
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
     

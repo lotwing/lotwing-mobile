@@ -1514,6 +1514,7 @@ const styles = StyleSheet.create({
     color: 'white',
     borderTopWidth: 4,
     borderBottomWidth: 3,
+    borderColor: 'transparent',
   },
   tagModalOverlay: {
     height: '100%',
