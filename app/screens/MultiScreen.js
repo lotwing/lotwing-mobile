@@ -56,6 +56,7 @@ class LotView extends React.Component {
       loanerSpaces: [],
       leaseSpaces: [],
       wholesaleSpaces: [],
+      soldSpaces: [],
       parkingShapes: {},
       spaceVehicleMap: {},
       spaceId: 0,
@@ -168,6 +169,7 @@ class LotView extends React.Component {
           responseJson.loaner_occupied_spaces,
           responseJson.lease_return_occupied_spaces,
           responseJson.wholesale_unit_occupied_spaces,
+          responseJson.sold_vehicle_spaces,
         ];
         results.forEach(result => {
           result.forEach(space => {
@@ -184,6 +186,7 @@ class LotView extends React.Component {
           loanerSpaces: [],
           leaseSpaces: [],
           wholesaleSpaces: [],
+          soldSpaces: [],
           centerCoordinate,
           lotShapes: GlobalVariables.LOT_DATA,
           parkingShapes,

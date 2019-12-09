@@ -20,6 +20,7 @@ export default class NoteLayer extends React.PureComponent {
   }
   componentWillReceiveProps(nextProps) {
     this.setState({ loading: false });
+    this.setState({ loading: true });
   }
   _createNewPolygon(coordinates, id) {
     const size = this.props.type === 'note' ? 0.0007 : 0.0007;
@@ -70,6 +71,7 @@ export default class NoteLayer extends React.PureComponent {
 
   getAllEventsCoordinatesObject() {
     if (Object.keys(this.props.eventShapes).length > 0) {
+      this.setState({ loading: false });
       return this.props.eventShapes;
     } else {
       return null;
@@ -92,31 +94,31 @@ export default class NoteLayer extends React.PureComponent {
       featureCollection = GlobalVariables.EMPTY_GEOJSON;
     }
     console.log(this.props.zoom);
-    return (
-      <Mapbox.ShapeSource
-        id={this.props.type}
-        key={this.props.type}
-        shape={featureCollection}>
-        <Mapbox.SymbolLayer
-          id={`fill_${this.props.type}`}
-          key={`fill_${this.props.type}`}
-          style={{
-            textField: this.props.text,
-            textColor: '#FFFFFF',
-            textAllowOverlap: true,
-            textHaloColor: '#A0291E',
-            textHaloWidth: 0.5,
-            textHaloBlur: 1,
-          }}
-        />
-      </Mapbox.ShapeSource>
-    );
+    if (!this.state.loading) {
+      return (
+        <Mapbox.ShapeSource
+          id={this.props.type}
+          key={this.props.type}
+          shape={featureCollection}>
+          <Mapbox.SymbolLayer
+            id={`fill_${this.props.type}`}
+            key={`fill_${this.props.type}`}
+            style={{
+              textField: this.props.text,
+              textColor: '#FFFFFF',
+              textAllowOverlap: true,
+              textHaloColor: '#A0291E',
+              textHaloWidth: 0.5,
+              textHaloBlur: 1,
+            }}
+          />
+        </Mapbox.ShapeSource>
+      );
+    }
+    return null;
   }
 
   render() {
-    if (!this.state.loading) {
-      return this.renderEvents();
-    }
-    return null;
+    return this.renderEvents();
   }
 }
