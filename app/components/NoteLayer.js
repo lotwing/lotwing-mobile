@@ -93,7 +93,7 @@ export default class NoteLayer extends React.PureComponent {
     } else {
       featureCollection = GlobalVariables.EMPTY_GEOJSON;
     }
-    console.log(this.props.zoom);
+    //console.log(this.props.zoom);
     if (!this.state.loading) {
       return (
         <Mapbox.ShapeSource

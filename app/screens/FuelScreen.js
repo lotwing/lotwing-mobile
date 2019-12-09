@@ -127,7 +127,11 @@ export default class FuelScreen extends React.Component {
     };
 
     this.props.navigation.navigate('Lot', {
-      extras: { endPackage: endPackage, eventId: this.eventId },
+      extras: {
+        endPackage: endPackage,
+        eventId: this.eventId,
+        vehicleId: this.vehicle.id,
+      },
       modalVisible: true,
       refresh: true,
       findingOnMap: false,

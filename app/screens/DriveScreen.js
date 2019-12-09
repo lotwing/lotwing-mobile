@@ -43,7 +43,7 @@ export default class DriveScreen extends React.Component {
 
   componentDidMount() {
     console.log('Event ID: ', this.eventId);
-    this.props.navigation.setParams({ extras: { showModalonExit: true } });
+    //this.props.navigation.setParams({ extras: { showModalonExit: true } });
     if (this.eventId !== null && this.eventId !== undefined) {
       this.setState({ eventRunning: true, eventId: this.eventId });
     }
@@ -117,7 +117,11 @@ export default class DriveScreen extends React.Component {
     };
 
     this.props.navigation.navigate('Lot', {
-      extras: { endPackage: endPackage, eventId: this.eventId },
+      extras: {
+        endPackage: endPackage,
+        eventId: this.eventId,
+        vehicleId: this.vehicle.id,
+      },
       modalVisible: true,
       refresh: true,
       findingOnMap: false,

@@ -35,6 +35,7 @@ import LotActionHelper from '../helpers/LotActionHelper';
 import { hasLocationPermission } from '../helpers/PermissionHelper';
 import buttonStyles from '../constants/ButtonStyles';
 import Mapbox from '@react-native-mapbox-gl/maps';
+import ActiveDrive from '../components/ActiveDrive';
 
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
@@ -165,7 +166,7 @@ class LotView extends React.Component {
         const { extras } = nextProps.navigation.state.params;
         console.log('extras', extras);
         // cancel fuelling event
-        if (extras.fuelEventId) {
+        /*if (extras.fuelEventId) {
           console.log('Fuelling Event', extras);
           const { fuelEventId, spaceId } = extras;
           this.cancelFuel(fuelEventId, spaceId);
@@ -181,9 +182,10 @@ class LotView extends React.Component {
           return this._loadLotView();
           //this.cancelDrive(driveEventId, spaceId);
           // update location
-        } else if (extras.endPackage) {
+        } else */
+        if (extras.endPackage) {
           //EVENT NEEDS TO BE ENDED
-          const { endPackage, eventId } = extras;
+          const { endPackage, eventId, vehicleId } = extras;
           console.log('EVENT NEEDS TO BE ENDED');
           this.setVehicleHighlight(null);
           this.setState({
@@ -193,6 +195,7 @@ class LotView extends React.Component {
               endPackage: endPackage,
               eventId: eventId,
             },
+            vehicleId: vehicleId,
           });
         } else if (extras.updateLocation && extras.updateLocation === true) {
           this.setVehicleHighlight(null);
@@ -214,6 +217,7 @@ class LotView extends React.Component {
             modalType: GlobalVariables.BASIC_MODAL_TYPE,
             modalVisible: false,
           });
+          this.updateSpaceVehicleMap = true;
           return this._loadLotView();
         }
       } else {
@@ -608,6 +612,7 @@ class LotView extends React.Component {
             );
             this.setVehicleHighlight(tempHighlight);
           } else if (this.checkActiveEvents(vehicleData.events)) {
+            this.setState({ vehicleId: vehicleData.vehicle.id });
             this.jumpToEventScreen(vehicleData);
           } else {
             return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
@@ -1566,7 +1571,7 @@ class LotView extends React.Component {
   }
 
   render() {
-    console.log('\n\n\n+ + + Render Lot Screen + + +');
+    //console.log('\n\n\n+ + + Render Lot Screen + + +');
     //console.log('this.state.modalVisible', this.state.modalVisible);
     //console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
@@ -1633,6 +1638,10 @@ class LotView extends React.Component {
         keyboardVerticalOffset={
           getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
         }>
+        <ActiveDrive
+          refresh={this.updateSpaceVehicleMap}
+          navigation={this.props.navigation}
+        />
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}

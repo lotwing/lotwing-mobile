@@ -12,6 +12,7 @@ import {
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
+import ActiveDrive from '../components/ActiveDrive';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 class VMScreen extends Component {
@@ -81,8 +82,12 @@ class VMScreen extends Component {
         style={{
           flex: 1,
           backgroundColor: '#BE1E2D',
-          paddingTop: getStatusBarHeight(),
+          paddingTop: getStatusBarHeight(true),
         }}>
+        <ActiveDrive
+          navigation={this.props.navigation}
+          style={{ marginTop: getStatusBarHeight(true) }}
+        />
         <ScrollView style={{ flex: 1 }}>
           <View
             style={{

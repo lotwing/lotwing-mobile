@@ -18,6 +18,8 @@ export default {
 
   KEY_BOARD_LOCATIONS: '/api/key_board_locations',
 
+  ACTIVE_DRIVES: '/api/active_drives',
+
   // POST REQUESTS
   // - - - - - - - - - - - - - - - -
   // This endpoint expects the following parameters

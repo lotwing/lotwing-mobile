@@ -23,6 +23,7 @@ import BuildingLayer from '../components/BuildingLayer';
 import MultiModal from '../components/MultiModal';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
+import ActiveDrive from '../components/ActiveDrive';
 
 import Mapbox from '@react-native-mapbox-gl/maps';
 
@@ -905,6 +906,10 @@ class LotView extends React.Component {
         keyboardVerticalOffset={
           getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
         }>
+        {/*<ActiveDrive
+          refresh={this.updateSpaceVehicleMap}
+          navigation={this.props.navigation}
+        />*/}
         <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
         {this.state.modalVisible && this._renderTagModal()}

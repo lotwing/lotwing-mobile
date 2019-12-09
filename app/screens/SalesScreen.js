@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
+import ActiveDrive from '../components/ActiveDrive';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
@@ -247,8 +248,12 @@ class SalesScreen extends Component {
         style={{
           flex: 1,
           backgroundColor: '#BE1E2D',
-          paddingTop: getStatusBarHeight(),
+          paddingTop: getStatusBarHeight(true),
         }}>
+        <ActiveDrive
+          navigation={this.props.navigation}
+          style={{ marginTop: getStatusBarHeight(true) }}
+        />
         <ScrollView style={{ flex: 1 }}>
           <View
             style={{
@@ -267,7 +272,7 @@ class SalesScreen extends Component {
               />
             </TouchableOpacity>
             <View style={{ position: 'absolute', right: 10, top: 5 }}>
-              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.1.3</Text>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.1.4</Text>
             </View>
           </View>
           <View style={{ padding: 20 }}>
