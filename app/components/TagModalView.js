@@ -614,27 +614,29 @@ export default class TagModalView extends React.Component {
             ) : (
               <View
                 style={{
+                  flex: 1,
                   flexDirection: 'row',
                   alignItems: 'center',
+                  flexWrap: 'wrap',
                 }}>
-                <Text
-                  style={[
-                    styles.stallHeader,
-                    { fontWeight: 'bold' },
-                    service_hold ? { color: '#FFA500' } : { color: '#000' },
-                  ]}>
-                  Service Hold
-                </Text>
-                <Text
-                  style={[
-                    styles.stallHeader,
-                    { marginLeft: 10, fontSize: 15 },
-                  ]}>
-                  {this.state.vehicle.service_hold_notes !== null &&
-                    this.state.vehicle.service_hold_notes}
-                  {this.state.vehicle.sales_hold_notes !== null &&
-                    this.state.vehicle.sales_hold_notes}
-                </Text>
+                <View>
+                  <Text
+                    style={[
+                      styles.stallHeader,
+                      { fontWeight: 'bold' },
+                      service_hold ? { color: '#FFA500' } : { color: '#000' },
+                    ]}>
+                    {service_hold ? 'Service Hold' : 'HOLD'}
+                  </Text>
+                </View>
+                <View style={{ flex: 1, paddingLeft: 10, paddingRight: 10 }}>
+                  <Text style={[styles.stallHeader, { fontSize: 15 }]}>
+                    {this.state.vehicle.service_hold_notes !== null &&
+                      this.state.vehicle.service_hold_notes}
+                    {this.state.vehicle.sales_hold_notes !== null &&
+                      this.state.vehicle.sales_hold_notes}
+                  </Text>
+                </View>
               </View>
             )}
           </View>
