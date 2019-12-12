@@ -1,14 +1,10 @@
 {
   "expo": {
-    "name": "lotwing-mobile",
-    "description": "A very interesting project.",
+    "name": "Lotwing",
     "slug": "lotwing-mobile",
-    "privacy": "unlisted",
-    "sdkVersion": "31.0.0",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "privacy": "public",
+    "sdkVersion": "35.0.0",
+    "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,11 +16,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
-    }
-  }
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
+  },
+  "displayName": "Lotwing",
+  "name": "@lotwing/lotwingmobile"
 }
