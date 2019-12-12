@@ -100,8 +100,20 @@ export default class TagModalView extends React.Component {
     this.props.setModalVisibility(false, GlobalVariables.CHOOSE_EMPTY_SPACE);
   }
 
-  updateLotAndDismissModal() {
-    this.props.updateLotAndDismissModal();
+  updateLotAndDismissModal(
+    new_stall,
+    vehicleId = null,
+    sku_number = null,
+    vin = null,
+    opt_feedbackMsg = null,
+  ) {
+    this.props.updateLotAndDismissModal(
+      new_stall,
+      vehicleId,
+      sku_number,
+      vin,
+      opt_feedbackMsg,
+    );
     //Keyboard.dismiss()
   }
 
@@ -145,7 +157,10 @@ export default class TagModalView extends React.Component {
         return response.json();
       })
       .then(responseJson => {
-        this.updateLotAndDismissModal();
+        console.log('RESPONSE FROM ConfirmSpaceData: ', responseJson);
+        const { parking_space, vehicle } = responseJson;
+        const { id, sku, vin } = vehicle;
+        this.updateLotAndDismissModal(parking_space.id, id, sku, vin);
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
@@ -162,7 +177,7 @@ export default class TagModalView extends React.Component {
       usage_type: type,
       vin: this.props.vin,
     };
-    console.log(vehicle);
+    console.log('Created vehicle: ', vehicle);
     this.setState({ loading: true });
     let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE;
     return fetch(url, {

@@ -335,6 +335,7 @@ class LotView extends React.Component {
     this.state.newVehicleSpaces.forEach(nspace => newSpaces.push(nspace));
 
     if (vehicle !== null) {
+      console.log('Usage type: ', vehicle.usage_type);
       if (vehicle.usage_type === 'is_new') {
         //console.log('RememberJson: ', this.state.initialLoad["new_vehicle_occupied_spaces"])
         newSpaces.push(spaceId);
@@ -450,7 +451,16 @@ class LotView extends React.Component {
             this.setLocalHighlight(this.state.spaceId, result.vehicle);
           } else {
             console.log('result is undefined', this.state.modalType);
+            this.setState({
+              feedbackText: 'Vin result is undefined',
+            });
           }
+        })
+        .catch(err => {
+          this.setState({
+            feedbackText: 'Error in fetching vehicle by vin',
+          });
+          return false;
         });
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
@@ -480,12 +490,23 @@ class LotView extends React.Component {
           if (result !== undefined) {
             console.log(
               'result is not undefined. Vehicle id: ',
+              result.vehicle.id,
+              'space id: ',
               this.state.spaceId,
             );
             this.setLocalHighlight(this.state.spaceId, result.vehicle);
           } else {
+            this.setState({
+              feedbackText: 'Stock number result is undefined',
+            });
             console.log('result is undefined', this.state.modalType);
           }
+        })
+        .catch(err => {
+          this.setState({
+            feedbackText: 'Error in fetching vehicle by stock number',
+          });
+          return false;
         });
     } else {
       console.log('not vehicleID or sku_number');
@@ -531,6 +552,7 @@ class LotView extends React.Component {
         return responseJson;
       })
       .catch(err => {
+        this.setState({ feedbackText: 'Error in updating stall number' });
         console.log('\nCAUGHT ERROR IN UPDATESTALLNUMBER: \n', err, err.name);
         //TODO(adwoa): make save button clickable again
         return err;
@@ -693,6 +715,7 @@ class LotView extends React.Component {
         };
       })
       .catch(err => {
+        this.setState({ feedbackText: 'Error in sending vehicle information' });
         return false;
       });
   }
@@ -896,8 +919,6 @@ class LotView extends React.Component {
     this.setState({ zoomLevel: zoom, centerCoordinate: center });
   }
   render() {
-    console.log('Status Bar HEight: ', getStatusBarHeight(true));
-
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
