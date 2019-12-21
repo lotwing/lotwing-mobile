@@ -28,17 +28,22 @@ export default class BuildingLayer extends React.PureComponent {
   renderBuildings() {
     const building_coord_obj = this.getAllBuildingCoordinatesObject();
     let featureCollection = {};
-
+    /* 
+      Flag to get around issue with ShapeSource dynamic updating
+      https://github.com/react-native-mapbox-gl/maps/issues/248
+    */
+    let populated = false;
     if (building_coord_obj) {
       let polygons = LotActionHelper.createPolygonsFromObject(
         building_coord_obj,
       );
+      populated = true;
       featureCollection = LotActionHelper.createFeatureCollection(polygons);
     } else {
       featureCollection = GlobalVariables.EMPTY_GEOJSON;
     }
 
-    return (
+    return populated ? (
       <Mapbox.ShapeSource
         id="buildings"
         key="buildings"
@@ -49,11 +54,13 @@ export default class BuildingLayer extends React.PureComponent {
           style={lotLayerStyles.buildings}
         />
       </Mapbox.ShapeSource>
+    ) : (
+      <></> // See above comment
     );
   }
 
   render() {
-    return <View>{this.renderBuildings()}</View>;
+    return this.renderBuildings();
   }
 }
 
