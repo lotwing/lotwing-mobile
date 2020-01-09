@@ -22,7 +22,7 @@ export default class ActiveDrive extends Component {
     }
   }
   callActiveDrives() {
-    console.log('CALL ACTIVE DRIVES');
+    //console.log('CALL ACTIVE DRIVES');
     let url = GlobalVariables.BASE_ROUTE + Route.ACTIVE_DRIVES;
     return fetch(url, {
       method: 'GET',

@@ -602,15 +602,27 @@ export default class TagModalView extends React.Component {
             }
             onMountError={e => console.log('Camera mount error: ', e)}
             onBarCodeRead={e => {
-              console.log('Barcode: ', e.data);
-              this.setState({ barcodeOpen: false });
-              this.props.updateLotAndDismissModal(
-                this.props.spaceId,
-                null,
-                this.state.sku,
-                e.data,
-                'Attempting to Populate Empty Space...',
-              );
+              if (e.data.length > 0) {
+                console.log('Barcode: ', e.data);
+                this.setState({ barcodeOpen: false });
+                this.props.updateLotAndDismissModal(
+                  this.props.spaceId,
+                  null,
+                  this.state.sku,
+                  e.data,
+                  'Attempting to Populate Empty Space...',
+                );
+              } else {
+                console.log('Barcode error');
+                this.setState({ barcodeOpen: false });
+                this.props.updateLotAndDismissModal(
+                  this.props.spaceId,
+                  null,
+                  null,
+                  '---',
+                  'Error reading barcode',
+                );
+              }
             }}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}

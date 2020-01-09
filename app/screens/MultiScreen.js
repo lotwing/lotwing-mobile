@@ -344,7 +344,10 @@ class LotView extends React.Component {
         usedSpaces.push(spaceId);
       }
     } else {
-      usedSpaces.push(spaceId);
+      //usedSpaces.push(spaceId);
+      this.setState({
+        feedbackText: 'Error loading vehicle',
+      });
     }
     if (this.state.key_board !== null) {
       let url = GlobalVariables.BASE_ROUTE + Route.VEHICLE + vehicle.id;
@@ -403,7 +406,6 @@ class LotView extends React.Component {
       null,
       opt_feedbackMsg,
     );
-
     // 3. Update Stall Number & Fetch Updated Lot
     if (vehicleId) {
       console.log('VEHICLE ID ENTERED: updating');
@@ -419,49 +421,59 @@ class LotView extends React.Component {
       this.vinEntered = vin;
       this.skuEntered = sku_number;
       this.setState({ sku: this.skuEntered, vin: this.vinEntered });
-      let vehiclePromise = this._getVehicleByType('vin');
-
-      vehiclePromise
-        .then(vehicleData => {
-          console.log(
-            'Vehicle data from updateLotAndDismissModal: ',
-            vehicleData,
-          );
-          if (vehicleData.vehicle === null) {
-            this.setModalVisibility(
-              true,
-              GlobalVariables.CREATE_MODAL_TYPE,
-              null,
-              null,
-            );
-            this.setVehicleHighlight(tempHighlight);
-          } else {
-            return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
-          }
-        })
-        .then(result => {
-          console.log('STALL UPDATE RESULT from VIN: ', result);
-          // 3. Re-render lot by updating state
-          if (result !== undefined) {
-            console.log(
-              'VIN result is not undefined. Vehicle id: ',
-              this.state.spaceId,
-              result.vehicle,
-            );
-            this.setLocalHighlight(this.state.spaceId, result.vehicle);
-          } else {
-            console.log('result is undefined', this.state.modalType);
-            this.setState({
-              feedbackText: 'Vin result is undefined',
-            });
-          }
-        })
-        .catch(err => {
-          this.setState({
-            feedbackText: 'Error in fetching vehicle by vin',
-          });
-          return false;
+      if (this.vinEntered === '---') {
+        this.setState({
+          feedbackText: 'Barcode cannot be read.',
         });
+      } else if (this.vinEntered.length !== 17) {
+        this.setState({
+          feedbackText:
+            'VIN must be 17 character long. \nEntered Vin: ' + this.vinEntered,
+        });
+      } else {
+        let vehiclePromise = this._getVehicleByType('vin');
+        vehiclePromise
+          .then(vehicleData => {
+            console.log(
+              'Vehicle data from updateLotAndDismissModal: ',
+              vehicleData,
+            );
+            if (vehicleData.vehicle === null) {
+              this.setModalVisibility(
+                true,
+                GlobalVariables.CREATE_MODAL_TYPE,
+                null,
+                null,
+              );
+              this.setVehicleHighlight(tempHighlight);
+            } else {
+              return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
+            }
+          })
+          .then(result => {
+            console.log('STALL UPDATE RESULT from VIN: ', result);
+            // 3. Re-render lot by updating state
+            if (result !== undefined) {
+              console.log(
+                'VIN result is not undefined. Vehicle id: ',
+                this.state.spaceId,
+                result.vehicle,
+              );
+              this.setLocalHighlight(this.state.spaceId, result.vehicle);
+            } else {
+              console.log('result is undefined', this.state.modalType);
+              this.setState({
+                feedbackText: 'Vin result is undefined',
+              });
+            }
+          })
+          .catch(err => {
+            this.setState({
+              feedbackText: 'Error in fetching vehicle by vin',
+            });
+            return false;
+          });
+      }
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
       this.skuEntered = sku_number;
@@ -509,8 +521,11 @@ class LotView extends React.Component {
           return false;
         });
     } else {
+      this.setState({
+        feedbackText: 'Error in fetching vehicle',
+      });
       console.log('not vehicleID or sku_number');
-      this.setLocalHighlight(this.state.spaceId, null);
+      //this.setLocalHighlight(this.state.spaceId, null);
     }
   };
   updateLotAndReopenModal = space_id => {

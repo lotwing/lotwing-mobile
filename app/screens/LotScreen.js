@@ -634,39 +634,50 @@ class LotView extends React.Component {
       this.vinEntered = vin;
       this.skuEntered = null;
       this.setState({ sku: this.skuEntered, vin: this.vinEntered });
-      let vehiclePromise = this._getVehicleByType('vin');
-
-      vehiclePromise
-        .then(vehicleData => {
-          console.log(
-            'Vehicle data from updateLotAndDismissModal: ',
-            vehicleData,
-          );
-          if (vehicleData.vehicle === null) {
-            this.setModalVisibility(
-              true,
-              GlobalVariables.CREATE_MODAL_TYPE,
-              null,
-              null,
-            );
-            this.setVehicleHighlight(tempHighlight);
-          } else if (this.checkActiveEvents(vehicleData.events)) {
-            this.jumpToEventScreen(vehicleData);
-          } else {
-            return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
-          }
-        })
-        .then(result => {
-          console.log('STALL UPDATE RESULT from VIN: ', result);
-          // 3. Re-render lot by updating state
-          if (result !== undefined) {
-            console.log('result is not undefined');
-            this.updateSpaceVehicleMap = true;
-            return this._loadLotView();
-          } else {
-            console.log('result is undefined', this.state.modalType);
-          }
+      if (this.vinEntered === '---') {
+        this.setState({
+          feedbackText: 'Barcode cannot be read.',
         });
+      } else if (this.vinEntered.length !== 17) {
+        this.setState({
+          feedbackText:
+            'VIN must be 17 character long. \nEntered Vin: ' + this.vinEntered,
+        });
+      } else {
+        let vehiclePromise = this._getVehicleByType('vin');
+
+        vehiclePromise
+          .then(vehicleData => {
+            console.log(
+              'Vehicle data from updateLotAndDismissModal: ',
+              vehicleData,
+            );
+            if (vehicleData.vehicle === null) {
+              this.setModalVisibility(
+                true,
+                GlobalVariables.CREATE_MODAL_TYPE,
+                null,
+                null,
+              );
+              this.setVehicleHighlight(tempHighlight);
+            } else if (this.checkActiveEvents(vehicleData.events)) {
+              this.jumpToEventScreen(vehicleData);
+            } else {
+              return this.updateStallNumber(new_stall, vehicleData.vehicle.id);
+            }
+          })
+          .then(result => {
+            console.log('STALL UPDATE RESULT from VIN: ', result);
+            // 3. Re-render lot by updating state
+            if (result !== undefined) {
+              console.log('result is not undefined');
+              this.updateSpaceVehicleMap = true;
+              return this._loadLotView();
+            } else {
+              console.log('result is undefined', this.state.modalType);
+            }
+          });
+      }
     } else {
       console.log('no vehicleID or sku_number');
       this.updateSpaceVehicleMap = true;
@@ -917,53 +928,62 @@ class LotView extends React.Component {
     //let sku = this.getSKUFromInput();
     this.setVehicleHighlight(null);
 
-    let vehiclePromise = this._getVehicleByType(type);
-    //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
-
-    vehiclePromise.then(response => {
-      //console.log('Vehicle response: ', response)
-      const { space_id, polygon, vehicle, events } = response;
-      console.log(
-        'check Active events results: ',
-        this.checkActiveEvents(events),
+    if (type === 'vin' && this.vinEntered.length !== 17) {
+      this.setModalVisibility(
+        false,
+        GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+        null,
+        'VIN must be 17 character long. \nEntered Vin: ' + this.vinEntered,
       );
-      if (this.checkActiveEvents(events)) {
-        this.setState({ vehicleId: vehicle.id });
-        this.jumpToEventScreen(response);
-      } else if (space_id) {
+    } else {
+      let vehiclePromise = this._getVehicleByType(type);
+      //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
+
+      vehiclePromise.then(response => {
+        //console.log('Vehicle response: ', response)
+        const { space_id, polygon, vehicle, events } = response;
         console.log(
-          'SPACE_ID',
-          this._calculateCenter(polygon.geometry.coordinates[0]),
+          'check Active events results: ',
+          this.checkActiveEvents(events),
         );
-        //this._calculateCenter(polygon.geometry.coordinates[0]);
-        this.dismissInput();
-        this.showAndPopulateModal([space_id, null], polygon);
-        this.setState({
-          spaceId: space_id,
-          centerCoordinate: this._calculateCenter(
-            polygon.geometry.coordinates[0],
-          ),
-        });
-      } else if (space_id === null && vehicle) {
-        console.log('Pulling car from server: ', vehicle.id);
-        this.setState({ vehicleId: vehicle.id, spaceId: null });
-        this.setModalVisibility(
-          false,
-          GlobalVariables.CHOOSE_EMPTY_SPACE,
-          vehicle.id,
-        );
-      } else {
-        // Display sku location failure text within search modal
-        this.dismissInput();
-        this.setState({ vehicleId: null, spaceId: null });
-        this.setModalVisibility(
-          true,
-          GlobalVariables.CREATE_MODAL_TYPE,
-          null,
-          null,
-        );
-      }
-    });
+        if (this.checkActiveEvents(events)) {
+          this.setState({ vehicleId: vehicle.id });
+          this.jumpToEventScreen(response);
+        } else if (space_id) {
+          console.log(
+            'SPACE_ID',
+            this._calculateCenter(polygon.geometry.coordinates[0]),
+          );
+          //this._calculateCenter(polygon.geometry.coordinates[0]);
+          this.dismissInput();
+          this.showAndPopulateModal([space_id, null], polygon);
+          this.setState({
+            spaceId: space_id,
+            centerCoordinate: this._calculateCenter(
+              polygon.geometry.coordinates[0],
+            ),
+          });
+        } else if (space_id === null && vehicle) {
+          console.log('Pulling car from server: ', vehicle.id);
+          this.setState({ vehicleId: vehicle.id, spaceId: null });
+          this.setModalVisibility(
+            false,
+            GlobalVariables.CHOOSE_EMPTY_SPACE,
+            vehicle.id,
+          );
+        } else {
+          // Display sku location failure text within search modal
+          this.dismissInput();
+          this.setState({ vehicleId: null, spaceId: null });
+          this.setModalVisibility(
+            true,
+            GlobalVariables.CREATE_MODAL_TYPE,
+            null,
+            null,
+          );
+        }
+      });
+    }
   }
   checkActiveEvents(events) {
     let eventCounter = 0;
@@ -1611,10 +1631,24 @@ class LotView extends React.Component {
             }
             onMountError={e => console.log('Camera mount error: ', e)}
             onBarCodeRead={e => {
-              console.log('Barcode: ', e.data);
-              this.setState({ barcodeOpen: false, skuCollectorVisible: false });
-              this.vinEntered = e.data;
-              this.locateVehicle('vin');
+              if (e.data.length > 0) {
+                console.log('Barcode: ', e.data);
+                this.setState({
+                  barcodeOpen: false,
+                  skuCollectorVisible: false,
+                });
+                this.vinEntered = e.data;
+                this.locateVehicle('vin');
+              } else {
+                console.log('Barcode error');
+                this.setState({ barcodeOpen: false });
+                this.setModalVisibility(
+                  false,
+                  GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+                  null,
+                  'Barcode cannot be read.',
+                );
+              }
             }}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
