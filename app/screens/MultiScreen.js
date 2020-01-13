@@ -23,7 +23,6 @@ import BuildingLayer from '../components/BuildingLayer';
 import MultiModal from '../components/MultiModal';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
-import ActiveDrive from '../components/ActiveDrive';
 
 import Mapbox from '@react-native-mapbox-gl/maps';
 
@@ -967,7 +966,10 @@ class LotView extends React.Component {
             onUpdate={location => {
               if (
                 location !== undefined &&
-                location.coords !== this.state.userLocation.coords
+                (location.coords.latitude !==
+                  this.state.userLocation.coords.latitude ||
+                  location.coords.longitude !==
+                    this.state.userLocation.coords.longitude)
               ) {
                 this.setState({ userLocation: location });
               }
