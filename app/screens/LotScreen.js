@@ -217,7 +217,6 @@ class LotView extends React.Component {
             modalType: GlobalVariables.BASIC_MODAL_TYPE,
             modalVisible: false,
           });
-          this.updateSpaceVehicleMap = true;
           return this._loadLotView();
         }
       } else {
@@ -233,12 +232,10 @@ class LotView extends React.Component {
       nextProps.navigation.state.params.refresh
     ) {
       console.log('REFRESHING LOT');
-      this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
   }
   refresh() {
-    this.updateSpaceVehicleMap = true;
     return this._loadLotView();
   }
   cancelFuel(fuelEventId, spaceId) {
@@ -335,6 +332,7 @@ class LotView extends React.Component {
       .then(response => response.json())
       .then(responseJson => {
         console.log('load parking space metadata setState');
+        this.updateSpaceVehicleMap = true;
         lotview.setState({
           newVehicleSpaces: responseJson.new_vehicle_occupied_spaces.map(
             space => space.id,
@@ -587,7 +585,6 @@ class LotView extends React.Component {
       stallUpdatedPromise.then(result => {
         console.log('STALL UPDATE RESULT from vehicle ID: ', result);
         // 3. Re-render lot by updating state
-        this.updateSpaceVehicleMap = true;
         return this._loadLotView();
       });
     } else if (sku_number) {
@@ -623,7 +620,6 @@ class LotView extends React.Component {
           // 3. Re-render lot by updating state
           if (result !== undefined) {
             console.log('result is not undefined');
-            this.updateSpaceVehicleMap = true;
             return this._loadLotView();
           } else {
             console.log('result is undefined', this.state.modalType);
@@ -671,7 +667,6 @@ class LotView extends React.Component {
             // 3. Re-render lot by updating state
             if (result !== undefined) {
               console.log('result is not undefined');
-              this.updateSpaceVehicleMap = true;
               return this._loadLotView();
             } else {
               console.log('result is undefined', this.state.modalType);
@@ -680,7 +675,6 @@ class LotView extends React.Component {
       }
     } else {
       console.log('no vehicleID or sku_number');
-      this.updateSpaceVehicleMap = true;
       return this._loadLotView();
     }
   };
@@ -1631,14 +1625,25 @@ class LotView extends React.Component {
             }
             onMountError={e => console.log('Camera mount error: ', e)}
             onBarCodeRead={e => {
-              if (e.data.length > 0) {
-                console.log('Barcode: ', e.data);
-                this.setState({
-                  barcodeOpen: false,
-                  skuCollectorVisible: false,
-                });
-                this.vinEntered = e.data;
-                this.locateVehicle('vin');
+              if (typeof e.data !== 'undefined') {
+                if (e.data.length > 0) {
+                  console.log('Barcode: ', e.data);
+                  this.setState({
+                    barcodeOpen: false,
+                    skuCollectorVisible: false,
+                  });
+                  this.vinEntered = e.data;
+                  this.locateVehicle('vin');
+                } else {
+                  console.log('Barcode error');
+                  this.setState({ barcodeOpen: false });
+                  this.setModalVisibility(
+                    false,
+                    GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+                    null,
+                    'Barcode cannot be read.',
+                  );
+                }
               } else {
                 console.log('Barcode error');
                 this.setState({ barcodeOpen: false });
