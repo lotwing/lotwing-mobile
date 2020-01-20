@@ -360,7 +360,6 @@ class LotView extends React.Component {
         body: JSON.stringify({ key_board_location_name: this.state.key_board }),
       })
         .then(response => {
-          console.log('RETURNED FROM UPDATE_VEHICLE', response);
           this.setState({
             usedVehicleSpaces: usedSpaces,
             newVehicleSpaces: newSpaces,
@@ -433,10 +432,6 @@ class LotView extends React.Component {
         let vehiclePromise = this._getVehicleByType('vin');
         vehiclePromise
           .then(vehicleData => {
-            console.log(
-              'Vehicle data from updateLotAndDismissModal: ',
-              vehicleData,
-            );
             if (vehicleData.vehicle === null) {
               this.setModalVisibility(
                 true,
@@ -450,14 +445,10 @@ class LotView extends React.Component {
             }
           })
           .then(result => {
-            console.log('STALL UPDATE RESULT from VIN: ', result);
+            console.log('STALL UPDATE from VIN');
             // 3. Re-render lot by updating state
             if (result !== undefined) {
-              console.log(
-                'VIN result is not undefined. Vehicle id: ',
-                this.state.spaceId,
-                result.vehicle,
-              );
+              console.log('VIN result is not undefined.');
               this.setLocalHighlight(this.state.spaceId, result.vehicle);
             } else {
               console.log('result is undefined', this.state.modalType);
@@ -610,7 +601,7 @@ class LotView extends React.Component {
 
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
-    console.log(space_id);
+    //console.log(space_id);
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
     if (polygonClicked) {
@@ -715,7 +706,7 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log('VEHICLE PULLED FROM STORE: ', responseJson);
+        console.log('VEHICLE PULLED FROM STORE');
         const { current_parking_space, vehicle, events } = responseJson;
         return {
           space_id:

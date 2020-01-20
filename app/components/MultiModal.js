@@ -59,7 +59,7 @@ export default class TagModalView extends React.Component {
       fuel: { event_id: null, started_at: null, summary: '' },
       sku: this.props.sku,
       barcodeOpen: true,
-      cameraReady: false,
+      cameraReady: true,
     };
   }
   componentWillMount() {
@@ -81,6 +81,7 @@ export default class TagModalView extends React.Component {
         vehicleType: null,
         reopenOnDismiss: false,
         barcodeOpen: false,
+        cameraReady: false,
       });
     }
   }
@@ -289,7 +290,7 @@ export default class TagModalView extends React.Component {
                 ]}
                 onPress={() => {
                   //this.dismissModal()
-                  this.setState({ barcodeOpen: true });
+                  this.setState({ barcodeOpen: true, cameraReady: true });
                 }}>
                 <Text style={buttonStyles.activeSecondaryTextColor}>
                   SCAN BARCODE
@@ -403,7 +404,9 @@ export default class TagModalView extends React.Component {
               />
             </View>
             <TouchableOpacity
-              onPress={() => this.setState({ barcodeOpen: true })}>
+              onPress={() => {
+                this.setState({ barcodeOpen: true, cameraReady: true });
+              }}>
               <View
                 style={{
                   width: 40,
@@ -498,11 +501,13 @@ export default class TagModalView extends React.Component {
     }
   }
   onBarCodeRead(e) {
+    console.log('camera reading barcode');
+    this.setState({ cameraReady: false });
     if (typeof e !== 'undefined') {
       if (typeof e.data === 'string') {
         if (e.data.length > 0) {
           console.log('Barcode: ', e.data);
-          //this.setState({ barcodeOpen: false });
+          this.setState({ barcodeOpen: false, cameraReady: true });
           this.props.updateLotAndDismissModal(
             this.props.spaceId,
             null,
@@ -512,7 +517,7 @@ export default class TagModalView extends React.Component {
           );
         } else {
           console.log('Barcode error - barcode length is not greater than 0');
-          //this.setState({ barcodeOpen: false });
+          this.setState({ barcodeOpen: false, cameraReady: true });
           this.props.updateLotAndDismissModal(
             this.props.spaceId,
             null,
@@ -523,7 +528,7 @@ export default class TagModalView extends React.Component {
         }
       } else {
         console.log('Barcode error - e.data is not a string');
-        //this.setState({ barcodeOpen: false });
+        this.setState({ barcodeOpen: false, cameraReady: true });
         this.props.updateLotAndDismissModal(
           this.props.spaceId,
           null,
@@ -534,7 +539,7 @@ export default class TagModalView extends React.Component {
       }
     } else {
       console.log('Barcode error - e is undefined');
-      //this.setState({ barcodeOpen: false });
+      this.setState({ barcodeOpen: false, cameraReady: true });
       this.props.updateLotAndDismissModal(
         this.props.spaceId,
         null,
@@ -543,7 +548,6 @@ export default class TagModalView extends React.Component {
         'Error reading barcode - Data undefined.',
       );
     }
-    //this.setState({ cameraReady: false });
   }
 
   render() {
@@ -633,7 +637,9 @@ export default class TagModalView extends React.Component {
             }}>
             <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
             <TouchableOpacity
-              onPress={() => this.setState({ barcodeOpen: false })}>
+              onPress={() => {
+                this.setState({ barcodeOpen: false, cameraReady: true });
+              }}>
               <View
                 style={{
                   width: 30,
@@ -650,9 +656,6 @@ export default class TagModalView extends React.Component {
               console.log('Camera Status: ', cameraStatus)
             }
             onMountError={e => console.log('Camera mount error: ', e)}
-            onCameraReady={
-              !this.state.cameraReady && this.setState({ cameraReady: true })
-            }
             onBarCodeRead={e => this.state.cameraReady && this.onBarCodeRead(e)}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
