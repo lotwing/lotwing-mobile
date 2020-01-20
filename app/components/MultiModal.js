@@ -59,6 +59,7 @@ export default class TagModalView extends React.Component {
       fuel: { event_id: null, started_at: null, summary: '' },
       sku: this.props.sku,
       barcodeOpen: true,
+      cameraReady: false,
     };
   }
   componentWillMount() {
@@ -496,6 +497,54 @@ export default class TagModalView extends React.Component {
       );
     }
   }
+  onBarCodeRead(e) {
+    if (typeof e !== 'undefined') {
+      if (typeof e.data === 'string') {
+        if (e.data.length > 0) {
+          console.log('Barcode: ', e.data);
+          //this.setState({ barcodeOpen: false });
+          this.props.updateLotAndDismissModal(
+            this.props.spaceId,
+            null,
+            this.state.sku,
+            e.data,
+            'Attempting to Populate Empty Space...',
+          );
+        } else {
+          console.log('Barcode error - barcode length is not greater than 0');
+          //this.setState({ barcodeOpen: false });
+          this.props.updateLotAndDismissModal(
+            this.props.spaceId,
+            null,
+            null,
+            '---',
+            'Error reading barcode - Barcode length is zero.',
+          );
+        }
+      } else {
+        console.log('Barcode error - e.data is not a string');
+        //this.setState({ barcodeOpen: false });
+        this.props.updateLotAndDismissModal(
+          this.props.spaceId,
+          null,
+          null,
+          '---',
+          'Error reading barcode - Type is not a string.',
+        );
+      }
+    } else {
+      console.log('Barcode error - e is undefined');
+      //this.setState({ barcodeOpen: false });
+      this.props.updateLotAndDismissModal(
+        this.props.spaceId,
+        null,
+        null,
+        '---',
+        'Error reading barcode - Data undefined.',
+      );
+    }
+    //this.setState({ cameraReady: false });
+  }
 
   render() {
     let isBasicModal =
@@ -601,41 +650,10 @@ export default class TagModalView extends React.Component {
               console.log('Camera Status: ', cameraStatus)
             }
             onMountError={e => console.log('Camera mount error: ', e)}
-            onBarCodeRead={e => {
-              if (typeof e.data !== 'undefined') {
-                if (e.data.length > 0) {
-                  console.log('Barcode: ', e.data);
-                  this.setState({ barcodeOpen: false });
-                  this.props.updateLotAndDismissModal(
-                    this.props.spaceId,
-                    null,
-                    this.state.sku,
-                    e.data,
-                    'Attempting to Populate Empty Space...',
-                  );
-                } else {
-                  console.log('Barcode error');
-                  this.setState({ barcodeOpen: false });
-                  this.props.updateLotAndDismissModal(
-                    this.props.spaceId,
-                    null,
-                    null,
-                    '---',
-                    'Error reading barcode',
-                  );
-                }
-              } else {
-                console.log('Barcode error');
-                this.setState({ barcodeOpen: false });
-                this.props.updateLotAndDismissModal(
-                  this.props.spaceId,
-                  null,
-                  null,
-                  '---',
-                  'Error reading barcode',
-                );
-              }
-            }}
+            onCameraReady={
+              !this.state.cameraReady && this.setState({ cameraReady: true })
+            }
+            onBarCodeRead={e => this.state.cameraReady && this.onBarCodeRead(e)}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
