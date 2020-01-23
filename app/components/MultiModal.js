@@ -632,22 +632,47 @@ export default class TagModalView extends React.Component {
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              paddingLeft: 10,
-              paddingRight: 10,
+              padding: 10,
             }}>
             <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+              width: 66,
+              height: 66,
+              backgroundColor: '#828282',
+              borderRadius: 100,
+              justifyContent: 'center',
+              alignItems: 'center',
+              shadowColor: '#828282',
+              shadowOffset: { width: 1, height: 1 },
+              shadowOpacity: 20,
+              right: 10,
+              top: 40,
+            }}>
             <TouchableOpacity
-              onPress={() => {
-                this.setState({ barcodeOpen: false, cameraReady: true });
-              }}>
+              onPress={() =>
+                this.setState({ barcodeOpen: false, cameraReady: false })
+              }>
               <View
                 style={{
-                  width: 30,
-                  height: 30,
+                  width: 66,
+                  height: 66,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Ionicons type="ionicon" name={'md-close'} size={25} />
+                <Ionicons
+                  type="ionicon"
+                  name={'md-close'}
+                  size={35}
+                  style={{
+                    color: '#FFF',
+                    marginTop: Platform.OS === 'ios' ? 2 : 0,
+                    marginLeft: Platform.OS === 'ios' ? 2 : 0,
+                  }}
+                />
               </View>
             </TouchableOpacity>
           </View>

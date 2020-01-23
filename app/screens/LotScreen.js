@@ -103,6 +103,7 @@ class LotView extends React.Component {
       leaseRt: false,
       postLoadAction: '',
       barcodeOpen: false,
+      cameraReady: false,
       barcodeTitle: 'Scan Barcode',
       skuInputEntered: '',
       leaseRtInput1: '',
@@ -111,6 +112,7 @@ class LotView extends React.Component {
       leaseRtInput4: '',
       leaseRtInput5: '',
       eventEnding: null,
+      locatedVehicleID: null,
     };
 
     // required for android
@@ -145,6 +147,7 @@ class LotView extends React.Component {
     });
   }
   componentWillReceiveProps(nextProps) {
+    console.log('Component will receive props');
     if (nextProps.navigation.state.params.findingOnMap === true) {
       // if the navigation 'findingOnMap' param is true (from History screen)
       const { space_coords, findingOnMap } = nextProps.navigation.state.params;
@@ -236,6 +239,7 @@ class LotView extends React.Component {
     }
   }
   refresh() {
+    console.log('Refreshing');
     return this._loadLotView();
   }
   cancelFuel(fuelEventId, spaceId) {
@@ -401,6 +405,7 @@ class LotView extends React.Component {
       });
   }
   _loadEvents() {
+    console.log('Loading Events');
     var lotview = this;
     return fetch(GlobalVariables.BASE_ROUTE + Route.EVENTS, {
       method: 'GET',
@@ -680,6 +685,7 @@ class LotView extends React.Component {
   };
 
   updateLotAndReopenModal = space_id => {
+    console.log('Update lot and repoen modal');
     const tempHighlight = this.state.clickedStall;
     this.setState({
       modalReopen: true,
@@ -724,6 +730,7 @@ class LotView extends React.Component {
       });
   }
   setModalValues(modal_type, space_id, vehiclesArray) {
+    console.log('Set Modal Values');
     // IF stall is empty only space_id needed
     if (modal_type === GlobalVariables.EMPTY_MODAL_TYPE) {
       if (!space_id) {
@@ -756,19 +763,15 @@ class LotView extends React.Component {
   }
 
   findOnMap = boolean => {
+    console.log('Find on Map');
     this.setState({ findingOnMap: boolean });
   };
 
   showAndPopulateModal = (data, polygonClicked) => {
     let [space_id, vehicleData] = data;
     console.log('Show and Populate Space ID: ', space_id);
-    console.log(
-      'Vehicle Data: ',
-      vehicleData,
-      'VehicleID: ',
-      this.state.vehicleId,
-    );
-    console.log('Modal Type: ', this.state.modalType);
+    console.log('VehicleID: ', this.state.vehicleId);
+    //console.log('Modal Type: ', this.state.modalType);
     // Highlight selected stall
     // 1. Pass polygon clicked or searched for here in order to highlight
     if (polygonClicked) {
@@ -899,6 +902,7 @@ class LotView extends React.Component {
   }
 
   locateVehicle(type) {
+    console.log('Locating vehicle..');
     if (type === 'sku') {
       console.log('\n\nChecking Server for SKU: ', this.state.skuInputEntered);
       this.skuEntered = this.state.skuInputEntered;
@@ -936,6 +940,7 @@ class LotView extends React.Component {
       vehiclePromise.then(response => {
         //console.log('Vehicle response: ', response)
         const { space_id, polygon, vehicle, events } = response;
+        this.setState({ locatedVehicleID: vehicle.id });
         console.log(
           'check Active events results: ',
           this.checkActiveEvents(events),
@@ -1137,6 +1142,7 @@ class LotView extends React.Component {
     console.log('open barcode scanner from modal');
     this.setState({
       barcodeOpen: true,
+      cameraReady: true,
       barcodeTitle: 'Vehicle requires a scan to create',
     });
   };
@@ -1175,6 +1181,7 @@ class LotView extends React.Component {
             onPress={() =>
               this.setState({
                 barcodeOpen: true,
+                cameraReady: true,
                 sku: null,
                 barcodeTitle: 'Scan Barcode',
               })
@@ -1512,6 +1519,7 @@ class LotView extends React.Component {
           sku={this.state.sku}
           vin={this.state.vin}
           leaseRt={this.state.leaseRt}
+          locatedVehicleId={this.state.locatedVehicleID}
         />
       </View>
     );
@@ -1579,13 +1587,57 @@ class LotView extends React.Component {
   }
 
   async onRegionDidChange() {
+    console.log('Region did change');
     const zoom = await this._map.getZoom();
     const center = await this._map.getCenter();
     this.setState({ zoomLevel: zoom, centerCoordinate: center });
   }
-
+  onBarCodeRead(e) {
+    console.log('camera reading barcode');
+    this.setState({ cameraReady: false });
+    if (typeof e !== 'undefined') {
+      if (typeof e.data !== 'undefined') {
+        if (e.data.length > 0) {
+          console.log('Barcode: ', e.data);
+          this.setState({
+            barcodeOpen: false,
+            skuCollectorVisible: false,
+          });
+          this.vinEntered = e.data;
+          this.locateVehicle('vin');
+        } else {
+          console.log('Barcode error');
+          this.setState({ barcodeOpen: false });
+          this.setModalVisibility(
+            false,
+            GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+            null,
+            'Error reading barcode - Barcode length is zero.',
+          );
+        }
+      } else {
+        console.log('Barcode error');
+        this.setState({ barcodeOpen: false });
+        this.setModalVisibility(
+          false,
+          GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+          null,
+          'Error reading barcode - Type is not a string.',
+        );
+      }
+    } else {
+      console.log('Barcode error');
+      this.setState({ barcodeOpen: false });
+      this.setModalVisibility(
+        false,
+        GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+        null,
+        'Error reading barcode - Data undefined.',
+      );
+    }
+  }
   render() {
-    //console.log('\n\n\n+ + + Render Lot Screen + + +');
+    console.log('\n\n\n+ + + Render Lot Screen + + +');
     //console.log('this.state.modalVisible', this.state.modalVisible);
     //console.log('Current Vehicle ID: ', this.state.vehicleId);
     if (this.state.barcodeOpen) {
@@ -1598,24 +1650,52 @@ class LotView extends React.Component {
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              paddingLeft: 10,
-              paddingRight: 10,
+              padding: 10,
               elevation: 20,
               backgroundColor: 'white',
             }}>
             <Text style={{ fontWeight: 'bold' }}>
               {this.state.barcodeTitle}
             </Text>
+          </View>
+
+          <View
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+              width: 66,
+              height: 66,
+              backgroundColor: '#828282',
+              borderRadius: 100,
+              justifyContent: 'center',
+              alignItems: 'center',
+              shadowColor: '#828282',
+              shadowOffset: { width: 1, height: 1 },
+              shadowOpacity: 20,
+              right: 10,
+              top: 40,
+            }}>
             <TouchableOpacity
-              onPress={() => this.setState({ barcodeOpen: false })}>
+              onPress={() =>
+                this.setState({ barcodeOpen: false, cameraReady: false })
+              }>
               <View
                 style={{
-                  width: 30,
-                  height: 30,
+                  width: 66,
+                  height: 66,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Ionicons type="ionicon" name={'md-close'} size={25} />
+                <Ionicons
+                  type="ionicon"
+                  name={'md-close'}
+                  size={35}
+                  style={{
+                    color: '#FFF',
+                    marginTop: Platform.OS === 'ios' ? 2 : 0,
+                    marginLeft: Platform.OS === 'ios' ? 2 : 0,
+                  }}
+                />
               </View>
             </TouchableOpacity>
           </View>
@@ -1624,37 +1704,7 @@ class LotView extends React.Component {
               console.log('Camera Status: ', cameraStatus)
             }
             onMountError={e => console.log('Camera mount error: ', e)}
-            onBarCodeRead={e => {
-              if (typeof e.data !== 'undefined') {
-                if (e.data.length > 0) {
-                  console.log('Barcode: ', e.data);
-                  this.setState({
-                    barcodeOpen: false,
-                    skuCollectorVisible: false,
-                  });
-                  this.vinEntered = e.data;
-                  this.locateVehicle('vin');
-                } else {
-                  console.log('Barcode error');
-                  this.setState({ barcodeOpen: false });
-                  this.setModalVisibility(
-                    false,
-                    GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
-                    null,
-                    'Barcode cannot be read.',
-                  );
-                }
-              } else {
-                console.log('Barcode error');
-                this.setState({ barcodeOpen: false });
-                this.setModalVisibility(
-                  false,
-                  GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
-                  null,
-                  'Barcode cannot be read.',
-                );
-              }
-            }}
+            onBarCodeRead={e => this.state.cameraReady && this.onBarCodeRead(e)}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
@@ -1701,8 +1751,12 @@ class LotView extends React.Component {
             onUpdate={location => {
               if (
                 location !== undefined &&
-                location.coords !== this.state.userLocation.coords
+                (location.coords.latitude !==
+                  this.state.userLocation.coords.latitude ||
+                  location.coords.longitude !==
+                    this.state.userLocation.coords.longitude)
               ) {
+                console.log('Update user location');
                 this.setState({ userLocation: location });
               }
             }}
