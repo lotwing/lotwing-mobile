@@ -903,6 +903,12 @@ class LotView extends React.Component {
 
   locateVehicle(type) {
     console.log('Locating vehicle..');
+    this.setModalVisibility(
+      false,
+      GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+      null,
+      'Locating vehicle',
+    );
     if (type === 'sku') {
       console.log('\n\nChecking Server for SKU: ', this.state.skuInputEntered);
       this.skuEntered = this.state.skuInputEntered;
@@ -919,7 +925,7 @@ class LotView extends React.Component {
         vin: null,
         skuCollectorVisible: false,
       });
-    } else {
+    } else if (type === 'vin') {
       console.log('\n\nChecking Server for VIN: ', this.vinEntered);
       this.setState({ vin: this.vinEntered, skuCollectorVisible: false });
     }
@@ -938,9 +944,10 @@ class LotView extends React.Component {
       //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
 
       vehiclePromise.then(response => {
-        //console.log('Vehicle response: ', response)
         const { space_id, polygon, vehicle, events } = response;
-        this.setState({ locatedVehicleID: vehicle.id });
+        vehicle !== null &&
+          typeof vehicle.id !== 'undefined' &&
+          this.setState({ locatedVehicleID: vehicle.id });
         console.log(
           'check Active events results: ',
           this.checkActiveEvents(events),
@@ -1599,15 +1606,18 @@ class LotView extends React.Component {
       if (typeof e.data !== 'undefined') {
         if (e.data.length > 0) {
           console.log('Barcode: ', e.data);
-          this.setState({
-            barcodeOpen: false,
-            skuCollectorVisible: false,
-          });
+          this.setState({ barcodeOpen: false, cameraReady: true });
+          this.setModalVisibility(
+            false,
+            GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+            null,
+            'Barcode read - Searching for vehicle',
+          );
           this.vinEntered = e.data;
           this.locateVehicle('vin');
         } else {
           console.log('Barcode error');
-          this.setState({ barcodeOpen: false });
+          this.setState({ barcodeOpen: false, cameraReady: true });
           this.setModalVisibility(
             false,
             GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
@@ -1617,7 +1627,7 @@ class LotView extends React.Component {
         }
       } else {
         console.log('Barcode error');
-        this.setState({ barcodeOpen: false });
+        this.setState({ barcodeOpen: false, cameraReady: true });
         this.setModalVisibility(
           false,
           GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
@@ -1627,7 +1637,7 @@ class LotView extends React.Component {
       }
     } else {
       console.log('Barcode error');
-      this.setState({ barcodeOpen: false });
+      this.setState({ barcodeOpen: false, cameraReady: true });
       this.setModalVisibility(
         false,
         GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,

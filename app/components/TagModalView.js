@@ -1201,7 +1201,7 @@ export default class TagModalView extends React.Component {
       this.state.modalContent === GlobalVariables.CREATE_MODAL_TYPE;
     console.log('Render modal content: ', this.state.modalContent);
     let isOnMap = this.props.spaceId;
-    console.log(this.state.vehicle);
+    //console.log(this.state.vehicle);
     let vehicleUsageType = '';
     if (this.state.vehicle !== null) {
       let usageType =
@@ -1362,7 +1362,7 @@ export default class TagModalView extends React.Component {
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
-            mirrorImage={false}
+            mirrorImage={Platform.OS !== 'ios'}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={
               'We need your permission to use your camera phone'

@@ -92,29 +92,29 @@ export default class EventsLayer extends React.PureComponent {
       featureCollection = GlobalVariables.EMPTY_GEOJSON;
     }
 
-    return (
-      <Mapbox.ShapeSource
-        id={this.props.type}
-        key={this.props.type}
-        shape={featureCollection}>
-        <Mapbox.FillExtrusionLayer
-          id={`fill_${this.props.type}`}
-          key={`fill_${this.props.type}`}
-          style={
-            this.props.type === 'note'
-              ? lotLayerStyles.noteEvent
-              : lotLayerStyles.events
-          }
-        />
-      </Mapbox.ShapeSource>
-    );
+    if (!this.state.loading) {
+      return (
+        <Mapbox.ShapeSource
+          id={this.props.type}
+          key={this.props.type}
+          shape={featureCollection}>
+          <Mapbox.FillExtrusionLayer
+            id={`fill_${this.props.type}`}
+            key={`fill_${this.props.type}`}
+            style={
+              this.props.type === 'note'
+                ? lotLayerStyles.noteEvent
+                : lotLayerStyles.events
+            }
+          />
+        </Mapbox.ShapeSource>
+      );
+    }
+    return null;
   }
 
   render() {
-    if (!this.state.loading) {
-      return this.renderEvents();
-    }
-    return null;
+    return this.renderEvents();
   }
 }
 

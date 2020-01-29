@@ -375,7 +375,7 @@
 				DEVELOPMENT_TEAM = PVAADY68M7;
 				INFOPLIST_FILE = Lotwing/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -397,7 +397,7 @@
 				DEVELOPMENT_TEAM = PVAADY68M7;
 				INFOPLIST_FILE = Lotwing/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.12;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

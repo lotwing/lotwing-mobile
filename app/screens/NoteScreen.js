@@ -164,6 +164,7 @@ export default class NoteScreen extends React.Component {
                 multiline={true}
                 onChangeText={noteText => this.setState({ noteText })}
                 placeholder="Write your vehicle note here."
+                style={{ flex: 1 }}
               />
             </View>
             {/*

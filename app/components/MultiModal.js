@@ -685,7 +685,7 @@ export default class TagModalView extends React.Component {
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
             defaultTouchToFocus
-            mirrorImage={false}
+            mirrorImage={Platform.OS !== 'ios'}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={
               'We need your permission to use your camera phone'
