@@ -957,11 +957,12 @@ class LotView extends React.Component {
             onUpdate={location => {
               if (
                 location !== undefined &&
-                (location.coords.latitude !==
-                  this.state.userLocation.coords.latitude ||
-                  location.coords.longitude !==
-                    this.state.userLocation.coords.longitude)
+                (Number(location.coords.latitude).toFixed(5) !==
+                  Number(this.state.userLocation.coords.latitude).toFixed(5) ||
+                  Number(location.coords.longitude).toFixed(5) !==
+                    Number(this.state.userLocation.coords.longitude).toFixed(5))
               ) {
+                console.log('Update User Location Multi');
                 this.setState({ userLocation: location });
               }
             }}

@@ -1606,18 +1606,18 @@ class LotView extends React.Component {
       if (typeof e.data !== 'undefined') {
         if (e.data.length > 0) {
           console.log('Barcode: ', e.data);
-          this.setState({ barcodeOpen: false, cameraReady: true });
+          this.vinEntered = e.data;
+          this.setState({ barcodeOpen: false });
           this.setModalVisibility(
             false,
             GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
             null,
             'Barcode read - Searching for vehicle',
           );
-          this.vinEntered = e.data;
           this.locateVehicle('vin');
         } else {
           console.log('Barcode error');
-          this.setState({ barcodeOpen: false, cameraReady: true });
+          this.setState({ barcodeOpen: false });
           this.setModalVisibility(
             false,
             GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
@@ -1627,7 +1627,7 @@ class LotView extends React.Component {
         }
       } else {
         console.log('Barcode error');
-        this.setState({ barcodeOpen: false, cameraReady: true });
+        this.setState({ barcodeOpen: false });
         this.setModalVisibility(
           false,
           GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
@@ -1637,7 +1637,7 @@ class LotView extends React.Component {
       }
     } else {
       console.log('Barcode error');
-      this.setState({ barcodeOpen: false, cameraReady: true });
+      this.setState({ barcodeOpen: false });
       this.setModalVisibility(
         false,
         GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
@@ -1761,12 +1761,12 @@ class LotView extends React.Component {
             onUpdate={location => {
               if (
                 location !== undefined &&
-                (location.coords.latitude !==
-                  this.state.userLocation.coords.latitude ||
-                  location.coords.longitude !==
-                    this.state.userLocation.coords.longitude)
+                (Number(location.coords.latitude).toFixed(5) !==
+                  Number(this.state.userLocation.coords.latitude).toFixed(5) ||
+                  Number(location.coords.longitude).toFixed(5) !==
+                    Number(this.state.userLocation.coords.longitude).toFixed(5))
               ) {
-                console.log('Update user location');
+                console.log('Update user location Lot View');
                 this.setState({ userLocation: location });
               }
             }}
