@@ -1593,11 +1593,13 @@ class LotView extends React.Component {
     return null;
   }
 
-  async onRegionDidChange() {
-    console.log('Region did change');
-    const zoom = await this._map.getZoom();
-    const center = await this._map.getCenter();
-    this.setState({ zoomLevel: zoom, centerCoordinate: center });
+  async onRegionDidChange(r) {
+    console.log('Region did change:', r);
+    if (typeof r !== 'undefined' && typeof this._map !== 'undefined') {
+      const zoom = await this._map.getZoom();
+      const center = await this._map.getCenter();
+      this.setState({ zoomLevel: zoom, centerCoordinate: center });
+    }
   }
   onBarCodeRead(e) {
     console.log('camera reading barcode');
@@ -1750,7 +1752,7 @@ class LotView extends React.Component {
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
           ref={c => (this._map = c)}
-          onRegionDidChange={() => this.onRegionDidChange()}>
+          onRegionDidChange={r => this.onRegionDidChange(r)}>
           <Mapbox.Camera
             zoomLevel={this.state.zoomLevel}
             centerCoordinate={this.state.centerCoordinate}

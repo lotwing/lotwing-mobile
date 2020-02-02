@@ -353,9 +353,14 @@ export default class DriveScreen extends React.Component {
             <Text style={textStyles.header}>
               {this.vehicle.year} {this.vehicle.make} {this.vehicle.model}
             </Text>
-            <Text style={textStyles.subtitle}>
-              SKU {this.vehicle.stockNumber}
-            </Text>
+            {typeof this.vehicle.stock_number !== 'undefined' && (
+              <Text style={textStyles.subtitle}>
+                Stock Number: {this.vehicle.stock_number}
+              </Text>
+            )}
+            {typeof this.vehicle.vin !== 'undefined' && (
+              <Text style={textStyles.subtitle}>VIN: {this.vehicle.vin}</Text>
+            )}
           </View>
           <View style={pageStyles.column}>
             <Image

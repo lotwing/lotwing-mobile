@@ -918,10 +918,12 @@ class LotView extends React.Component {
     }
     return null;
   }
-  async onRegionDidChange() {
-    const zoom = await this._map.getZoom();
-    const center = await this._map.getCenter();
-    this.setState({ zoomLevel: zoom, centerCoordinate: center });
+  async onRegionDidChange(r) {
+    if (typeof r !== 'undefined' && typeof this._map !== 'undefined') {
+      const zoom = await this._map.getZoom();
+      const center = await this._map.getCenter();
+      this.setState({ zoomLevel: zoom, centerCoordinate: center });
+    }
   }
   render() {
     return (
@@ -945,12 +947,12 @@ class LotView extends React.Component {
           style={styles.container}
           styleURL={Mapbox.StyleURL.Street}
           ref={c => (this._map = c)}
-          onRegionDidChange={() => this.onRegionDidChange()}>
+          onRegionDidChange={r => this.onRegionDidChange(r)}>
           <Mapbox.Camera
             zoomLevel={this.state.zoomLevel}
+            centerCoordinate={this.state.centerCoordinate}
             animationMode="flyTo"
             animationDuration={0}
-            centerCoordinate={this.state.centerCoordinate}
             //userTrackingMode={Mapbox.UserTrackingModes.Follow}
           />
           <Mapbox.UserLocation
