@@ -35,16 +35,17 @@ export default class ActiveDrive extends Component {
         return response.json();
       })
       .then(result => {
-        console.log('ACTIVE DRIVES RESULT:', result.data);
+        //console.log('ACTIVE DRIVES RESULT:', result.data);
         this.setState({
           loading: false,
           results: result.data,
         });
       });
   }
-  renderText(vehicle) {
+  renderText(vehicle, event_type) {
     let type = '';
     let year = '';
+    let event = 'on a test drive';
     if (vehicle.usage_type === 'is_new') {
       type = 'New ';
     }
@@ -64,7 +65,10 @@ export default class ActiveDrive extends Component {
       year = `${vehicle.year} `;
     }
 
-    const text = `You have ${vehicle.stock_number} (${type}${year}${vehicle.model}) on a test drive or waiting to be parked. Resolve now?`;
+    if (event_type === 'fuel_vehicle') {
+      event = 'being refuelled';
+    }
+    const text = `You have ${vehicle.stock_number} (${type}${year}${vehicle.model}) ${event} or waiting to be parked. Resolve now?`;
     return text;
   }
   render() {
@@ -92,26 +96,29 @@ export default class ActiveDrive extends Component {
           <View style={[{ padding: 20, paddingBottom: 50 }, style]}>
             {this.state.results.map(result => {
               const { vehicle } = result;
-              const { started_at, id, summary } = result.event;
+              const { started_at, id, summary, event_type } = result.event;
               return (
                 <View style={{ marginBottom: 10 }}>
                   <View style={eventStyle}>
                     <Text style={{ fontSize: 14 }}>
-                      {this.renderText(vehicle)}
+                      {this.renderText(vehicle, event_type)}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity
                       onPress={() => {
                         this.setState({ open: false });
-                        this.props.navigation.navigate('Drive', {
-                          space_id: null,
-                          vehicles: [vehicle],
-                          position: 0,
-                          eventId: id,
-                          started_at: started_at,
-                          summary: summary,
-                        });
+                        this.props.navigation.navigate(
+                          event_type === 'test_drive' ? 'Drive' : 'Fuel',
+                          {
+                            space_id: null,
+                            vehicles: [vehicle],
+                            position: 0,
+                            eventId: id,
+                            started_at: started_at,
+                            summary: summary,
+                          },
+                        );
                       }}
                       style={{ flex: 1 }}>
                       <View
@@ -187,7 +194,7 @@ const styles = {
     top: 10,
     left: 15,
     zIndex: 20,
-    width: Dimensions.get('window').width - 30,
+    width: Dimensions.get('window').width - 100,
     flexDirection: 'column',
     alignItems: 'flex-start',
   },

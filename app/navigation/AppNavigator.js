@@ -74,7 +74,7 @@ const navigationOptions = ({ navigation }) => {
         onPress={() =>
           navigation.getParam('section') === 'lot'
             ? navigation.navigate('Multi')
-            : navigation.navigate('Lot', { refresh: true })
+            : navigation.navigate('Lot', { refresh: true, extras: {} })
         }>
         <View
           style={{

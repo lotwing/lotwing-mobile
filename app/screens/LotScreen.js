@@ -63,7 +63,7 @@ class LotView extends React.Component {
 
     this.state = {
       centerCoordinate: lotCenterCoordinates,
-      userLocation: { coords: lotCenterCoordinates },
+      userLocation: null,
       zoomLevel: 17,
       lotShapes: null,
       errorLoading: false,
@@ -685,14 +685,15 @@ class LotView extends React.Component {
   };
 
   updateLotAndReopenModal = space_id => {
-    console.log('Update lot and repoen modal');
+    console.log('Update lot and reopen modal');
     const tempHighlight = this.state.clickedStall;
     this.setState({
       modalReopen: true,
       modalReopenTarget: space_id,
       modalReopenHighlight: tempHighlight,
     });
-    this.updateLotAndDismissModal(null, null, null, null, 'Updating Lot...');
+    this.refresh();
+    //this.updateLotAndDismissModal(null, null, null, null, 'Updating Lot...');
   };
   updateStallNumber(new_stall, vehicleId) {
     let newSpaceData = { spaceId: new_stall, vehicleId: vehicleId };
@@ -706,7 +707,7 @@ class LotView extends React.Component {
     console.log('old space id: ', this.state.spaceId);
     console.log('new space id: ', new_stall);
     console.log('sku number: ', this.state.stockNumber);
-
+    console.log('Body: ', JSON.stringify(space_data));
     return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
       method: 'POST',
       headers: {
@@ -721,6 +722,7 @@ class LotView extends React.Component {
       })
       .then(responseJson => {
         return responseJson;
+        console.log('Response from updateStallNumber', responseJson);
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
@@ -833,6 +835,7 @@ class LotView extends React.Component {
       if (this.state.vehicleId) {
         console.log('VEHICLE ID ENTERED: updating');
         // EVENT ENDING
+        console.log('Event Ending: ', this.state.eventEnding);
         if (this.state.eventEnding !== null) {
           const { endPackage, eventId } = this.state.eventEnding;
           let eventIdPromise = LotActionHelper.endTimeboundTagAction(
@@ -840,21 +843,35 @@ class LotView extends React.Component {
             eventId,
           ).then(result => {
             this.setState({ eventEnding: null });
+            let stallUpdatedPromise = this.updateStallNumber(
+              space_id,
+              this.state.vehicleId,
+            );
+
+            stallUpdatedPromise.then(result => {
+              console.log('Returned from stallUpdatedPromise');
+              this.setState({ feedbackText: 'Stall updated!' });
+              // 3. Re-render lot by updating state
+              this.updateLotAndReopenModal(space_id);
+              //this.updateSpaceVehicleMap = true;
+              //return this._loadLotView();
+            });
+          });
+        } else {
+          let stallUpdatedPromise = this.updateStallNumber(
+            space_id,
+            this.state.vehicleId,
+          );
+
+          stallUpdatedPromise.then(result => {
+            console.log('Returned from stallUpdatedPromise');
+            this.setState({ feedbackText: 'Stall updated!' });
+            // 3. Re-render lot by updating state
+            this.updateLotAndReopenModal(space_id);
+            //this.updateSpaceVehicleMap = true;
+            //return this._loadLotView();
           });
         }
-
-        let stallUpdatedPromise = this.updateStallNumber(
-          space_id,
-          this.state.vehicleId,
-        );
-
-        stallUpdatedPromise.then(result => {
-          this.setState({ feedbackText: 'Stall updated!' });
-          // 3. Re-render lot by updating state
-          this.updateLotAndReopenModal(space_id);
-          //this.updateSpaceVehicleMap = true;
-          //return this._loadLotView();
-        });
       } else {
         this.setState({ feedbackText: 'Vehicle ID missing' });
       }
@@ -1761,15 +1778,25 @@ class LotView extends React.Component {
           />
           <Mapbox.UserLocation
             onUpdate={location => {
-              if (
-                location !== undefined &&
-                (Number(location.coords.latitude).toFixed(5) !==
-                  Number(this.state.userLocation.coords.latitude).toFixed(5) ||
-                  Number(location.coords.longitude).toFixed(5) !==
-                    Number(this.state.userLocation.coords.longitude).toFixed(5))
-              ) {
-                console.log('Update user location Lot View');
-                this.setState({ userLocation: location });
+              if (typeof location !== 'undefined') {
+                if (this.state.userLocation !== null) {
+                  if (
+                    Number(location.coords.latitude).toFixed(5) !==
+                      Number(this.state.userLocation.coords.latitude).toFixed(
+                        5,
+                      ) ||
+                    Number(location.coords.longitude).toFixed(5) !==
+                      Number(this.state.userLocation.coords.longitude).toFixed(
+                        5,
+                      )
+                  ) {
+                    console.log('Update user location Lot View');
+                    this.setState({ userLocation: location });
+                  }
+                } else {
+                  console.log('Set Initial Location');
+                  this.setState({ userLocation: location });
+                }
               }
             }}
           />
