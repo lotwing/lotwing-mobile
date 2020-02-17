@@ -15,6 +15,7 @@ class Tabs extends Component {
           shadowColor: '#000',
           shadowOpacity: 0.1,
           zIndex: 1,
+          elevation: 1,
           backgroundColor: '#000',
           height: 50,
         }}>

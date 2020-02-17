@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Platform, StyleSheet, ActionSheetIOS } from 'react-native';
+import { View, Text, Platform, StyleSheet, ActionSheetIOS, PointPropType } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -14,7 +14,6 @@ import Mapbox from '@react-native-mapbox-gl/maps';
 export default class VehicleSpaceLayer extends React.PureComponent {
   constructor(props) {
     super(props);
-
     this.onSourceLayerPress = this.onSourceLayerPress.bind(this);
   }
 
@@ -98,7 +97,16 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
       let featureCollection = this._createFeatureCollection(polygons);
 
-      return (
+      /* 
+        Flag to get around issue with ShapeSource dynamic updating
+        https://github.com/react-native-mapbox-gl/maps/issues/248
+      */
+      let populated = false;
+      if (polygons.length) {
+        populated = true;
+      }
+
+      return populated ? (
         <Mapbox.ShapeSource
           id={this.props.recent ? `${this.props.type}-recent` : this.props.type}
           key={
@@ -122,10 +130,10 @@ export default class VehicleSpaceLayer extends React.PureComponent {
             }
           />
         </Mapbox.ShapeSource>
-      );
+      ) : (<></>) 
     }
 
-    return [];
+    return (<></>);
   }
 
   render() {

@@ -1523,6 +1523,7 @@ class LotView extends React.Component {
           position: 'absolute',
           bottom: 0,
           zIndex: 10,
+          elevation: 10,
           backgroundColor: 'transparent',
         }}>
         <TagModalView
@@ -1582,7 +1583,7 @@ class LotView extends React.Component {
       !this.state.barcodeOpen
     ) {
       return (
-        <View style={{ position: 'absolute', zIndex: 2, right: 10, top: 10 }}>
+        <View style={{ position: 'absolute', zIndex: 2, elevation: 2, right: 10, top: 10 }}>
           <TouchableOpacity
             onPress={() =>
               this.setState({
@@ -1692,6 +1693,7 @@ class LotView extends React.Component {
             style={{
               position: 'absolute',
               zIndex: 10,
+              elevation: 10,
               width: 66,
               height: 66,
               backgroundColor: '#828282',
@@ -1748,6 +1750,10 @@ class LotView extends React.Component {
         </View>
       );
     }
+
+    const lot = this.getLot();
+    const populated = lot.id !== "empty_geojson";
+
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -1800,12 +1806,16 @@ class LotView extends React.Component {
               }
             }}
           />
-          <Mapbox.ShapeSource id="parking_lot" shape={this.getLot()}>
-            <Mapbox.FillLayer
-              id="fill_parking_lot"
-              style={lotLayerStyles.parking_lot}
-            />
-          </Mapbox.ShapeSource>
+          {populated ? (
+            <Mapbox.ShapeSource id="parking_lot" shape={lot}>
+              <Mapbox.FillLayer
+                id="fill_parking_lot"
+                style={lotLayerStyles.parking_lot}
+              />
+            </Mapbox.ShapeSource>
+          ) : (
+            <></>
+          )}
 
           <BuildingLayer buildingShapes={this.getBuildings()} />
 

@@ -25,7 +25,7 @@ export default class VehicleHighlightLayer extends React.Component {
       );
     } else {
       //console.log('~ ~ ~ NOT RENDERING CLICKED STALL');
-      return [];
+      return <></>;
     }
   }
 

@@ -1317,6 +1317,7 @@ export default class TagModalView extends React.Component {
             style={{
               position: 'absolute',
               zIndex: 10,
+              elevation: 10,
               width: 66,
               height: 66,
               backgroundColor: '#828282',
