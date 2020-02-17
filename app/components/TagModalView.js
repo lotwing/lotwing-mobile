@@ -1276,7 +1276,7 @@ export default class TagModalView extends React.Component {
             onPress={() => {
               this.props.findOnMap(false);
             }}>
-            <View style={styles.tagModalBlankSpace}></View>
+            <View style={styles.tagModalBlankSpace} />
           </TouchableWithoutFeedback>
 
           <View style={styles.modalBottomContainer}>
@@ -1388,7 +1388,7 @@ export default class TagModalView extends React.Component {
             onPress={() => {
               this.props.findOnMap(false);
             }}>
-            <View style={styles.tagModalBlankSpace}></View>
+            <View style={styles.tagModalBlankSpace} />
           </TouchableWithoutFeedback>
 
           <View style={styles.modalBottomContainer}>
@@ -1432,7 +1432,7 @@ export default class TagModalView extends React.Component {
             console.log('TOUCHING --OUTER-- VIEW');
             this.tapOutsideModal();
           }}>
-          <View style={styles.tagModalBlankSpace}></View>
+          <View style={styles.tagModalBlankSpace} />
         </TouchableWithoutFeedback>
 
         <View style={styles.modalBottomContainer}>
