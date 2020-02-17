@@ -1583,7 +1583,13 @@ class LotView extends React.Component {
       !this.state.barcodeOpen
     ) {
       return (
-        <View style={{ position: 'absolute', zIndex: 2, elevation: 2, right: 10, top: 10 }}>
+        <View style={{
+          position: 'absolute',
+          zIndex: 2,
+          elevation: 2,
+          right: 10,
+          top: 10
+        }}>
           <TouchableOpacity
             onPress={() =>
               this.setState({
@@ -1752,7 +1758,7 @@ class LotView extends React.Component {
     }
 
     const lot = this.getLot();
-    const populated = lot.id !== "empty_geojson";
+    const populated = lot.id !== 'empty_geojson';
 
     return (
       <KeyboardAvoidingView
