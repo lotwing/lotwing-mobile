@@ -28,7 +28,7 @@ export default class BuildingLayer extends React.PureComponent {
   renderBuildings() {
     const building_coord_obj = this.getAllBuildingCoordinatesObject();
     let featureCollection = {};
-    /* 
+    /*
       Flag to get around issue with ShapeSource dynamic updating
       https://github.com/react-native-mapbox-gl/maps/issues/248
     */

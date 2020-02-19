@@ -1367,6 +1367,7 @@ export default class TagModalView extends React.Component {
             permissionDialogMessage={
               'We need your permission to use your camera phone'
             }
+            captureAudio={false}
             style={{ flex: 1 }}>
             <BarcodeMask showAnimatedLine={false} />
           </RNCamera>
