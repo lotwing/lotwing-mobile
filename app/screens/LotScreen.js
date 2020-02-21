@@ -308,6 +308,8 @@ class LotView extends React.Component {
         GlobalVariables.LOT_DATA.parking_spaces.forEach(space => {
           lotParkingSpaceMap[space.id] = space;
         });
+        //console.log('LoadLotView response: /n/n/n', lot_geometry);
+        //console.log('LoadLotView response: /n/n/n', lotParkingSpaceMap);
         console.log('     resetting state: _loadLotView');
 
         lotview._loadParkingSpaceMetadata({
@@ -1188,6 +1190,15 @@ class LotView extends React.Component {
     return buildingMap;
   }
 
+  getLandscaping() {
+    let landscapingMap = {};
+    if (this.state.lotShapes && this.state.lotShapes.landscaping) {
+      this.state.lotShapes.landscaping.forEach(shape => {
+        landscapingMap[shape.id] = shape;
+      });
+    }
+    return landscapingMap;
+  }
   maybeRenderSearchButton() {
     if (this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE) {
       return (
@@ -1751,6 +1762,7 @@ class LotView extends React.Component {
             permissionDialogMessage={
               'We need your permission to use your camera phone'
             }
+            captureAudio={false}
             style={{ flex: 1 }}>
             <BarcodeMask showAnimatedLine={false} />
           </RNCamera>
@@ -1824,6 +1836,7 @@ class LotView extends React.Component {
             <></>
           )}
 
+          {/* For development later: <BuildingLayer buildingShapes={this.getLandscaping()} /> */}
           <BuildingLayer buildingShapes={this.getBuildings()} />
 
           <VehicleSpaceLayer
@@ -2116,6 +2129,7 @@ const lotLayerStyles = {
   empty_parking_spaces: {
     fillColor: '#FFFFFF',
     fillOpacity: 0.75,
+    fillOutlineColor: 'rgba(255,255,255,0.5)',
   },
   new_vehicle_occupied_spaces: {
     fillColor: '#006699',

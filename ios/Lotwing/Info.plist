@@ -40,19 +40,19 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Allow Lotwing to access your calendar</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow Lotwing to use the camera</string>
+	<string>LotWing uses the camera to scan vehicle barcodes</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow Lotwing experiences to access your contacts</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow Lotwing to use your location</string>
+	<string>LotWing requires this to render your position on the map</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow Lotwing to use your location</string>
+	<string>LotWing requires this to render your position on the map</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow Lotwing to use your location</string>
+	<string>LotWing requires this to render your position on the map</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow Lotwing to access your microphone</string>
+	<string>The microphone is used to enter notes and stock numbers</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow Lotwing to access your device's accelerometer</string>
+	<string>Allow Lotwing to access your device&apos;s accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give Lotwing periences permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
