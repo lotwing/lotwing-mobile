@@ -23,7 +23,9 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
+import TempVehicleSpaceLayer from '../components/TempVehicleSpaceLayer';
 import BuildingLayer from '../components/BuildingLayer';
+import LandscapingLayer from '../components/LandscapingLayer';
 import EventsLayer from '../components/EventsLayer';
 import HoldsLayer from '../components/HoldsLayer';
 import NoteLayer from '../components/NoteLayer';
@@ -1192,8 +1194,8 @@ class LotView extends React.Component {
 
   getLandscaping() {
     let landscapingMap = {};
-    if (this.state.lotShapes && this.state.lotShapes.landscaping) {
-      this.state.lotShapes.landscaping.forEach(shape => {
+    if (this.state.lotShapes && this.state.lotShapes.landscapings) {
+      this.state.lotShapes.landscapings.forEach(shape => {
         landscapingMap[shape.id] = shape;
       });
     }
@@ -1819,8 +1821,21 @@ class LotView extends React.Component {
             />
           </Mapbox.ShapeSource>
 
-          {/* For development later: <BuildingLayer buildingShapes={this.getLandscaping()} /> */}
+          <LandscapingLayer landscapingShapes={this.getLandscaping()} />
           <BuildingLayer buildingShapes={this.getBuildings()} />
+
+          <TempVehicleSpaceLayer
+            ids={this.state.emptySpaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.emptySpaces}
+            showAndPopulateModal={this.showAndPopulateModal}
+            setModalVisibility={this.setModalVisibility}
+            sendMapCallback={this.getMapCallback}
+            updateSpaceVehicleMap={false}
+            updateEvents={this.postLoadEvents}
+            type="temp"
+            recent={false}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
@@ -2106,20 +2121,20 @@ const styles = StyleSheet.create({
 const lotLayerStyles = {
   // NOTE: On web all shapes have an opacity of 1 barring parking_lot whose opacity is 0.4
   buildings: {
-    fillColor: '#FF9933',
-    fillOpacity: 0.75,
+    fillColor: '#F29836',
+    fillOpacity: 1,
   },
   empty_parking_spaces: {
     fillColor: '#FFFFFF',
-    fillOpacity: 0.75,
-    fillOutlineColor: 'rgba(255,255,255,0.5)',
+    fillOpacity: 1,
+    fillOutlineColor: 'rgba(255,255,255,1)',
   },
   new_vehicle_occupied_spaces: {
-    fillColor: '#006699',
-    fillOpacity: 0.4,
+    fillColor: '#9CB6C6',
+    fillOpacity: 1,
   },
   new_vehicle_recent_occupied_spaces: {
-    fillColor: '#006699',
+    fillColor: '#376794',
     fillOpacity: 1,
   },
   duplicate_spaces: {
@@ -2132,35 +2147,35 @@ const lotLayerStyles = {
   },
   parking_spaces: {
     fillColor: '#FFFFFF',
-    fillOpacity: 0.75,
+    fillOpacity: 1,
   },
   used_vehicle_occupied_spaces: {
-    fillColor: '#66CC00',
-    fillOpacity: 0.4,
+    fillColor: '#C5DB9D',
+    fillOpacity: 1,
   },
   used_vehicle_recent_occupied_spaces: {
-    fillColor: '#66CC00',
+    fillColor: '#90C055',
     fillOpacity: 1,
   },
   loaner_occupied_spaces: {
-    fillColor: '#E8F051',
-    fillOpacity: 0.4,
+    fillColor: '#EBECB4',
+    fillOpacity: 1,
   },
   loaner_recent_occupied_spaces: {
-    fillColor: '#E8F051',
+    fillColor: '#E6E570',
     fillOpacity: 1,
   },
   lease_occupied_spaces: {
-    fillColor: '#D13CEA',
-    fillOpacity: 0.4,
+    fillColor: '#C893BC',
+    fillOpacity: 1,
   },
   lease_recent_occupied_spaces: {
-    fillColor: '#D13CEA',
+    fillColor: '#9A5C9D',
     fillOpacity: 1,
   },
   wholesale_occupied_spaces: {
-    fillColor: '#8D8C88',
-    fillOpacity: 0.4,
+    fillColor: '#C4C2C2',
+    fillOpacity: 1,
   },
   wholesale_recent_occupied_spaces: {
     fillColor: '#8D8C88',

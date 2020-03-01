@@ -18,10 +18,6 @@ export default class NoteLayer extends React.PureComponent {
     this.state = { loading: true };
     this.renderEvents = this.renderEvents.bind(this);
   }
-  componentWillReceiveProps(nextProps) {
-    this.setState({ loading: false });
-    this.setState({ loading: true });
-  }
   _createNewPolygon(coordinates, id) {
     const size = this.props.type === 'note' ? 0.0007 : 0.0007;
     let left = coordinates[0][0][0];

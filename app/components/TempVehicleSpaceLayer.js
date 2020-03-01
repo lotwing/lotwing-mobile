@@ -11,7 +11,7 @@ import Mapbox from '@react-native-mapbox-gl/maps';
  * Lot shapes include:
  * parking_lots, buildings, parking_spaces
  */
-export default class VehicleSpaceLayer extends React.PureComponent {
+export default class TempVehicleSpaceLayer extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -51,41 +51,20 @@ export default class VehicleSpaceLayer extends React.PureComponent {
       '  - type ',
       this.props.type,
     );
-    if (this.props.type == 'empty') {
-      this.props.showAndPopulateModal(
-        [space_id, GlobalVariables.EMPTY_MODAL_TYPE],
-        payload,
-      );
-    } else {
-      this.props.showAndPopulateModal([space_id, null], payload);
-    }
+    this.props.showAndPopulateModal(
+      [space_id, GlobalVariables.EMPTY_MODAL_TYPE],
+      payload,
+    );
   }
 
   getAllParkingSpaceCoordinatesObject() {
     if (this.props.spaces.length > 0) {
       let coordinatesObject = {};
-
       this.props.spaces.forEach(id => {
-        if (
-          !this.props.parkingShapes[id].temporary ||
-          this.props.type !== 'empty'
-        ) {
-          if (this.props.recent) {
-            const updatedAt = new Date(this.props.parkingShapes[id].updated_at);
-            const now = new Date();
-            const oneDay = 60 * 60 * 24 * 1000;
-            //console.log('Time: ', now-updatedAt, 'One day: ', oneDay)
-            if (now - updatedAt < oneDay) {
-              //console.log('New')
-              coordinatesObject[id] = this.props.parkingShapes[
-                id
-              ].geo_info.geometry.coordinates;
-            }
-          } else {
-            coordinatesObject[id] = this.props.parkingShapes[
-              id
-            ].geo_info.geometry.coordinates;
-          }
+        if (this.props.parkingShapes[id].temporary) {
+          coordinatesObject[id] = this.props.parkingShapes[
+            id
+          ].geo_info.geometry.coordinates;
         }
       });
       return coordinatesObject;
@@ -105,26 +84,14 @@ export default class VehicleSpaceLayer extends React.PureComponent {
 
       return (
         <Mapbox.ShapeSource
-          id={this.props.recent ? `${this.props.type}-recent` : this.props.type}
-          key={
-            this.props.recent ? `${this.props.type}-recent` : this.props.type
-          }
+          id={this.props.type}
+          key={this.props.type}
           onPress={this.onSourceLayerPress}
           shape={featureCollection}>
-          <Mapbox.FillLayer
-            id={
-              this.props.recent
-                ? `parking_spaces_fill-${this.props.type}-recent`
-                : `parking_spaces_fill-${this.props.type}`
-            }
-            key={
-              this.props.recent
-                ? `parking_spaces_fill-${this.props.type}-recent`
-                : `parking_spaces_fill-${this.props.type}`
-            }
-            style={
-              this.props.blank ? { fillColor: '#dadada' } : this.props.style
-            }
+          <Mapbox.LineLayer
+            id={`parking_spaces_fill-${this.props.type}`}
+            key={`parking_spaces_fill-${this.props.type}`}
+            style={{ lineWidth: 0.5, lineColor: '#FFF' }}
           />
         </Mapbox.ShapeSource>
       );

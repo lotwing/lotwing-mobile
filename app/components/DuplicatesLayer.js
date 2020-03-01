@@ -17,7 +17,7 @@ export default class DuplicatesLayer extends React.PureComponent {
     super(props);
 
     this.state = {
-      loading: false,
+      loading: true,
       parking_space_geojson: {
         id: 'parking_spaces',
         type: 'Feature',
@@ -123,6 +123,7 @@ export default class DuplicatesLayer extends React.PureComponent {
 
   getAllParkingSpaceCoordinatesObject() {
     if (this.props.spaces.length > 0) {
+      this.setState({ loading: false });
       let coordinatesObject = {};
 
       this.props.spaces.forEach(id => {
@@ -157,20 +158,22 @@ export default class DuplicatesLayer extends React.PureComponent {
       );
 
       let featureCollection = this._createFeatureCollection(polygons);
-
-      return (
-        <Mapbox.ShapeSource
-          id={this.props.type}
-          key={this.props.type}
-          //onPress={this.onSourceLayerPress}
-          shape={featureCollection}>
-          <Mapbox.FillLayer
-            id={`parking_spaces_fill-${this.props.type}`}
-            key={`parking_spaces_fill-${this.props.type}`}
-            style={{ fillColor: '#FFF' }}
-          />
-        </Mapbox.ShapeSource>
-      );
+      if (!this.state.loading) {
+        return (
+          <Mapbox.ShapeSource
+            id={this.props.type}
+            key={this.props.type}
+            //onPress={this.onSourceLayerPress}
+            shape={featureCollection}>
+            <Mapbox.FillLayer
+              id={`parking_spaces_fill-${this.props.type}`}
+              key={`parking_spaces_fill-${this.props.type}`}
+              style={{ fillColor: '#FFF' }}
+            />
+          </Mapbox.ShapeSource>
+        );
+      }
+      return null;
     }
 
     return [];
