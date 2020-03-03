@@ -52,7 +52,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The microphone is used to enter notes and stock numbers</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow Lotwing to access your device&apos;s accelerometer</string>
+	<string>Allow Lotwing to access your device's accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give Lotwing periences permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
