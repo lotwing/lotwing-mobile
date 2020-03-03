@@ -967,20 +967,6 @@ class LotView extends React.Component {
             animationDuration={0}
             //userTrackingMode={Mapbox.UserTrackingModes.Follow}
           />
-          <Mapbox.UserLocation
-            onUpdate={location => {
-              if (
-                location !== undefined &&
-                (Number(location.coords.latitude).toFixed(5) !==
-                  Number(this.state.userLocation.coords.latitude).toFixed(5) ||
-                  Number(location.coords.longitude).toFixed(5) !==
-                    Number(this.state.userLocation.coords.longitude).toFixed(5))
-              ) {
-                console.log('Update User Location Multi');
-                this.setState({ userLocation: location });
-              }
-            }}
-          />
 
           {populated ? (
             <Mapbox.ShapeSource id="parking_lot" shape={lot}>
@@ -1043,6 +1029,21 @@ class LotView extends React.Component {
 
         {this.maybeRenderActionFeedbackView()}
         {this.maybeRenderMapControls()}
+
+        <Mapbox.UserLocation
+          onUpdate={location => {
+            if (
+              location !== undefined &&
+              (Number(location.coords.latitude).toFixed(5) !==
+                Number(this.state.userLocation.coords.latitude).toFixed(5) ||
+                Number(location.coords.longitude).toFixed(5) !==
+                  Number(this.state.userLocation.coords.longitude).toFixed(5))
+            ) {
+              console.log('Update User Location Multi');
+              this.setState({ userLocation: location });
+            }
+          }}
+        />
       </KeyboardAvoidingView>
     );
   }

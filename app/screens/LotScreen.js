@@ -1803,30 +1803,7 @@ class LotView extends React.Component {
             animationMode="flyTo"
             animationDuration={0}
           />
-          <Mapbox.UserLocation
-            onUpdate={location => {
-              if (typeof location !== 'undefined') {
-                if (this.state.userLocation !== null) {
-                  if (
-                    Number(location.coords.latitude).toFixed(5) !==
-                      Number(this.state.userLocation.coords.latitude).toFixed(
-                        5,
-                      ) ||
-                    Number(location.coords.longitude).toFixed(5) !==
-                      Number(this.state.userLocation.coords.longitude).toFixed(
-                        5,
-                      )
-                  ) {
-                    console.log('Update user location Lot View');
-                    this.setState({ userLocation: location });
-                  }
-                } else {
-                  console.log('Set Initial Location');
-                  this.setState({ userLocation: location });
-                }
-              }
-            }}
-          />
+          
           {populated ? (
             <Mapbox.ShapeSource id="parking_lot" shape={lot}>
               <Mapbox.FillLayer
@@ -2061,6 +2038,31 @@ class LotView extends React.Component {
           />
           <VehicleHighlightLayer
             clickedStallPolygon={this.state.clickedStall}
+          />
+
+          <Mapbox.UserLocation
+            onUpdate={location => {
+              if (typeof location !== 'undefined') {
+                if (this.state.userLocation !== null) {
+                  if (
+                    Number(location.coords.latitude).toFixed(5) !==
+                      Number(this.state.userLocation.coords.latitude).toFixed(
+                        5,
+                      ) ||
+                    Number(location.coords.longitude).toFixed(5) !==
+                      Number(this.state.userLocation.coords.longitude).toFixed(
+                        5,
+                      )
+                  ) {
+                    console.log('Update user location Lot View');
+                    this.setState({ userLocation: location });
+                  }
+                } else {
+                  console.log('Set Initial Location');
+                  this.setState({ userLocation: location });
+                }
+              }
+            }}
           />
         </Mapbox.MapView>
 

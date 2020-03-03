@@ -14,6 +14,7 @@ import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import ActiveDrive from '../components/ActiveDrive';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
+import * as pkg from '../../package.json';
 
 class SalesScreen extends Component {
   state = {
@@ -272,7 +273,7 @@ class SalesScreen extends Component {
               />
             </TouchableOpacity>
             <View style={{ position: 'absolute', right: 10, top: 5 }}>
-              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v1.1.17</Text>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>v${pkg.version}</Text>
             </View>
           </View>
           <View style={{ padding: 20 }}>
