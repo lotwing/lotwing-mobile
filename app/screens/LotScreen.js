@@ -1803,7 +1803,7 @@ class LotView extends React.Component {
             animationMode="flyTo"
             animationDuration={0}
           />
-          
+
           {populated ? (
             <Mapbox.ShapeSource id="parking_lot" shape={lot}>
               <Mapbox.FillLayer
