@@ -19,7 +19,9 @@ import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 import VehicleSpaceLayer from '../components/VehicleSpaceLayer';
 import VehicleHighlightLayer from '../components/VehicleHighlightLayer';
+import TempVehicleSpaceLayer from '../components/TempVehicleSpaceLayer';
 import BuildingLayer from '../components/BuildingLayer';
+import LandscapingLayer from '../components/LandscapingLayer';
 import MultiModal from '../components/MultiModal';
 import ActionFeedbackView from '../components/ActionFeedbackView';
 import LotActionHelper from '../helpers/LotActionHelper';
@@ -742,6 +744,16 @@ class LotView extends React.Component {
     return buildingMap;
   }
 
+  getLandscaping() {
+    let landscapingMap = {};
+    if (this.state.lotShapes && this.state.lotShapes.landscapings) {
+      this.state.lotShapes.landscapings.forEach(shape => {
+        landscapingMap[shape.id] = shape;
+      });
+    }
+    return landscapingMap;
+  }
+
   loadKeyBoardData() {
     let url = GlobalVariables.BASE_ROUTE + Route.KEY_BOARD_LOCATIONS;
     console.log('MODAL: KEY BOARD LOCATION: ', url);
@@ -979,7 +991,21 @@ class LotView extends React.Component {
             <></>
           )}
 
+          <LandscapingLayer landscapingShapes={this.getLandscaping()} />
           <BuildingLayer buildingShapes={this.getBuildings()} />
+
+          <TempVehicleSpaceLayer
+            ids={this.state.emptySpaces}
+            parkingShapes={this.state.parkingShapes}
+            spaces={this.state.emptySpaces}
+            showAndPopulateModal={this.showAndPopulateModal}
+            setModalVisibility={this.setModalVisibility}
+            sendMapCallback={this.getMapCallback}
+            updateSpaceVehicleMap={false}
+            updateEvents={this.postLoadEvents}
+            type="temp"
+            recent={false}
+          />
 
           <VehicleSpaceLayer
             ids={this.state.emptySpaces}
