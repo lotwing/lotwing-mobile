@@ -950,128 +950,126 @@ class LotView extends React.Component {
     const lot = this.getLot();
     const populated = lot.id !== 'empty_geojson';
 
-    return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={styles.container}
-        enabled
-        keyboardVerticalOffset={
-          getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
-        }>
-        {/*<ActiveDrive
-          refresh={this.updateSpaceVehicleMap}
-          navigation={this.props.navigation}
-        />*/}
-        <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
-
-        {this.state.modalVisible && this._renderTagModal()}
-        {this.maybeRenderKeyboard()}
-        <Mapbox.MapView
-          showUserLocation={true}
+    if (populated) {
+      return (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
           style={styles.container}
-          styleURL={Mapbox.StyleURL.Street}
-          ref={c => (this._map = c)}
-          onRegionDidChange={r => this.onRegionDidChange(r)}>
-          <Mapbox.Camera
-            zoomLevel={this.state.zoomLevel}
-            centerCoordinate={this.state.centerCoordinate}
-            animationMode="flyTo"
-            animationDuration={0}
-            //userTrackingMode={Mapbox.UserTrackingModes.Follow}
-          />
+          enabled
+          keyboardVerticalOffset={
+            getStatusBarHeight(true) + GlobalVariables.HEADER_HEIGHT
+          }>
+          <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
 
-          {populated ? (
+          {this.state.modalVisible && this._renderTagModal()}
+          {this.maybeRenderKeyboard()}
+          <Mapbox.MapView
+            showUserLocation={true}
+            style={styles.container}
+            styleURL={Mapbox.StyleURL.Street}
+            ref={c => (this._map = c)}
+            onRegionDidChange={r => this.onRegionDidChange(r)}>
+            <Mapbox.Camera
+              zoomLevel={this.state.zoomLevel}
+              centerCoordinate={this.state.centerCoordinate}
+              animationMode="flyTo"
+              animationDuration={0}
+            />
+
             <Mapbox.ShapeSource id="parking_lot" shape={lot}>
               <Mapbox.FillLayer
                 id="fill_parking_lot"
                 style={lotLayerStyles.parking_lot}
               />
             </Mapbox.ShapeSource>
-          ) : (
-            <></>
-          )}
 
-          <LandscapingLayer landscapingShapes={this.getLandscaping()} />
-          <BuildingLayer buildingShapes={this.getBuildings()} />
+            <LandscapingLayer landscapingShapes={this.getLandscaping()} />
+            <BuildingLayer buildingShapes={this.getBuildings()} />
 
-          <TempVehicleSpaceLayer
-            ids={this.state.emptySpaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.emptySpaces}
-            showAndPopulateModal={this.showAndPopulateModal}
-            setModalVisibility={this.setModalVisibility}
-            sendMapCallback={this.getMapCallback}
-            updateSpaceVehicleMap={false}
-            updateEvents={this.postLoadEvents}
-            type="temp"
-            recent={false}
-          />
+            <TempVehicleSpaceLayer
+              ids={this.state.emptySpaces}
+              parkingShapes={this.state.parkingShapes}
+              spaces={this.state.emptySpaces}
+              showAndPopulateModal={this.showAndPopulateModal}
+              setModalVisibility={this.setModalVisibility}
+              sendMapCallback={this.getMapCallback}
+              updateSpaceVehicleMap={false}
+              updateEvents={this.postLoadEvents}
+              type="temp"
+              recent={false}
+            />
 
-          <VehicleSpaceLayer
-            ids={this.state.emptySpaces}
-            style={lotLayerStyles.empty_parking_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.emptySpaces}
-            showAndPopulateModal={this.showAndPopulateModal}
-            setModalVisibility={this.setModalVisibility}
-            sendMapCallback={this.getMapCallback}
-            updateSpaceVehicleMap={false}
-            updateEvents={this.postLoadEvents}
-            type="empty"
-            recent={false}
-          />
+            <VehicleSpaceLayer
+              ids={this.state.emptySpaces}
+              style={lotLayerStyles.empty_parking_spaces}
+              parkingShapes={this.state.parkingShapes}
+              spaces={this.state.emptySpaces}
+              showAndPopulateModal={this.showAndPopulateModal}
+              setModalVisibility={this.setModalVisibility}
+              sendMapCallback={this.getMapCallback}
+              updateSpaceVehicleMap={false}
+              updateEvents={this.postLoadEvents}
+              type="empty"
+              recent={false}
+            />
 
-          <VehicleSpaceLayer
-            ids={this.state.newVehicleSpaces}
-            style={lotLayerStyles.new_vehicle_recent_occupied_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.newVehicleSpaces}
-            sendMapCallback={this.getMapCallback}
-            showAndPopulateModal={this.showAndPopulateModal}
-            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            type="new_vehicle"
-            recent={false}
-            blank={this.state.findingOnMap}
-          />
+            <VehicleSpaceLayer
+              ids={this.state.newVehicleSpaces}
+              style={lotLayerStyles.new_vehicle_recent_occupied_spaces}
+              parkingShapes={this.state.parkingShapes}
+              spaces={this.state.newVehicleSpaces}
+              sendMapCallback={this.getMapCallback}
+              showAndPopulateModal={this.showAndPopulateModal}
+              updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+              type="new_vehicle"
+              recent={false}
+              blank={this.state.findingOnMap}
+            />
 
-          <VehicleSpaceLayer
-            ids={this.state.usedVehicleSpaces}
-            style={lotLayerStyles.used_vehicle_recent_occupied_spaces}
-            parkingShapes={this.state.parkingShapes}
-            spaces={this.state.usedVehicleSpaces}
-            sendMapCallback={this.getMapCallback}
-            showAndPopulateModal={this.showAndPopulateModal}
-            updateSpaceVehicleMap={this.updateSpaceVehicleMap}
-            updateEvents={this.postLoadEvents}
-            type="used_vehicle"
-            recent={false}
-            blank={this.state.findingOnMap}
-          />
+            <VehicleSpaceLayer
+              ids={this.state.usedVehicleSpaces}
+              style={lotLayerStyles.used_vehicle_recent_occupied_spaces}
+              parkingShapes={this.state.parkingShapes}
+              spaces={this.state.usedVehicleSpaces}
+              sendMapCallback={this.getMapCallback}
+              showAndPopulateModal={this.showAndPopulateModal}
+              updateSpaceVehicleMap={this.updateSpaceVehicleMap}
+              updateEvents={this.postLoadEvents}
+              type="used_vehicle"
+              recent={false}
+              blank={this.state.findingOnMap}
+            />
 
-          <VehicleHighlightLayer
-            clickedStallPolygon={this.state.clickedStall}
-          />
-        </Mapbox.MapView>
+            <VehicleHighlightLayer
+              clickedStallPolygon={this.state.clickedStall}
+            />
 
-        {this.maybeRenderActionFeedbackView()}
-        {this.maybeRenderMapControls()}
+            <Mapbox.UserLocation
+              onUpdate={location => {
+                if (
+                  location !== undefined &&
+                  (Number(location.coords.latitude).toFixed(5) !==
+                    Number(this.state.userLocation.coords.latitude).toFixed(
+                      5,
+                    ) ||
+                    Number(location.coords.longitude).toFixed(5) !==
+                      Number(this.state.userLocation.coords.longitude).toFixed(
+                        5,
+                      ))
+                ) {
+                  console.log('Update User Location Multi');
+                  this.setState({ userLocation: location });
+                }
+              }}
+            />
+          </Mapbox.MapView>
 
-        <Mapbox.UserLocation
-          onUpdate={location => {
-            if (
-              location !== undefined &&
-              (Number(location.coords.latitude).toFixed(5) !==
-                Number(this.state.userLocation.coords.latitude).toFixed(5) ||
-                Number(location.coords.longitude).toFixed(5) !==
-                  Number(this.state.userLocation.coords.longitude).toFixed(5))
-            ) {
-              console.log('Update User Location Multi');
-              this.setState({ userLocation: location });
-            }
-          }}
-        />
-      </KeyboardAvoidingView>
-    );
+          {this.maybeRenderActionFeedbackView()}
+          {this.maybeRenderMapControls()}
+        </KeyboardAvoidingView>
+      );
+    }
+    return null;
   }
 }
 
