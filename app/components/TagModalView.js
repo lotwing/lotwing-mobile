@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
@@ -462,9 +463,24 @@ export default class TagModalView extends React.Component {
                 buttonStyles.activeSecondaryModalButton,
                 { flex: 1, margin: 5 },
               ]}
-              onPress={() =>
-                this.createVehicle(this.state.sku, 'lease_return')
-              }>
+              onPress={() => {
+                Alert.alert(
+                  'Create Vehicle',
+                  `You are creating stock number \n ${this.state.sku} \n as a \n LEASE RETURN`,
+                  [
+                    {
+                      text: 'Cancel',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Create Vehicle',
+                      onPress: () =>
+                        this.createVehicle(this.state.sku, 'lease_return'),
+                    },
+                  ],
+                  { cancelable: true },
+                );
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>
                 CREATE LEASE RT
               </Text>
@@ -483,7 +499,24 @@ export default class TagModalView extends React.Component {
                 buttonStyles.activeSecondaryModalButton,
                 { flex: 1, backgroundColor: '#006699', margin: 5 },
               ]}
-              onPress={() => this.createVehicle(this.state.sku, 'is_new')}>
+              onPress={() => {
+                Alert.alert(
+                  'Create Vehicle',
+                  `You are creating stock number \n ${this.state.sku} \n as a \n NEW VEHICLE`,
+                  [
+                    {
+                      text: 'Cancel',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Create Vehicle',
+                      onPress: () =>
+                        this.createVehicle(this.state.sku, 'is_new'),
+                    },
+                  ],
+                  { cancelable: true },
+                );
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>NEW</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -491,7 +524,24 @@ export default class TagModalView extends React.Component {
                 buttonStyles.activeSecondaryModalButton,
                 { flex: 1, backgroundColor: '#66CC00', margin: 5 },
               ]}
-              onPress={() => this.createVehicle(this.state.sku, 'is_used')}>
+              onPress={() => {
+                Alert.alert(
+                  'Create Vehicle',
+                  `You are creating stock number \n ${this.state.sku} \n as a \n USED VEHICLE`,
+                  [
+                    {
+                      text: 'Cancel',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Create Vehicle',
+                      onPress: () =>
+                        this.createVehicle(this.state.sku, 'is_used'),
+                    },
+                  ],
+                  { cancelable: true },
+                );
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>USED</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -499,7 +549,24 @@ export default class TagModalView extends React.Component {
                 buttonStyles.activeSecondaryModalButton,
                 { flex: 1, backgroundColor: '#E8F051', margin: 5 },
               ]}
-              onPress={() => this.createVehicle(this.state.sku, 'loaner')}>
+              onPress={() => {
+                Alert.alert(
+                  'Create Vehicle',
+                  `You are creating stock number \n ${this.state.sku} \n as a \n LOANER`,
+                  [
+                    {
+                      text: 'Cancel',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Create Vehicle',
+                      onPress: () =>
+                        this.createVehicle(this.state.sku, 'loaner'),
+                    },
+                  ],
+                  { cancelable: true },
+                );
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>LOANER</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -507,9 +574,24 @@ export default class TagModalView extends React.Component {
                 buttonStyles.activeSecondaryModalButton,
                 { flex: 1, backgroundColor: '#8D8C88', margin: 5 },
               ]}
-              onPress={() =>
-                this.createVehicle(this.state.sku, 'wholesale_unit')
-              }>
+              onPress={() => {
+                Alert.alert(
+                  'Create Vehicle',
+                  `You are creating stock number \n ${this.state.sku} \n as a \n WHOLESALE UNIT`,
+                  [
+                    {
+                      text: 'Cancel',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Create Vehicle',
+                      onPress: () =>
+                        this.createVehicle(this.state.sku, 'wholesale_unit'),
+                    },
+                  ],
+                  { cancelable: true },
+                );
+              }}>
               <Text style={buttonStyles.activeSecondaryTextColor}>TRD/WHL</Text>
             </TouchableOpacity>
           </View>
@@ -537,9 +619,24 @@ export default class TagModalView extends React.Component {
                   buttonStyles.activeSecondaryModalButton,
                   { flex: 1, backgroundColor: '#8D8C88', margin: 5 },
                 ]}
-                onPress={() =>
-                  this.createVehicle(this.state.sku, 'wholesale_unit')
-                }>
+                onPress={() => {
+                  Alert.alert(
+                    'Create Vehicle',
+                    `You are creating stock number \n ${this.state.sku} \n as a \n WHOLESALE UNIT`,
+                    [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Create Vehicle',
+                        onPress: () =>
+                          this.createVehicle(this.state.sku, 'wholesale_unit'),
+                      },
+                    ],
+                    { cancelable: true },
+                  );
+                }}>
                 <Text style={buttonStyles.activeSecondaryTextColor}>
                   TRD/WHL
                 </Text>
