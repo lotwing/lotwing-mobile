@@ -3,6 +3,7 @@ import {
   Alert,
   AsyncStorage,
   Button,
+  Platform,
   Image,
   StatusBar,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';
@@ -40,75 +42,80 @@ export default class LoginScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.loginBackground}>
-        <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
-        <Image
-          source={
-            __DEV__
-              ? require('../../assets/images/lotwing-logo-white.png')
-              : require('../../assets/images/lotwing-logo-white.png')
-          }
-          style={styles.logoSizing}
-        />
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            autoCapitalize="none"
-            style={{
-              height: 50,
-              margin: 10,
-              padding: 5,
-              borderColor: 'gray',
-              borderWidth: 1,
-              backgroundColor: 'white',
-              color: 'black',
-            }}
-            onChangeText={email => this.setState({ email })}
-            keyboardType="email-address"
-            placeholder="Email Address"
-            placeholderTextColor={'rgba(0,0,0,0.5)'}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        style={{ flex: 1 }}
+        enabled>
+        <View style={styles.loginBackground}>
+          <StatusBar barStyle="light-content" backgroundColor="#BE1E2D" />
+          <Image
+            source={
+              __DEV__
+                ? require('../../assets/images/lotwing-logo-white.png')
+                : require('../../assets/images/lotwing-logo-white.png')
+            }
+            style={styles.logoSizing}
           />
 
-          <TextInput
-            autoCapitalize="none"
-            style={{
-              height: 50,
-              margin: 10,
-              padding: 5,
-              borderColor: 'gray',
-              borderWidth: 1,
-              backgroundColor: 'white',
-              color: 'black',
-            }}
-            onChangeText={pwd => this.setState({ pwd })}
-            secureTextEntry={true}
-            placeholder="Password"
-            placeholderTextColor={'rgba(0,0,0,0.5)'}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              autoCapitalize="none"
+              style={{
+                height: 50,
+                margin: 10,
+                padding: 5,
+                borderColor: 'gray',
+                borderWidth: 1,
+                backgroundColor: 'white',
+                color: 'black',
+              }}
+              onChangeText={email => this.setState({ email })}
+              keyboardType="email-address"
+              placeholder="Email Address"
+              placeholderTextColor={'rgba(0,0,0,0.5)'}
+            />
 
-        <LoginButton
-          email={this.state.email}
-          pwd={this.state.pwd}
-          buttonText={this.state.buttonText}
-          callback={this.navigationCallback}
-          navigation={this.props.navigation}
-          style={[
-            buttonStyles.activePrimaryModalButton,
-            { marginLeft: 0, marginTop: 50, marginBottom: 20, width: '25%' },
-          ]}
-          textColor={buttonStyles.activePrimaryTextColor}
-        />
+            <TextInput
+              autoCapitalize="none"
+              style={{
+                height: 50,
+                margin: 10,
+                padding: 5,
+                borderColor: 'gray',
+                borderWidth: 1,
+                backgroundColor: 'white',
+                color: 'black',
+              }}
+              onChangeText={pwd => this.setState({ pwd })}
+              secureTextEntry={true}
+              placeholder="Password"
+              placeholderTextColor={'rgba(0,0,0,0.5)'}
+            />
+          </View>
 
-        {/*<LoginButton
-            email={this.state.debug_email}
-            pwd={this.state.debug_pwd}
-            buttonText={this.state.debug_buttonText}
+          <LoginButton
+            email={this.state.email}
+            pwd={this.state.pwd}
+            buttonText={this.state.buttonText}
             callback={this.navigationCallback}
             navigation={this.props.navigation}
-            textColor={buttonStyles.activeSecondaryTextColor}/>
-*/}
-      </View>
+            style={[
+              buttonStyles.activePrimaryModalButton,
+              { marginLeft: 0, marginTop: 50, marginBottom: 20, width: '25%' },
+            ]}
+            textColor={buttonStyles.activePrimaryTextColor}
+          />
+
+          {/*<LoginButton
+              email={this.state.debug_email}
+              pwd={this.state.debug_pwd}
+              buttonText={this.state.debug_buttonText}
+              callback={this.navigationCallback}
+              navigation={this.props.navigation}
+              textColor={buttonStyles.activeSecondaryTextColor}/>
+  */}
+        </View>
+      </KeyboardAvoidingView>
     );
   }
 }

@@ -76,8 +76,9 @@ class LotView extends React.Component {
       vehicles: [],
       vehicleId: 0,
       zoomLevel: 20,
-      previousClickedStall: null,
-      previousScanId: '',
+      tempClickedStall: null,
+      previousClickedStall: [],
+      previousScanId: [],
     };
     let loadPromise = this._loadLotView();
     loadPromise.then(result => {
@@ -334,8 +335,14 @@ class LotView extends React.Component {
     console.log('Set local highlight: ', spaceId);
     let usedSpaces = [];
     let newSpaces = [];
+    let previousScans = [];
+    let previousStalls = [];
     this.state.usedVehicleSpaces.forEach(uspace => usedSpaces.push(uspace));
     this.state.newVehicleSpaces.forEach(nspace => newSpaces.push(nspace));
+    this.state.previousClickedStall.forEach(stall =>
+      previousStalls.push(stall),
+    );
+    this.state.previousScanId.forEach(id => previousScans.push(id));
     let tempVehicleSN = '';
     if (vehicle !== null) {
       console.log('Usage type: ', vehicle.usage_type);
@@ -348,11 +355,20 @@ class LotView extends React.Component {
       }
       tempVehicleSN = vehicle.stock_number;
       console.log('Vehicle: ', vehicle);
+      previousScans.unshift(tempVehicleSN);
+      previousStalls.unshift(this.state.tempClickedStall);
+      this.setState({previousScanId: [], previousClickedStall: []});
+      console.log(
+        'Previous Scans: ',
+        previousScans,
+        'Previous Stalls: ',
+        previousStalls,
+      );
     } else {
       //usedSpaces.push(spaceId);
       this.setState({
         feedbackText: 'Error loading vehicle',
-        previousScanId: '',
+        //previousScanId: '',
       });
     }
     if (this.state.key_board !== null) {
@@ -372,7 +388,8 @@ class LotView extends React.Component {
             newVehicleSpaces: newSpaces,
             modalType: GlobalVariables.EMPTY_MODAL_TYPE,
             modalVisible: false,
-            previousScanId: tempVehicleSN,
+            previousScanId: previousScans,
+            previousClickedStall: previousStalls,
           });
         })
         .catch(err => {
@@ -389,7 +406,8 @@ class LotView extends React.Component {
         newVehicleSpaces: newSpaces,
         modalType: GlobalVariables.EMPTY_MODAL_TYPE,
         modalVisible: false,
-        previousScanId: tempVehicleSN,
+        previousScanId: previousScans,
+        previousClickedStall: previousStalls,
       });
     }
   }
@@ -405,7 +423,8 @@ class LotView extends React.Component {
     console.log('updateLotAndDismissModal');
     const tempHighlight = this.state.clickedStall;
     console.log('tempHighlight: ', tempHighlight);
-    this.setState({ previousClickedStall: null, previousScanId: '' });
+    this.setState({ tempClickedStall: tempHighlight });
+    //this.setState({ previousClickedStall: null, previousScanId: '' });
     this.setVehicleHighlight(null);
 
     // 2. Dismiss Modal & Show Loading Feedback
@@ -424,7 +443,7 @@ class LotView extends React.Component {
         //console.log('STALL UPDATE RESULT from vehicle ID: ', result);
         // 3. Re-render lot by updating state
         this.setLocalHighlight(this.state.spaceId, result.vehicle);
-        this.setState({ previousClickedStall: tempHighlight });
+        //this.setState({ previousClickedStall: tempHighlight });
       });
     } else if (vin) {
       console.log('VIN ENTERED: updating');
@@ -434,13 +453,13 @@ class LotView extends React.Component {
       if (this.vinEntered === '---') {
         this.setState({
           feedbackText: 'Barcode cannot be read.',
-          previousScanId: '',
+          //previousScanId: '',
         });
       } else if (this.vinEntered.length !== 17) {
         this.setState({
           feedbackText:
             'VIN must be 17 character long. \nEntered Vin: ' + this.vinEntered,
-          previousScanId: '',
+          //previousScanId: '',
         });
       } else {
         let vehiclePromise = this._getVehicleByType('vin');
@@ -468,19 +487,19 @@ class LotView extends React.Component {
               console.log('result is undefined', this.state.modalType);
               this.setState({
                 feedbackText: 'Vin result is undefined',
-                previousScanId: '',
+                //previousScanId: '',
               });
             }
           })
           .catch(err => {
             this.setState({
               feedbackText: 'Error in fetching vehicle by vin',
-              previousScanId: '',
+              //previousScanId: '',
             });
             return false;
           });
       }
-      this.setState({ previousClickedStall: tempHighlight });
+      //this.setState({ previousClickedStall: tempHighlight });
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
       this.skuEntered = sku_number;
@@ -514,27 +533,27 @@ class LotView extends React.Component {
               this.state.spaceId,
             );
             this.setLocalHighlight(this.state.spaceId, result.vehicle);
-            console.log('Previous stall: ', this.state.previousClickedStall);
+            //console.log('Previous stall: ', this.state.previousClickedStall);
           } else {
             this.setState({
               feedbackText: 'Stock number result is undefined',
-              previousScanId: '',
+              //previousScanId: '',
             });
             console.log('result is undefined', this.state.modalType);
           }
-          this.setState({ previousClickedStall: tempHighlight });
+          //this.setState({ previousClickedStall: tempHighlight });
         })
         .catch(err => {
           this.setState({
             feedbackText: 'Error in fetching vehicle by stock number',
-            previousScanId: '',
+            //previousScanId: '',
           });
           return false;
         });
     } else {
       this.setState({
         feedbackText: 'Error in fetching vehicle',
-        previousScanId: '',
+        //previousScanId: '',
       });
       console.log('not vehicleID or sku_number');
       //this.setLocalHighlight(this.state.spaceId, null);
@@ -973,6 +992,7 @@ class LotView extends React.Component {
     const lot = this.getLot();
     const populated = lot.id !== 'empty_geojson';
 
+    console.log('STATE: Previous stall: ', this.state.previousClickedStall, 'Previous ID: ', this.state.previousScanId);
     if (populated) {
       return (
         <KeyboardAvoidingView
@@ -1066,12 +1086,21 @@ class LotView extends React.Component {
             <VehicleHighlightLayer
               clickedStallPolygon={this.state.clickedStall}
             />
-            {this.state.previousClickedStall !== null &&
-              this.state.previousScanId !== '' && (
+            {this.state.previousClickedStall.length > 0 &&
+              this.state.previousScanId.length > 0 && (
                 <LastTaggedLayer
-                  eventShapes={this.state.previousClickedStall}
+                  eventShapes={this.state.previousClickedStall[0]}
                   type="noteText"
-                  text={this.state.previousScanId}
+                  text={this.state.previousScanId[0]}
+                  zoom={this.state.zoomLevel}
+                />
+              )}
+            {this.state.previousClickedStall.length > 1 &&
+              this.state.previousScanId.length > 1 && (
+                <LastTaggedLayer
+                  eventShapes={this.state.previousClickedStall[1]}
+                  type="noteTexttwo"
+                  text={this.state.previousScanId[1]}
                   zoom={this.state.zoomLevel}
                 />
               )}
