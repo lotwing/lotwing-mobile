@@ -992,7 +992,7 @@ class LotView extends React.Component {
     const lot = this.getLot();
     const populated = lot.id !== 'empty_geojson';
 
-    console.log('STATE: Previous stall: ', this.state.previousClickedStall, 'Previous ID: ', this.state.previousScanId);
+    //console.log('STATE: Previous stall: ', this.state.previousClickedStall, 'Previous ID: ', this.state.previousScanId);
     if (populated) {
       return (
         <KeyboardAvoidingView
