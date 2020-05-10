@@ -357,7 +357,10 @@ class LotView extends React.Component {
       console.log('Vehicle: ', vehicle);
       previousScans.unshift(tempVehicleSN);
       previousStalls.unshift(this.state.tempClickedStall);
-      this.setState({previousScanId: [], previousClickedStall: []});
+      this.setState({
+        previousScanId: [],
+        previousClickedStall: [],
+      });
       console.log(
         'Previous Scans: ',
         previousScans,
