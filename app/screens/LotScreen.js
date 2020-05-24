@@ -1605,14 +1605,16 @@ class LotView extends React.Component {
             top: 10,
           }}>
           <TouchableOpacity
-            onPress={() =>
-              this.setState({
-                centerCoordinate: [
-                  this.state.userLocation.coords.longitude,
-                  this.state.userLocation.coords.latitude,
-                ],
-              })
-            }
+            onPress={() => {
+              if (this.state.userLocation !== null ) {
+                this.setState({
+                  centerCoordinate: [
+                    this.state.userLocation.coords.longitude,
+                    this.state.userLocation.coords.latitude,
+                  ],
+                })
+              }
+            }}
             style={styles.floatingActionButton}>
             <Ionicons
               type="ionicon"
