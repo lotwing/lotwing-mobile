@@ -30,6 +30,7 @@ import EventsLayer from '../components/EventsLayer';
 import HoldsLayer from '../components/HoldsLayer';
 import NoteLayer from '../components/NoteLayer';
 import DuplicatesLayer from '../components/DuplicatesLayer';
+import SearchLayer from '../components/SearchLayer';
 import TagModalView from '../components/TagModalView';
 import ClickToPopulateViewHandler from '../components/ClickToPopulateViewHandler';
 import ActionFeedbackView from '../components/ActionFeedbackView';
@@ -115,6 +116,7 @@ class LotView extends React.Component {
       leaseRtInput5: '',
       eventEnding: null,
       locatedVehicleID: null,
+      searchTarget: null,
     };
 
     // required for android
@@ -391,6 +393,7 @@ class LotView extends React.Component {
           leaseRtInput3: '',
           leaseRtInput4: '',
           leaseRtInput5: '',
+          searchTarget: null,
         });
         this.updateSpaceVehicleMap = false;
         lotview._loadEvents();
@@ -767,7 +770,6 @@ class LotView extends React.Component {
       centerCoordinate: centerCoordinate,
     });
   }
-
   findOnMap = boolean => {
     console.log('Find on Map');
     this.setState({ findingOnMap: boolean });
@@ -989,6 +991,7 @@ class LotView extends React.Component {
             centerCoordinate: this._calculateCenter(
               polygon.geometry.coordinates[0],
             ),
+            searchTarget: polygon,
           });
         } else if (space_id === null && vehicle) {
           console.log('Pulling car from server: ', vehicle.id);
@@ -1606,13 +1609,13 @@ class LotView extends React.Component {
           }}>
           <TouchableOpacity
             onPress={() => {
-              if (this.state.userLocation !== null ) {
+              if (this.state.userLocation !== null) {
                 this.setState({
                   centerCoordinate: [
                     this.state.userLocation.coords.longitude,
                     this.state.userLocation.coords.latitude,
                   ],
-                })
+                });
               }
             }}
             style={styles.floatingActionButton}>
@@ -2037,7 +2040,7 @@ class LotView extends React.Component {
             <VehicleHighlightLayer
               clickedStallPolygon={this.state.clickedStall}
             />
-
+            <SearchLayer searchStallPolygon={this.state.searchTarget} />
             <Mapbox.UserLocation
               onUpdate={location => {
                 if (typeof location !== 'undefined') {

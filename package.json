@@ -1,6 +1,6 @@
 {
   "name": "lotwing-mobile",
-  "version": "1.1.24",
+  "version": "1.1.25",
   "private": true,
   "scripts": {
     "start": "react-native start",
@@ -15,7 +15,11 @@
     "build:android": "cd android && ./gradlew assembleRelease && echo 'Path: $(pwd)/android/app/build/outputs/apk/release/' && cd ..",
     "postinstall": "jetify"
   },
-
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint"
+    }
+  },
   "resolutions": {
     "@react-native-community/cli-platform-ios": "2.9.0"
   },

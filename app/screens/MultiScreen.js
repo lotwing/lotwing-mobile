@@ -499,6 +499,7 @@ class LotView extends React.Component {
               feedbackText: 'Error in fetching vehicle by vin',
               //previousScanId: '',
             });
+            console.log('Error in fetching vehicle by vin', err);
             return false;
           });
       }
@@ -960,13 +961,13 @@ class LotView extends React.Component {
           }}>
           <TouchableOpacity
             onPress={() => {
-              if (this.state.userLocation !== null ) {
+              if (this.state.userLocation !== null) {
                 this.setState({
                   centerCoordinate: [
                     this.state.userLocation.coords.longitude,
                     this.state.userLocation.coords.latitude,
                   ],
-                })
+                });
               }
             }}
             style={styles.floatingActionButton}>
