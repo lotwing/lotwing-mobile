@@ -66,7 +66,7 @@ export default class TagModalView extends React.Component {
       barcodeOpen: false,
       cameraReady: false,
       confirmActive: true,
-      confirmText: 'CONFIRM',
+      confirmText: 'CONFIRM STALL',
     };
   }
   componentWillMount() {
@@ -116,8 +116,15 @@ export default class TagModalView extends React.Component {
           return response.json();
         })
         .then(result => {
+          if (
+            result.message &&
+            result.message === GlobalVariables.AUTHORISATION_FAILED
+          ) {
+            console.log('Authentication Failed');
+            this.props.navigation.navigate('Auth');
+          }
           //console.log('\nVEHICLES FROM API CALL: ', result.vehicles);
-          //console.log(result)
+          //console.log('RESULT: ', result)
           if (result && result.vehicles && result.vehicles.length) {
             let drive = {};
             let fuel = {};
@@ -210,6 +217,13 @@ export default class TagModalView extends React.Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('\nRETURNED KEY LOCATIONS DATA: ', result);
         if (result.length) {
           this.setState({
@@ -288,17 +302,24 @@ export default class TagModalView extends React.Component {
           return response.json();
         })
         .then(responseJson => {
+          if (
+            responseJson.message &&
+            responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+          ) {
+            console.log('Authentication Failed');
+            this.props.navigation.navigate('Auth');
+          }
           if (this.state.reopenOnDismiss) {
             this.setState({
               reopenOnDismiss: false,
               confirmActive: true,
-              confirmText: 'CONFIRM',
+              confirmText: 'CONFIRM STALL',
             });
             this.props.updateLotAndReopenModal(this.props.spaceId);
           } else {
             this.setState({
               confirmActive: true,
-              confirmText: 'CONFIRM',
+              confirmText: 'CONFIRM STALL',
             });
             this.updateLotAndDismissModal();
           }
@@ -306,7 +327,7 @@ export default class TagModalView extends React.Component {
         .catch(err => {
           this.setState({
             confirmActive: true,
-            confirmText: 'CONFIRM',
+            confirmText: 'CONFIRM STALL',
           });
           console.log('\nCAUGHT ERROR: \n', err, err.name);
           return err;
@@ -426,6 +447,13 @@ export default class TagModalView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('RETURNED FROM UPDATE_VEHICLE', responseJson);
         this.props.setVehicleId(responseJson.id);
         this.setState({
@@ -970,9 +998,12 @@ export default class TagModalView extends React.Component {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={buttonStyles.activePrimaryModalButton}
+              style={[
+                buttonStyles.activeSecondaryModalButton,
+                { marginLeft: 5 },
+              ]}
               onPress={this.confirmSpaceData}>
-              <Text style={buttonStyles.activePrimaryTextColor}>
+              <Text style={buttonStyles.activeSecondaryTextColor}>
                 {this.state.confirmText}
               </Text>
             </TouchableOpacity>

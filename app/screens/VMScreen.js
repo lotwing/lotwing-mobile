@@ -42,6 +42,13 @@ class VMScreen extends Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         //console.log(result)
         this.setState({ loading: false, vehicles_data: result });
       });

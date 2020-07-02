@@ -64,6 +64,13 @@ export default class HistoryScreen extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         let position = this.state.position;
         responseJson.vehicles.forEach((vehicle, index) => {
           console.log(

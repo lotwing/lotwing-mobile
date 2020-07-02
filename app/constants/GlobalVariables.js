@@ -5,6 +5,7 @@ export default {
   LOTWING_ACCESS_TOKEN: '',
   USER_NAME: '',
   SUCCESSFUL_LOGIN: 'Login Successful',
+  AUTHORISATION_FAILED: 'Signature has expired',
   LOT_DATA: [],
   MAPBOX_ACCESSTOKEN:
     'pk.eyJ1IjoiYWxleG5laWdoZXIiLCJhIjoiY2psZ3I1bTllMDF5ZjNwdDUydjQzMWJ1cCJ9.nG0jV5mQE65ySlh66w5faQ',

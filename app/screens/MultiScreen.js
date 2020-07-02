@@ -124,6 +124,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('\nLOADLOTVIEW RESPONSE: ', responseJson.message, '\n');
         if (responseJson.message == 'Signature has expired') {
           console.log('Throwing Error');
@@ -166,6 +173,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         // only saying space ids not saving most_recently_tagged_at which is also returned
         let allSpaces = [];
         let results = [
@@ -598,6 +612,13 @@ class LotView extends React.Component {
         return response.json();
       })
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         //console.log(responseJson);
         return responseJson;
       })
@@ -751,6 +772,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('VEHICLE PULLED FROM STORE');
         const { current_parking_space, vehicle, events } = responseJson;
         //console.log('Updated space: ', current_parking_space);
@@ -814,6 +842,13 @@ class LotView extends React.Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('\nRETURNED KEY LOCATIONS DATA: ', result);
         if (result.length) {
           this.setState({ key_board_locations: result });

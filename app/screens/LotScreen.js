@@ -298,9 +298,15 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         //console.log('\nLOADLOTVIEW RESPONSE: ', responseJson, '\n');
         if (responseJson.message == 'Signature has expired') {
-          console.log('Throwing Error');
           throw Error('Unauthorized user');
         }
         GlobalVariables.LOT_DATA = responseJson;
@@ -326,6 +332,7 @@ class LotView extends React.Component {
       })
       .catch(err => {
         console.log('CAUGHT ERR, attempting logout: ', err, err.name);
+        this.props.navigation.navigate('LoginScreen');
         return err;
       });
   }
@@ -341,6 +348,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('load parking space metadata setState');
         this.updateSpaceVehicleMap = true;
         lotview.setState({
@@ -423,6 +437,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         lotview.setState({
           driveEventSpaces: responseJson.test_drive_events.map(
             space => space.data.attributes,
@@ -728,6 +749,13 @@ class LotView extends React.Component {
         return response.json();
       })
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         return responseJson;
         console.log('Response from updateStallNumber', responseJson);
       })
@@ -1151,6 +1179,13 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         //console.log('VEHICLE PULLED FROM STORE: ', responseJson);
         const { current_parking_space, vehicle, events } = responseJson;
         return {

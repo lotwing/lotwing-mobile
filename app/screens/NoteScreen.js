@@ -122,6 +122,13 @@ export default class NoteScreen extends React.Component {
         return response.json();
       })
       .then(responseJson => {
+        if (
+          responseJson.message &&
+          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         LotActionHelper.backAction(this.props.navigation);
       })
       .catch(err => {

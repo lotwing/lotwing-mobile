@@ -35,6 +35,13 @@ export default class ActiveDrive extends Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         //console.log('ACTIVE DRIVES RESULT:', result.data);
         this.setState({
           loading: false,

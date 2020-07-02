@@ -50,6 +50,13 @@ class SalesScreen extends Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         this.loadTodayData(result);
       });
   }
@@ -67,6 +74,13 @@ class SalesScreen extends Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         this.loadDealershipData(mtd_data, result);
       });
   }
@@ -84,6 +98,13 @@ class SalesScreen extends Component {
         return response.json();
       })
       .then(result => {
+        if (
+          result.message &&
+          result.message === GlobalVariables.AUTHORISATION_FAILED
+        ) {
+          console.log('Authentication Failed');
+          this.props.navigation.navigate('Auth');
+        }
         console.log('DEALERSHIP RESULT:', result);
         this.setState({
           loading: false,
@@ -109,7 +130,7 @@ class SalesScreen extends Component {
   logOut() {
     const { navigation } = this.props;
     GlobalVariables.LOTWING_ACCESS_TOKEN = '';
-    AsyncStorage.setItem('userToken', '');
+    //AsyncStorage.setItem('userToken', '');
     navigation.navigate('Auth');
   }
 
