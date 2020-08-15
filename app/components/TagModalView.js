@@ -261,8 +261,9 @@ export default class TagModalView extends React.Component {
     // expects a valid type: tag, note, test_drive, fuel_vehicle, odometer_update
     let body = {
       tag: {
-        vehicle_id: this.state.vehicle !== null ? this.state.vehicle.id : null,
-        shape_id: this.props.spaceId,
+        vehicle_id:
+          this.state.vehicle !== null ? Number(this.state.vehicle.id) : null,
+        shape_id: Number(this.props.spaceId),
       },
       event: {
         event_type: type,
@@ -408,8 +409,9 @@ export default class TagModalView extends React.Component {
     this.setState({ loading: true });
     let payload = {
       tag: {
-        vehicle_id: this.state.vehicle !== null ? this.state.vehicle.id : null,
-        shape_id: this.props.spaceId,
+        vehicle_id:
+          this.state.vehicle !== null ? Number(this.state.vehicle.id) : null,
+        shape_id: Number(this.props.spaceId),
       },
       event: { event_type: GlobalVariables.ODO_UPDATE, event_details: val },
     };

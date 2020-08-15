@@ -8,7 +8,10 @@ export default {
   structureTagPayload: function(type, props, event_details) {
     // expects a valid type: tag, change_stall, note, test_drive, fuel_vehicle, odometer_update, photo_update, mark_sold, write_up
     let body = {
-      tag: { vehicle_id: props.vehicleId, shape_id: props.spaceId },
+      tag: {
+        vehicle_id: Number(props.vehicleId),
+        shape_id: Number(props.spaceId),
+      },
       event: {
         event_type: type,
         event_details: event_details ? event_details : '',
