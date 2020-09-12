@@ -42,6 +42,9 @@ export default class NoteScreen extends React.Component {
     this.state = {
       isNoteActionVisible: true,
       noteText: '',
+      noteBtn: 'SAVE NOTE',
+      noteBtnColor: '#828282',
+      noteBtnActive: true,
       //cameraOpen: false,
       //hasCameraPermission: null,
       //type: Camera.Constants.Type.back,
@@ -99,43 +102,50 @@ export default class NoteScreen extends React.Component {
   sendNoteData() {
     console.log('\nsendFuelData called');
     console.log('\nNote: ', this.state.noteText);
-
-    //TODO(adwoa): make save button unclickable, process this action
-    let space_data = LotActionHelper.structureTagPayload(
-      'note',
-      { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-      this.state.noteText,
-    );
-    let noteScreen = this;
-    console.log('TAG DATA: ', space_data);
-
-    return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
-      },
-      body: JSON.stringify(space_data),
-    })
-      .then(response => {
-        return response.json();
-      })
-      .then(responseJson => {
-        if (
-          responseJson.message &&
-          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
-        ) {
-          console.log('Authentication Failed');
-          this.props.navigation.navigate('Auth');
-        }
-        LotActionHelper.backAction(this.props.navigation);
-      })
-      .catch(err => {
-        console.log('\nCAUHT ERROR: \n', err, err.name);
-        //TODO(adwoa): make save button clickable again
-        return err;
+    if (this.state.noteBtnActive) {
+      this.setState({
+        noteBtn: 'SAVING... ',
+        noteBtnActive: false,
+        noteBtnColor: '#43A037',
       });
+      //TODO(adwoa): make save button unclickable, process this action
+      let space_data = LotActionHelper.structureTagPayload(
+        'note',
+        { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
+        this.state.noteText,
+      );
+      let noteScreen = this;
+      console.log('TAG DATA: ', space_data);
+
+      return fetch(GlobalVariables.BASE_ROUTE + Route.TAG_VEHICLE, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
+        body: JSON.stringify(space_data),
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(responseJson => {
+          if (
+            responseJson.message &&
+            responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+          ) {
+            console.log('Authentication Failed');
+            this.props.navigation.navigate('Auth');
+          }
+          this.setState({ noteBtnText: 'SAVED!' });
+          LotActionHelper.backAction(this.props.navigation);
+        })
+        .catch(err => {
+          console.log('\nCAUHT ERROR: \n', err, err.name);
+          //TODO(adwoa): make save button clickable again
+          return err;
+        });
+    }
   }
 
   _renderProperNoteActionView() {
@@ -200,6 +210,7 @@ export default class NoteScreen extends React.Component {
                     paddingBottom: 15,
                     marginRight: 0,
                   },
+                  { backgroundColor: this.state.noteBtnColor },
                 ]}
                 onPress={this.sendNoteData}>
                 <Text
@@ -207,7 +218,7 @@ export default class NoteScreen extends React.Component {
                     buttonStyles.activeSecondaryTextColor,
                     { fontWeight: '300', fontSize: 20 },
                   ]}>
-                  SAVE NOTE
+                  {this.state.noteBtn}
                 </Text>
               </TouchableOpacity>
 

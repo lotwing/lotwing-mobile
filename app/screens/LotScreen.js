@@ -117,6 +117,8 @@ class LotView extends React.Component {
       eventEnding: null,
       locatedVehicleID: null,
       searchTarget: null,
+      populatingStall: false,
+      populatingStallComplete: false,
     };
 
     // required for android
@@ -408,6 +410,8 @@ class LotView extends React.Component {
           leaseRtInput4: '',
           leaseRtInput5: '',
           searchTarget: null,
+          populatingStall: false,
+          populatingStallComplete: false,
         });
         this.updateSpaceVehicleMap = false;
         lotview._loadEvents();
@@ -756,8 +760,8 @@ class LotView extends React.Component {
           console.log('Authentication Failed');
           this.props.navigation.navigate('Auth');
         }
-        return responseJson;
         console.log('Response from updateStallNumber', responseJson);
+        return responseJson;
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
@@ -859,6 +863,8 @@ class LotView extends React.Component {
           ' with vehicle ID ' +
           this.state.vehicleId +
           '...',
+        populatingStall: true,
+        populatingStallComplete: false,
       });
 
       console.log(
@@ -884,7 +890,11 @@ class LotView extends React.Component {
 
             stallUpdatedPromise.then(result => {
               console.log('Returned from stallUpdatedPromise');
-              this.setState({ feedbackText: 'Stall updated!' });
+              this.setState({
+                feedbackText: 'Stall updated!',
+                populatingStall: true,
+                populatingStallComplete: true,
+              });
               // 3. Re-render lot by updating state
               this.updateLotAndReopenModal(space_id);
               //this.updateSpaceVehicleMap = true;
@@ -899,7 +909,11 @@ class LotView extends React.Component {
 
           stallUpdatedPromise.then(result => {
             console.log('Returned from stallUpdatedPromise');
-            this.setState({ feedbackText: 'Stall updated!' });
+            this.setState({
+              feedbackText: 'Stall updated!',
+              populatingStall: true,
+              populatingStallComplete: true,
+            });
             // 3. Re-render lot by updating state
             this.updateLotAndReopenModal(space_id);
             //this.updateSpaceVehicleMap = true;
@@ -1054,7 +1068,7 @@ class LotView extends React.Component {
           id,
           summary,
         } = event.data.attributes;
-        //console.log('Event Type: ', event_type, 'Started At: ', started_at, 'Ended at: ', ended_at)
+
         if (
           event_type === GlobalVariables.BEGIN_FUELING &&
           started_at !== null &&
@@ -1069,6 +1083,9 @@ class LotView extends React.Component {
         ) {
           eventCounter++;
         }
+        /*if (event_type === GlobalVariables.BEGIN_DRIVE) {
+          console.log('EVENT', event, '\n\nEvent Type: ', event_type, 'Started At: ', started_at, 'Ended at: ', ended_at)
+        }*/
       });
     if (eventCounter > 0) {
       return true;
@@ -1670,7 +1687,80 @@ class LotView extends React.Component {
     }
     return null;
   }
-
+  maybeRenderParkingPopup() {
+    if (this.state.populatingStall) {
+      if (!this.state.populatingStallComplete) {
+        return (
+          <View
+            style={{
+              position: 'absolute',
+              left: 20,
+              width: Dimensions.get('window').width - 40,
+              backgroundColor: '#43A037',
+              padding: 20,
+              borderRadius: 10,
+              top: Dimensions.get('window').height / 4,
+              minHeight: Dimensions.get('window').height / 4,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                color: '#FFF',
+                textAlign: 'center',
+                fontSize: 20,
+                fontWeight: 'bold',
+              }}>
+              Parking Vehicle...
+            </Text>
+          </View>
+        );
+      }
+      return (
+        <View
+          style={{
+            position: 'absolute',
+            left: 20,
+            width: Dimensions.get('window').width - 40,
+            backgroundColor: '#43A037',
+            padding: 20,
+            borderRadius: 10,
+            top: Dimensions.get('window').height / 4,
+            minHeight: Dimensions.get('window').height / 4,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                color: '#FFF',
+                textAlign: 'center',
+                fontSize: 40,
+                fontWeight: 'bold',
+              }}>
+              Done!
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: '#FFF',
+              textAlign: 'center',
+              fontSize: 20,
+              fontWeight: 'bold',
+              marginTop: 10,
+            }}>
+            Updating Lot
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  }
   async onRegionDidChange(r) {
     console.log('Region did change:', r);
     if (typeof r !== 'undefined' && typeof this._map !== 'undefined') {
@@ -2108,6 +2198,7 @@ class LotView extends React.Component {
           {this.maybeRenderPopulateOnClick()}
           {this.maybeRenderActionFeedbackView()}
           {this.maybeRenderMapControls()}
+          {this.maybeRenderParkingPopup()}
         </KeyboardAvoidingView>
       );
     }

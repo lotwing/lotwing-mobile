@@ -67,9 +67,12 @@ export default class DriveScreen extends React.Component {
       );
       LotActionHelper.registerTagAction(payload)
         .then(responseJson => {
-          if (responseJson) {
-            this.eventId = responseJson.event ? responseJson.event.id : null;
+          if (responseJson && responseJson.event) {
+            this.eventId = responseJson.event.id;
             this.startEvent(this.eventId);
+          } else {
+            console.log('No event returned');
+            this.setState({ btnPressed: false });
           }
         })
         .catch(err => {
