@@ -14,7 +14,7 @@ export default class Timer extends React.Component {
     this.state = {
       timerStartedAt: this.props.startTime,
       elapsedTime: 0,
-      visualCount: '00:00:00',
+      visualCount: 'STARTING',
     };
 
     console.log('State: ', this.state, '\n');
@@ -69,7 +69,13 @@ export default class Timer extends React.Component {
   render() {
     return (
       <View>
-        <Text style={textStyles.timer}>{this.state.visualCount}</Text>
+        <Text
+          style={[
+            this.props.charger ? buttonStyles.label : textStyles.timer,
+            this.props.charger && { color: '#FCBD12' },
+          ]}>
+          {this.state.visualCount}
+        </Text>
       </View>
     );
   }

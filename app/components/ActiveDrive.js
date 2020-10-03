@@ -13,7 +13,7 @@ import Route from '../constants/Routes';
 
 export default class ActiveDrive extends Component {
   state = { loading: true, open: false, results: [] };
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.callActiveDrives();
   }
   componentDidUpdate() {
@@ -42,10 +42,17 @@ export default class ActiveDrive extends Component {
           console.log('Authentication Failed');
           this.props.navigation.navigate('Auth');
         }
-        //console.log('ACTIVE DRIVES RESULT:', result.data);
+        // remove charge events
+        let finalEvents = [];
+        result.data.forEach(event => {
+          console.log('EVENT: ', event.event.id, '\nEvent Type: ', event.event.event_type)
+          if (event.event.event_type !== GlobalVariables.BEGIN_CHARGING) {
+            finalEvents.push(event);
+          }
+        });
         this.setState({
           loading: false,
-          results: result.data,
+          results: finalEvents,
         });
       });
   }

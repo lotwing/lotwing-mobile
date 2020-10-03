@@ -30,6 +30,7 @@ export default {
 
   BEGIN_FUELING: 'fuel_vehicle',
   BEGIN_DRIVE: 'test_drive',
+  BEGIN_CHARGING: 'charge_vehicle',
   ODO_UPDATE: 'odometer_update',
 
   // DESIGN LAYOUT

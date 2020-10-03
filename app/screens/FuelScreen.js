@@ -296,7 +296,11 @@ export default class FuelScreen extends React.Component {
               <Text
                 style={[
                   buttonStyles.activeSecondaryTextColor,
-                  { fontWeight: '300', fontSize: 20 },
+                  {
+                    fontWeight: '300',
+                    fontSize: 20,
+                    backgroundColor: '#BE1E2D',
+                  },
                 ]}>
                 END FUELLING
               </Text>

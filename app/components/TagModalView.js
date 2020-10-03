@@ -18,6 +18,7 @@ import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 import { RNCamera } from 'react-native-camera';
 import BarcodeMask from 'react-native-barcode-mask';
+import ChargeBtn from './ChargeBtn';
 
 import buttonStyles from '../constants/ButtonStyles';
 
@@ -62,6 +63,7 @@ export default class TagModalView extends React.Component {
       reopenOnDismiss: false,
       drive: { event_id: null, started_at: null, summary: '' },
       fuel: { event_id: null, started_at: null, summary: '' },
+      charge: { event_id: null, started_at: null },
       sku: this.props.sku,
       barcodeOpen: false,
       cameraReady: false,
@@ -128,6 +130,7 @@ export default class TagModalView extends React.Component {
           if (result && result.vehicles && result.vehicles.length) {
             let drive = {};
             let fuel = {};
+            let charge = { event_id: null, started_at: null };
             result.events !== null &&
               result.events[0].forEach(event => {
                 //console.log('EVENT: ', event.data)
@@ -160,6 +163,16 @@ export default class TagModalView extends React.Component {
                     summary: summary,
                   };
                 }
+                if (
+                  event_type === GlobalVariables.BEGIN_CHARGING &&
+                  started_at !== null &&
+                  ended_at === null
+                ) {
+                  charge = {
+                    event_id: id,
+                    started_at: started_at,
+                  };
+                }
               });
             const sortedVehicles = result.vehicles.sort(
               (a, b) => new Date(b.created_at) - new Date(a.created_at),
@@ -183,6 +196,7 @@ export default class TagModalView extends React.Component {
               modalContent: GlobalVariables.BASIC_MODAL_TYPE,
               drive: drive,
               fuel: fuel,
+              charge: charge,
             });
             this.props.setVehicleId(
               sortedVehicles[this.state.arrayPosition].id,
@@ -972,6 +986,11 @@ export default class TagModalView extends React.Component {
               onPress={() => {
                 this.launchPage('note');
               }}
+            />
+            <ChargeBtn
+              event={this.state.charge}
+              vehicle={this.state.vehicle}
+              spaceId={this.props.spaceId}
             />
           </View>
 
