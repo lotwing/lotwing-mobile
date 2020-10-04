@@ -45,7 +45,6 @@ export default class ActiveDrive extends Component {
         // remove charge events
         let finalEvents = [];
         result.data.forEach(event => {
-          console.log('EVENT: ', event.event.id, '\nEvent Type: ', event.event.event_type)
           if (event.event.event_type !== GlobalVariables.BEGIN_CHARGING) {
             finalEvents.push(event);
           }

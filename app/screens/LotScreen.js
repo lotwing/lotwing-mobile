@@ -409,7 +409,10 @@ class LotView extends React.Component {
           leaseRtInput3: '',
           leaseRtInput4: '',
           leaseRtInput5: '',
-          searchTarget: null,
+          searchTarget:
+            this.state.searchTarget === this.state.clickedStall
+              ? this.state.searchTarget
+              : null,
           populatingStall: false,
           populatingStallComplete: false,
         });
@@ -800,6 +803,8 @@ class LotView extends React.Component {
     this.setState({
       clickedStall: polygonClicked,
       centerCoordinate: centerCoordinate,
+      searchTarget:
+        this.state.searchTarget === polygonClicked ? polygonClicked : null,
     });
   }
   findOnMap = boolean => {
@@ -896,7 +901,12 @@ class LotView extends React.Component {
                 populatingStallComplete: true,
               });
               // 3. Re-render lot by updating state
-              this.updateLotAndReopenModal(space_id);
+              //this.updateLotAndReopenModal(space_id);
+              const tempStall = this.state.clickedStall;
+              this.updateLotAndDismissModal();
+              this.setVehicleHighlight(tempStall);
+              this.setState({ searchTarget: tempStall });
+              this.refresh();
               //this.updateSpaceVehicleMap = true;
               //return this._loadLotView();
             });

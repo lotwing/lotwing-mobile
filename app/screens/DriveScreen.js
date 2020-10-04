@@ -279,6 +279,7 @@ export default class DriveScreen extends React.Component {
                   paddingTop: 15,
                   paddingBottom: 15,
                   marginTop: 30,
+                  backgroundColor: '#BE1E2D',
                 },
               ]}
               onPress={() => {
@@ -304,7 +305,6 @@ export default class DriveScreen extends React.Component {
                   {
                     fontWeight: '300',
                     fontSize: 20,
-                    backgroundColor: '#BE1E2D',
                   },
                 ]}>
                 END TEST DRIVE

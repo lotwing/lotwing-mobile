@@ -987,11 +987,12 @@ export default class TagModalView extends React.Component {
                 this.launchPage('note');
               }}
             />
+            {/*
             <ChargeBtn
               event={this.state.charge}
               vehicle={this.state.vehicle}
               spaceId={this.props.spaceId}
-            />
+            />*/}
           </View>
 
           <View style={pageStyles.rightButtonContainer}>
