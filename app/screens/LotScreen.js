@@ -925,7 +925,12 @@ class LotView extends React.Component {
               populatingStallComplete: true,
             });
             // 3. Re-render lot by updating state
-            this.updateLotAndReopenModal(space_id);
+            //this.updateLotAndReopenModal(space_id);
+            const tempStall = this.state.clickedStall;
+            this.updateLotAndDismissModal();
+            this.setVehicleHighlight(tempStall);
+            this.setState({ searchTarget: tempStall });
+            this.refresh();
             //this.updateSpaceVehicleMap = true;
             //return this._loadLotView();
           });
