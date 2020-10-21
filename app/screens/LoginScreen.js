@@ -41,6 +41,7 @@ export default class LoginScreen extends React.Component {
   }
 
   render() {
+    //throw Error('testing ErrorBoundary');
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}

@@ -1,23 +1,24 @@
-import React from "react";
+import React from 'react';
 
 import {
   NativeModules,
   Platform,
   StatusBar,
   StyleSheet,
-  View
-} from "react-native";
+  View,
+} from 'react-native';
 // import { AppLoading, Asset, Font, Icon } from "expo";
-import GlobalVariables from "./app/constants/GlobalVariables";
+import GlobalVariables from './app/constants/GlobalVariables';
 
-import AppNavigator from "./app/navigation/AppNavigator";
-import Mapbox from "@react-native-mapbox-gl/maps";
+import ErrorBoundary from './app/components/ErrorBoundary';
+import AppNavigator from './app/navigation/AppNavigator';
+import Mapbox from '@react-native-mapbox-gl/maps';
 
 Mapbox.setAccessToken(GlobalVariables.MAPBOX_ACCESSTOKEN);
 
 export default class App extends React.Component {
   state = {
-    isLoadingComplete: true
+    isLoadingComplete: true,
   };
 
   render() {
@@ -28,16 +29,17 @@ export default class App extends React.Component {
         //   onError={this._handleLoadingError}
         //   onFinish={this._handleFinishLoading}
         // />
-        <></>
-      );
-    } else {
-      return (
-        <View style={styles.container}>
-          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
+        <View></View>
       );
     }
+    return (
+      <ErrorBoundary>
+        <View style={styles.container}>
+          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          <AppNavigator />
+        </View>
+      </ErrorBoundary>
+    );
   }
 
   _loadResourcesAsync = async () => {
@@ -67,6 +69,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
-  }
+    backgroundColor: '#fff',
+  },
 });
