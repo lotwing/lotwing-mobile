@@ -14,6 +14,8 @@ import ErrorBoundary from './app/components/ErrorBoundary';
 import AppNavigator from './app/navigation/AppNavigator';
 import Mapbox from '@react-native-mapbox-gl/maps';
 
+import { getStatusBarHeight } from 'react-native-iphone-x-helper'
+
 Mapbox.setAccessToken(GlobalVariables.MAPBOX_ACCESSTOKEN);
 
 export default class App extends React.Component {
@@ -69,6 +71,7 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#BE1E2D',
+    paddingTop: getStatusBarHeight(),
   },
 });

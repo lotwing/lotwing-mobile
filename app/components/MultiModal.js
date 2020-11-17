@@ -12,7 +12,10 @@ import {
   Alert,
 } from 'react-native';
 
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import {
+  getStatusBarHeight,
+  getBottomSpace,
+} from 'react-native-iphone-x-helper';
 
 import { RNCamera } from 'react-native-camera';
 import BarcodeMask from 'react-native-barcode-mask';
@@ -932,6 +935,7 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     borderWidth: 14,
     borderColor: '#828282',
+    paddingBottom: getBottomSpace(),
   },
   tagButtonContainer: {
     flexDirection: 'row',
