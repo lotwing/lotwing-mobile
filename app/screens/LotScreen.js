@@ -146,7 +146,7 @@ class LotView extends React.Component {
    * the associated state variables, triggering a reload of
    * the lotview.
    */
-  componentWillMount() {
+  componentDidMount() {
     this.props.navigation.setParams({
       section: 'lot',
       onPress: () => this.refresh(),
