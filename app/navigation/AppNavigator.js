@@ -73,7 +73,12 @@ const navigationOptions = ({ navigation }) => {
       <TouchableOpacity
         onPress={() =>
           navigation.getParam('section') === 'lot'
-            ? navigation.navigate('Multi')
+            ? navigation.navigate('Multi', {
+                currentParkingLot: navigation.getParam('currentParkingLot'),
+                lotCenterCoordinates: navigation.getParam(
+                  'lotCenterCoordinates',
+                ),
+              })
             : navigation.navigate('Lot', { refresh: true, extras: {} })
         }>
         <View

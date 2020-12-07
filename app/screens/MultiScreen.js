@@ -43,14 +43,16 @@ export default class MultiScreen extends React.Component {
   }
 }
 
-const lotCenterCoordinates = [-122.00704220157868, 37.352814585339715];
+const lotCenterCoordinates = null; //[-122.00704220157868, 37.352814585339715];
 class LotView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       initialLoad: [],
-      centerCoordinate: lotCenterCoordinates,
-      userLocation: { coords: lotCenterCoordinates },
+      centerCoordinate: this.props.navigation.state.params.lotCenterCoordinates,
+      userLocation: {
+        coords: this.props.navigation.state.params.lotCenterCoordinates,
+      },
       lotShapes: null,
       errorLoading: false,
       newVehicleSpaces: [],
@@ -79,6 +81,7 @@ class LotView extends React.Component {
       tempClickedStall: null,
       previousClickedStall: [],
       previousScanId: [],
+      currentParkingLot: this.props.navigation.state.params.currentParkingLot,
     };
     let loadPromise = this._loadLotView();
     loadPromise.then(result => {
@@ -94,7 +97,7 @@ class LotView extends React.Component {
     this._loadLotView = this._loadLotView.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.navigation.setParams({
       section: 'multi',
       onPress: () => {
@@ -115,13 +118,19 @@ class LotView extends React.Component {
       null,
       'Updating Lot...',
     );
-    return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+    return fetch(
+      GlobalVariables.BASE_ROUTE +
+        Route.FULL_LOT +
+        '?parking_lot_name=' +
+        this.state.currentParkingLot.name,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
       },
-    })
+    )
       .then(response => response.json())
       .then(responseJson => {
         if (
@@ -164,13 +173,19 @@ class LotView extends React.Component {
 
   _loadParkingSpaceMetadata({ centerCoordinate, parkingShapes }) {
     var lotview = this;
-    return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+    return fetch(
+      GlobalVariables.BASE_ROUTE +
+        Route.PARKING_SPACE_METADATA +
+        '?parking_lot_name=' +
+        this.state.currentParkingLot.name,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
       },
-    })
+    )
       .then(response => response.json())
       .then(responseJson => {
         if (
@@ -214,6 +229,9 @@ class LotView extends React.Component {
           modalVisible: false,
           spaceVehicleMap: {},
           feedbackText: '',
+          userLocation: {
+            coords: centerCoordinate,
+          },
         });
 
         this.updateSpaceVehicleMap = false;

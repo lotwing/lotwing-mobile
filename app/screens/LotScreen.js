@@ -13,6 +13,7 @@ import {
   TextInput,
   View,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import BarcodeMask from 'react-native-barcode-mask';
@@ -58,7 +59,7 @@ export default class LotScreen extends React.Component {
   }
 }
 
-const lotCenterCoordinates = [-122.00704220157868, 37.352814585339715];
+const lotCenterCoordinates = null; //[-122.00704220157868, 37.352814585339715];
 
 class LotView extends React.Component {
   constructor(props) {
@@ -119,12 +120,16 @@ class LotView extends React.Component {
       searchTarget: null,
       populatingStall: false,
       populatingStallComplete: false,
+      parkingLots: {},
+      currentParkingLot: {},
+      parkingLotsOpen: false,
+      loadingLotInfo: false,
     };
 
     // required for android
     hasLocationPermission();
 
-    let loadPromise = this._loadLotView(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
+    let loadPromise = this._loadParkingLots(); // TODO(adwoa): add error handling when fetching data, ....catch(error => { lotview.setState({errorLoading: true, ...})})
     loadPromise.then(result => {
       console.log('PROMISE RESOLVED: ', result);
       if (result && result.name == 'Error') {
@@ -140,6 +145,7 @@ class LotView extends React.Component {
     this.vinEntered = 0;
     this._loadLotView = this._loadLotView.bind(this);
     this.updateSpaceVehicleMap = false;
+    this.currentLot = '';
   }
   /**
    * Loads all of the data associated with a lot and updates
@@ -169,29 +175,19 @@ class LotView extends React.Component {
         zoomLevel: 18.5,
         clickedStall: space_coords,
       });
+    } else if (
+      nextProps.navigation.state.params.currentParkingLot !== this.currentLot
+    ) {
+      console.log('parking lot changed');
     } else if (nextProps.navigation.state.params) {
-      if (nextProps.navigation.state.params.extras) {
+      if (
+        nextProps.navigation.state.params.extras &&
+        nextProps.navigation.state.params.extras !== {}
+      ) {
         // If the navigation contains an "extras" param (End fuelling or test drive)
         const { extras } = nextProps.navigation.state.params;
         console.log('extras', extras);
-        // cancel fuelling event
-        /*if (extras.fuelEventId) {
-          console.log('Fuelling Event', extras);
-          const { fuelEventId, spaceId } = extras;
-          this.cancelFuel(fuelEventId, spaceId);
-          this.setVehicleHighlight(null);
-          this.updateSpaceVehicleMap = true;
-          return this._loadLotView();
-          // cancel fuelling event
-        } else if (extras.driveEventId) {
-          console.log('Driving Event started, REFRESHING ', extras);
-          const { driveEventId, spaceId } = extras;
-          this.setVehicleHighlight(null);
-          this.updateSpaceVehicleMap = true;
-          return this._loadLotView();
-          //this.cancelDrive(driveEventId, spaceId);
-          // update location
-        } else */
+
         if (extras.endPackage) {
           //EVENT NEEDS TO BE ENDED
           const { endPackage, eventId, vehicleId } = extras;
@@ -226,7 +222,7 @@ class LotView extends React.Component {
             modalType: GlobalVariables.BASIC_MODAL_TYPE,
             modalVisible: false,
           });
-          return this._loadLotView();
+          return this._loadLotView(this.currentLot);
         }
       } else {
         console.log('set modal state true');
@@ -241,12 +237,12 @@ class LotView extends React.Component {
       nextProps.navigation.state.params.refresh
     ) {
       console.log('REFRESHING LOT');
-      return this._loadLotView();
+      return this._loadLotView(this.currentLot);
     }
   }
   refresh() {
     console.log('Refreshing');
-    return this._loadLotView();
+    return this._loadLotView(this.currentLot);
   }
   cancelFuel(fuelEventId, spaceId) {
     let endedPackage = {
@@ -282,16 +278,8 @@ class LotView extends React.Component {
       .then(this.setState({ findingOnMap: false, modalVisible: true }))
       .catch(e => console.log('DRIVE EVENT ERROR: ', e));
   }
-  _loadLotView() {
-    var lotview = this;
-    console.log('* * * * * LOAD LOT VIEW * * * * *');
-    this.setModalVisibility(
-      false,
-      GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
-      null,
-      'Updating Lot...',
-    );
-    return fetch(GlobalVariables.BASE_ROUTE + Route.FULL_LOT, {
+  _loadParkingLots() {
+    return fetch(GlobalVariables.BASE_ROUTE + '/api/parking_lots', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -300,37 +288,15 @@ class LotView extends React.Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        if (
-          responseJson.message &&
-          responseJson.message === GlobalVariables.AUTHORISATION_FAILED
-        ) {
-          console.log('Authentication Failed');
-          this.props.navigation.navigate('Auth');
-        }
-        //console.log('\nLOADLOTVIEW RESPONSE: ', responseJson, '\n');
-        if (responseJson.message == 'Signature has expired') {
-          throw Error('Unauthorized user');
-        }
-        GlobalVariables.LOT_DATA = responseJson;
-        let lot_geometry =
-          GlobalVariables.LOT_DATA.parking_lots[0].geo_info.geometry;
-        let lot_coords = lot_geometry.coordinates[0];
-
-        let lotParkingSpaceMap = {};
-        GlobalVariables.LOT_DATA.parking_spaces.forEach(space => {
-          lotParkingSpaceMap[space.id] = space;
+        const initialLot = responseJson.parking_lots.find(
+          lot => lot.is_primary_lot === true,
+        );
+        console.log('INITIAL LOT: ', initialLot);
+        this.currentLot = initialLot;
+        this.setState({
+          parkingLots: responseJson.parking_lots,
         });
-        //console.log('LoadLotView response: /n/n/n', lot_geometry);
-        //console.log('LoadLotView response: /n/n/n', lotParkingSpaceMap);
-        console.log('     resetting state: _loadLotView');
-
-        lotview._loadParkingSpaceMetadata({
-          centerCoordinate:
-            this.state.centerCoordinate === null
-              ? lotview._calculateCenter(lot_coords)
-              : this.state.centerCoordinate,
-          parkingShapes: lotParkingSpaceMap,
-        });
+        return this._loadLotView(initialLot);
       })
       .catch(err => {
         console.log('CAUGHT ERR, attempting logout: ', err, err.name);
@@ -338,16 +304,93 @@ class LotView extends React.Component {
         return err;
       });
   }
+  _loadLotView(currentParkingLot) {
+    if (!this.state.loadingLotInfo) {
+      this.setState({ loadingLotInfo: true });
+      var lotview = this;
+      //var updateLocation = currentParkingLot !== this.currentLot;
+      //console.log('UPDATE LOCATION: ', updateLocation);
+      console.log('CURRENT LOT: ', this.currentLot);
+      console.log('TARGET LOT: ', currentParkingLot);
+      const currentLot =
+        currentParkingLot !== undefined ? currentParkingLot : this.currentLot;
+
+      console.log('* * * * * LOAD LOT VIEW * * * * *');
+      console.log('Current Parking Lot: ', currentLot.name);
+
+      this.setModalVisibility(
+        false,
+        GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE,
+        null,
+        'Updating Lot...',
+      );
+      return fetch(
+        GlobalVariables.BASE_ROUTE +
+          Route.FULL_LOT +
+          '?parking_lot_name=' +
+          currentLot.name,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'applic ation/x-www-form-urlencoded',
+            Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+          },
+        },
+      )
+        .then(response => response.json())
+        .then(responseJson => {
+          if (
+            responseJson.message &&
+            responseJson.message === GlobalVariables.AUTHORISATION_FAILED
+          ) {
+            console.log('Authentication Failed');
+            this.props.navigation.navigate('Auth');
+          }
+          if (responseJson.message == 'Signature has expired') {
+            throw Error('Unauthorized user');
+          }
+          this.currentLot = currentLot;
+          GlobalVariables.LOT_DATA = responseJson;
+          let lot_geometry =
+            GlobalVariables.LOT_DATA.parking_lots[0].geo_info.geometry;
+          let lot_coords = lot_geometry.coordinates[0];
+
+          let lotParkingSpaceMap = {};
+          GlobalVariables.LOT_DATA.parking_spaces.forEach(space => {
+            lotParkingSpaceMap[space.id] = space;
+          });
+          console.log('     resetting state: _loadLotView');
+          lotview._loadParkingSpaceMetadata({
+            centerCoordinate:
+              this.state.centerCoordinate === null
+                ? lotview._calculateCenter(lot_coords)
+                : this.state.centerCoordinate,
+            parkingShapes: lotParkingSpaceMap,
+          });
+        })
+        .catch(err => {
+          console.log('CAUGHT ERR, attempting logout: ', err, err.name);
+          this.props.navigation.navigate('LoginScreen');
+          return err;
+        });
+    }
+  }
   _loadParkingSpaceMetadata({ centerCoordinate, parkingShapes }) {
     var lotview = this;
 
-    return fetch(GlobalVariables.BASE_ROUTE + Route.PARKING_SPACE_METADATA, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+    return fetch(
+      GlobalVariables.BASE_ROUTE +
+        Route.PARKING_SPACE_METADATA +
+        '?parking_lot_name=' +
+        this.currentLot.name,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: 'Bearer ' + GlobalVariables.LOTWING_ACCESS_TOKEN,
+        },
       },
-    })
+    )
       .then(response => response.json())
       .then(responseJson => {
         if (
@@ -415,6 +458,7 @@ class LotView extends React.Component {
               : null,
           populatingStall: false,
           populatingStallComplete: false,
+          loadingLotInfo: false,
         });
         this.updateSpaceVehicleMap = false;
         lotview._loadEvents();
@@ -516,7 +560,6 @@ class LotView extends React.Component {
         }) / 2,
       ];
     }
-
     return center_coordinate;
   }
 
@@ -625,7 +668,7 @@ class LotView extends React.Component {
       stallUpdatedPromise.then(result => {
         console.log('STALL UPDATE RESULT from vehicle ID: ', result);
         // 3. Re-render lot by updating state
-        return this._loadLotView();
+        return this._loadLotView(this.currentLot);
       });
     } else if (sku_number) {
       console.log('SKU ENTERED: updating');
@@ -660,7 +703,7 @@ class LotView extends React.Component {
           // 3. Re-render lot by updating state
           if (result !== undefined) {
             console.log('result is not undefined');
-            return this._loadLotView();
+            return this._loadLotView(this.currentLot);
           } else {
             console.log('result is undefined', this.state.modalType);
           }
@@ -707,7 +750,7 @@ class LotView extends React.Component {
             // 3. Re-render lot by updating state
             if (result !== undefined) {
               console.log('result is not undefined');
-              return this._loadLotView();
+              return this._loadLotView(this.currentLot);
             } else {
               console.log('result is undefined', this.state.modalType);
             }
@@ -715,7 +758,7 @@ class LotView extends React.Component {
       }
     } else {
       console.log('no vehicleID or sku_number');
-      return this._loadLotView();
+      return this._loadLotView(this.currentLot);
     }
   };
 
@@ -798,13 +841,15 @@ class LotView extends React.Component {
       centerCoordinate = this._calculateCenter(
         polygonClicked.geometry.coordinates[0],
       );
+      this.setState({
+        searchTarget:
+          this.state.searchTarget === polygonClicked ? polygonClicked : null,
+      });
     }
     console.log('SET VEHICLE HIGHLIGHT: ', centerCoordinate);
     this.setState({
       clickedStall: polygonClicked,
       centerCoordinate: centerCoordinate,
-      searchTarget:
-        this.state.searchTarget === polygonClicked ? polygonClicked : null,
     });
   }
   findOnMap = boolean => {
@@ -904,6 +949,7 @@ class LotView extends React.Component {
               //this.updateLotAndReopenModal(space_id);
               const tempStall = this.state.clickedStall;
               this.updateLotAndDismissModal();
+              console.log('Search target updated');
               this.setVehicleHighlight(tempStall);
               this.setState({ searchTarget: tempStall });
               this.refresh();
@@ -929,6 +975,7 @@ class LotView extends React.Component {
             const tempStall = this.state.clickedStall;
             this.updateLotAndDismissModal();
             this.setVehicleHighlight(tempStall);
+            console.log('Search target updated');
             this.setState({ searchTarget: tempStall });
             this.refresh();
             //this.updateSpaceVehicleMap = true;
@@ -1024,7 +1071,13 @@ class LotView extends React.Component {
       //let vehiclePromise = this._getVehicleByVIN(this.vinEntered);
 
       vehiclePromise.then(response => {
-        const { space_id, polygon, vehicle, events } = response;
+        const { space_id, polygon, vehicle, events, lot_id } = response;
+        // check lot
+        var targetLot = this.currentLot;
+        if (lot_id !== null) {
+          targetLot = this.state.parkingLots.find(lot => lot.id === lot_id);
+        }
+        console.log(targetLot);
         vehicle !== null &&
           typeof vehicle.id !== 'undefined' &&
           this.setState({ locatedVehicleID: vehicle.id });
@@ -1043,13 +1096,22 @@ class LotView extends React.Component {
           //this._calculateCenter(polygon.geometry.coordinates[0]);
           this.dismissInput();
           this.showAndPopulateModal([space_id, null], polygon);
+          console.log('Search target updated');
           this.setState({
             spaceId: space_id,
             centerCoordinate: this._calculateCenter(
               polygon.geometry.coordinates[0],
             ),
             searchTarget: polygon,
+            loadingLotInfo: false,
+            modalReopen: true,
+            modalReopenTarget: space_id,
+            modalReopenHighlight: polygon,
           });
+          if (this.currentLot !== targetLot) {
+            console.log('update lot from vehicle search');
+            return this._loadLotView(targetLot);
+          }
         } else if (space_id === null && vehicle) {
           console.log('Pulling car from server: ', vehicle.id);
           this.setState({ vehicleId: vehicle.id, spaceId: null });
@@ -1229,6 +1291,10 @@ class LotView extends React.Component {
               : this.state.clickedStall,
           vehicle: vehicle,
           events: events,
+          lot_id:
+            current_parking_space !== null
+              ? current_parking_space.parking_lot_id
+              : null,
         };
       })
       .catch(err => {
@@ -1246,7 +1312,7 @@ class LotView extends React.Component {
   };
 
   getLot() {
-    if (this.state.lotShapes) {
+    if (this.state.lotShapes !== null) {
       return this.state.lotShapes.parking_lots[0].geo_info;
     }
     return GlobalVariables.EMPTY_GEOJSON;
@@ -1658,7 +1724,138 @@ class LotView extends React.Component {
       return <ActionFeedbackView feedbackText={this.state.feedbackText} />;
     }
   }
-
+  maybeRenderLotSwitcher() {
+    //lotSwitcher
+    if (
+      this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE &&
+      !this.state.barcodeOpen &&
+      this.state.parkingLots.length > 2 &&
+      !this.state.loadingLotInfo
+    ) {
+      return (
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 2,
+            elevation: 2,
+            right: 85,
+            top: 10,
+          }}>
+          <TouchableOpacity
+            onPress={() => {
+              if (!this.state.loadingLotInfo && !this.state.parkingLotsOpen) {
+                console.log('SWITCH!');
+                let currentLotNum = 0;
+                this.state.parkingLots.forEach((lot, index) => {
+                  if (lot === this.currentLot) {
+                    currentLotNum = index;
+                  }
+                });
+                let nextLotNum = currentLotNum + 1;
+                if (nextLotNum >= this.state.parkingLots.length) {
+                  nextLotNum = 0;
+                }
+                if (nextLotNum === 2) {
+                  nextLotNum = 0;
+                }
+                // set params for multiscreen view
+                this.props.navigation.setParams({
+                  lotCenterCoordinates: null,
+                  currentParkingLot: this.state.parkingLots[nextLotNum],
+                });
+                // reset state
+                this.setState({
+                  lotShapes: null,
+                  centerCoordinate: null,
+                  newVehicleSpaces: [],
+                  usedVehicleSpaces: [],
+                  emptySpaces: [],
+                  duplicateSpaces: [],
+                  loanerSpaces: [],
+                  leaseSpaces: [],
+                  wholesaleSpaces: [],
+                  soldSpaces: [],
+                  serviceHoldSpaces: [],
+                  salesHoldSpaces: [],
+                  driveEventSpaces: [],
+                  fuelEventSpaces: [],
+                  noteEventSpaces: [],
+                  parkingShapes: {},
+                  spaceVehicleMap: {},
+                  spaceId: null,
+                  vehicles: [],
+                  vehicleId: 0,
+                });
+                return this._loadLotView(this.state.parkingLots[nextLotNum]);
+              } else if (this.state.parkingLotsOpen) {
+                this.setState({ parkingLotsOpen: false });
+              }
+            }}
+            onLongPress={() => this.setState({ parkingLotsOpen: true })}
+            style={styles.floatingActionButton}>
+            <Text style={{ color: '#FFF', fontSize: 28, fontWeight: 'bold' }}>
+              {this.currentLot.initials}
+            </Text>
+          </TouchableOpacity>
+          {this.state.parkingLotsOpen &&
+            this.state.parkingLots.map((lot, index) => {
+              if (lot !== this.currentLot) {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      if (!this.state.loadingLotInfo) {
+                        console.log('SWITCH!');
+                        // set params for multiscreen view
+                        this.props.navigation.setParams({
+                          lotCenterCoordinates: null,
+                          currentParkingLot: lot,
+                        });
+                        // reset state
+                        this.setState({
+                          lotShapes: null,
+                          centerCoordinate: null,
+                          newVehicleSpaces: [],
+                          usedVehicleSpaces: [],
+                          emptySpaces: [],
+                          duplicateSpaces: [],
+                          loanerSpaces: [],
+                          leaseSpaces: [],
+                          wholesaleSpaces: [],
+                          soldSpaces: [],
+                          serviceHoldSpaces: [],
+                          salesHoldSpaces: [],
+                          driveEventSpaces: [],
+                          fuelEventSpaces: [],
+                          noteEventSpaces: [],
+                          parkingShapes: {},
+                          spaceVehicleMap: {},
+                          spaceId: null,
+                          vehicles: [],
+                          vehicleId: 0,
+                          parkingLotsOpen: false,
+                        });
+                        return this._loadLotView(lot);
+                      }
+                    }}
+                    style={styles.floatingActionButton}>
+                    <Text
+                      style={{
+                        color: '#FFF',
+                        fontSize: 28,
+                        fontWeight: 'bold',
+                      }}>
+                      {lot.initials}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }
+            })}
+        </View>
+      );
+    }
+    return null;
+  }
   maybeRenderMapControls() {
     //lotCenterCoordinates
     if (
@@ -1919,7 +2116,6 @@ class LotView extends React.Component {
 
     const lot = this.getLot();
     const populated = lot.id !== 'empty_geojson';
-
     if (populated) {
       return (
         <KeyboardAvoidingView
@@ -2156,7 +2352,6 @@ class LotView extends React.Component {
             />
             <EventsLayer eventShapes={this.state.fuelEventSpaces} type="fuel" />
             <EventsLayer eventShapes={this.state.noteEventSpaces} type="note" />
-
             <HoldsLayer
               spaces={this.state.serviceHoldSpaces}
               parkingShapes={this.state.parkingShapes}
@@ -2170,7 +2365,6 @@ class LotView extends React.Component {
               skip={this.state.duplicateSpaces}
               type="sales_hold"
             />
-
             <NoteLayer
               eventShapes={this.state.noteEventSpaces}
               type="noteText"
@@ -2212,12 +2406,17 @@ class LotView extends React.Component {
 
           {this.maybeRenderPopulateOnClick()}
           {this.maybeRenderActionFeedbackView()}
+          {this.maybeRenderLotSwitcher()}
           {this.maybeRenderMapControls()}
           {this.maybeRenderParkingPopup()}
         </KeyboardAvoidingView>
       );
     }
-    return null;
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color="#dc3545" size="large" />
+      </View>
+    );
   }
 }
 
