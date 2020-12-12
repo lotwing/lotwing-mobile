@@ -11,6 +11,7 @@ import {
   ActionSheetIOS,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Dimensions,
 } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';
@@ -40,11 +41,16 @@ export default class ClickToPopulateViewHandler extends React.Component {
 
   render() {
     return (
-      <TouchableOpacity style={styles.stallPopulationPrompt}>
+      <View style={styles.stallPopulationPrompt}>
         <Text style={styles.stallPopulationPromptText}>
           {this.props.feedbackText}{' '}
         </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={buttonStyles.activeSecondaryModalButton}
+          onPress={this.props.changeStall}>
+          <Text style={buttonStyles.activeSecondaryTextColor}>SWITCH LOT</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 }
@@ -65,7 +71,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '300',
     color: 'white',
-    width: '100%',
   },
   stallPopulationPrompt: {
     position: 'absolute',
@@ -73,10 +78,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '10%',
     backgroundColor: '#828282',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    borderWidth: 14,
-    borderColor: '#828282',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
   },
 });

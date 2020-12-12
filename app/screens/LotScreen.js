@@ -123,7 +123,6 @@ class LotView extends React.Component {
       parkingLots: {},
       currentParkingLot: {},
       parkingLotsOpen: false,
-      loadingLotInfo: false,
     };
 
     // required for android
@@ -146,6 +145,7 @@ class LotView extends React.Component {
     this._loadLotView = this._loadLotView.bind(this);
     this.updateSpaceVehicleMap = false;
     this.currentLot = '';
+    this.loadingLotInfo = false;
   }
   /**
    * Loads all of the data associated with a lot and updates
@@ -305,13 +305,14 @@ class LotView extends React.Component {
       });
   }
   _loadLotView(currentParkingLot) {
-    if (!this.state.loadingLotInfo) {
-      this.setState({ loadingLotInfo: true });
+    console.log('Loading? ', this.loadingLotInfo);
+    if (!this.loadingLotInfo) {
+      this.loadingLotInfo = true;
       var lotview = this;
-      //var updateLocation = currentParkingLot !== this.currentLot;
-      //console.log('UPDATE LOCATION: ', updateLocation);
       console.log('CURRENT LOT: ', this.currentLot);
       console.log('TARGET LOT: ', currentParkingLot);
+
+      console.log('Loading? ', this.loadingLotInfo);
       const currentLot =
         currentParkingLot !== undefined ? currentParkingLot : this.currentLot;
 
@@ -458,8 +459,8 @@ class LotView extends React.Component {
               : null,
           populatingStall: false,
           populatingStallComplete: false,
-          loadingLotInfo: false,
         });
+        this.loadingLotInfo = false;
         this.updateSpaceVehicleMap = false;
         lotview._loadEvents();
         if (this.state.postLoadAction === 'chooseEmptySpace') {
@@ -1103,11 +1104,11 @@ class LotView extends React.Component {
               polygon.geometry.coordinates[0],
             ),
             searchTarget: polygon,
-            loadingLotInfo: false,
             modalReopen: true,
             modalReopenTarget: space_id,
             modalReopenHighlight: polygon,
           });
+          this.loadingLotInfo = false;
           if (this.currentLot !== targetLot) {
             console.log('update lot from vehicle search');
             return this._loadLotView(targetLot);
@@ -1711,11 +1712,56 @@ class LotView extends React.Component {
           clickToPopulateVehicleId={this.state.vehicleId}
           clickToPopulateStall={this.state.clickToPopulateStall}
           feedbackText={this.state.feedbackText}
+          changeStall={() => this.changeStallWhilePopulating()}
         />
       );
     }
   }
 
+  changeStallWhilePopulating() {
+    console.log('SWITCH FROM POPULATE!');
+    let currentLotNum = 0;
+    this.state.parkingLots.forEach((lot, index) => {
+      if (lot === this.currentLot) {
+        currentLotNum = index;
+      }
+    });
+    let nextLotNum = currentLotNum + 1;
+    if (nextLotNum >= this.state.parkingLots.length) {
+      nextLotNum = 0;
+    }
+    if (nextLotNum === 2) {
+      nextLotNum = 0;
+    }
+    // set params for multiscreen view
+    this.props.navigation.setParams({
+      lotCenterCoordinates: null,
+      currentParkingLot: this.state.parkingLots[nextLotNum],
+    });
+    // reset state
+    this.setState({
+      lotShapes: null,
+      centerCoordinate: null,
+      newVehicleSpaces: [],
+      usedVehicleSpaces: [],
+      emptySpaces: [],
+      duplicateSpaces: [],
+      loanerSpaces: [],
+      leaseSpaces: [],
+      wholesaleSpaces: [],
+      soldSpaces: [],
+      serviceHoldSpaces: [],
+      salesHoldSpaces: [],
+      driveEventSpaces: [],
+      fuelEventSpaces: [],
+      noteEventSpaces: [],
+      parkingShapes: {},
+      spaceVehicleMap: {},
+      vehicles: [],
+      postLoadAction: 'chooseEmptySpace',
+    });
+    return this._loadLotView(this.state.parkingLots[nextLotNum]);
+  }
   maybeRenderActionFeedbackView() {
     if (
       this.state.modalType == GlobalVariables.ACTION_FEEDBACK_MODAL_TYPE &&
@@ -1730,7 +1776,7 @@ class LotView extends React.Component {
       this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE &&
       !this.state.barcodeOpen &&
       this.state.parkingLots.length > 2 &&
-      !this.state.loadingLotInfo
+      !this.loadingLotInfo
     ) {
       return (
         <View
@@ -1743,7 +1789,7 @@ class LotView extends React.Component {
           }}>
           <TouchableOpacity
             onPress={() => {
-              if (!this.state.loadingLotInfo && !this.state.parkingLotsOpen) {
+              if (!this.loadingLotInfo && !this.state.parkingLotsOpen) {
                 console.log('SWITCH!');
                 let currentLotNum = 0;
                 this.state.parkingLots.forEach((lot, index) => {
@@ -1804,7 +1850,7 @@ class LotView extends React.Component {
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      if (!this.state.loadingLotInfo) {
+                      if (!this.loadingLotInfo) {
                         console.log('SWITCH!');
                         // set params for multiscreen view
                         this.props.navigation.setParams({
