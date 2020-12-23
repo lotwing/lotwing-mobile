@@ -207,7 +207,7 @@ const styles = {
     position: 'absolute',
     top: 10,
     left: 15,
-    zIndex: 20,
+    zIndex: 2,
     elevation: 20,
     width: Dimensions.get('window').width - 100,
     flexDirection: 'column',

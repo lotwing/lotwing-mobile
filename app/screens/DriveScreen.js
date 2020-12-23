@@ -63,7 +63,7 @@ export default class DriveScreen extends React.Component {
       let payload = LotActionHelper.structureTagPayload(
         GlobalVariables.BEGIN_DRIVE,
         { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-        'starting test drive',
+        'Starting test drive',
       );
       LotActionHelper.registerTagAction(payload)
         .then(responseJson => {

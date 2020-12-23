@@ -121,7 +121,6 @@ class LotView extends React.Component {
       populatingStall: false,
       populatingStallComplete: false,
       parkingLots: {},
-      currentParkingLot: {},
       parkingLotsOpen: false,
     };
 
@@ -295,6 +294,10 @@ class LotView extends React.Component {
         this.currentLot = initialLot;
         this.setState({
           parkingLots: responseJson.parking_lots,
+        });
+        this.props.navigation.setParams({
+          lotCenterCoordinates: null,
+          currentParkingLot: initialLot,
         });
         return this._loadLotView(initialLot);
       })
@@ -1712,31 +1715,20 @@ class LotView extends React.Component {
           clickToPopulateVehicleId={this.state.vehicleId}
           clickToPopulateStall={this.state.clickToPopulateStall}
           feedbackText={this.state.feedbackText}
-          changeStall={() => this.changeStallWhilePopulating()}
+          changeStall={num => this.changeStallWhilePopulating(num)}
+          currentLot={this.currentLot}
+          parkingLots={this.state.parkingLots}
         />
       );
     }
   }
 
-  changeStallWhilePopulating() {
-    console.log('SWITCH FROM POPULATE!');
-    let currentLotNum = 0;
-    this.state.parkingLots.forEach((lot, index) => {
-      if (lot === this.currentLot) {
-        currentLotNum = index;
-      }
-    });
-    let nextLotNum = currentLotNum + 1;
-    if (nextLotNum >= this.state.parkingLots.length) {
-      nextLotNum = 0;
-    }
-    if (nextLotNum === 2) {
-      nextLotNum = 0;
-    }
+  changeStallWhilePopulating(num) {
+    console.log('SWITCH FROM POPULATE! ID: ', num);
     // set params for multiscreen view
     this.props.navigation.setParams({
       lotCenterCoordinates: null,
-      currentParkingLot: this.state.parkingLots[nextLotNum],
+      currentParkingLot: this.state.parkingLots[num],
     });
     // reset state
     this.setState({
@@ -1760,7 +1752,7 @@ class LotView extends React.Component {
       vehicles: [],
       postLoadAction: 'chooseEmptySpace',
     });
-    return this._loadLotView(this.state.parkingLots[nextLotNum]);
+    return this._loadLotView(this.state.parkingLots[num]);
   }
   maybeRenderActionFeedbackView() {
     if (
@@ -1775,7 +1767,7 @@ class LotView extends React.Component {
     if (
       this.state.modalType != GlobalVariables.CHOOSE_EMPTY_SPACE &&
       !this.state.barcodeOpen &&
-      this.state.parkingLots.length > 2 &&
+      this.state.parkingLots.length > 1 &&
       !this.loadingLotInfo
     ) {
       return (
@@ -1789,7 +1781,11 @@ class LotView extends React.Component {
           }}>
           <TouchableOpacity
             onPress={() => {
-              if (!this.loadingLotInfo && !this.state.parkingLotsOpen) {
+              if (
+                !this.loadingLotInfo &&
+                !this.state.parkingLotsOpen &&
+                this.state.parkingLots.length === 2
+              ) {
                 console.log('SWITCH!');
                 let currentLotNum = 0;
                 this.state.parkingLots.forEach((lot, index) => {
@@ -1799,9 +1795,6 @@ class LotView extends React.Component {
                 });
                 let nextLotNum = currentLotNum + 1;
                 if (nextLotNum >= this.state.parkingLots.length) {
-                  nextLotNum = 0;
-                }
-                if (nextLotNum === 2) {
                   nextLotNum = 0;
                 }
                 // set params for multiscreen view
@@ -1835,67 +1828,78 @@ class LotView extends React.Component {
                 return this._loadLotView(this.state.parkingLots[nextLotNum]);
               } else if (this.state.parkingLotsOpen) {
                 this.setState({ parkingLotsOpen: false });
+              } else {
+                this.setState({ parkingLotsOpen: true });
               }
             }}
-            onLongPress={() => this.setState({ parkingLotsOpen: true })}
             style={styles.floatingActionButton}>
-            <Text style={{ color: '#FFF', fontSize: 28, fontWeight: 'bold' }}>
-              {this.currentLot.initials}
+            <Text
+              style={[
+                { color: '#FFF', fontSize: 28, fontWeight: 'bold' },
+                this.state.parkingLotsOpen && { fontSize: 35 },
+              ]}>
+              {this.state.parkingLotsOpen ? '×' : this.currentLot.initials}
             </Text>
           </TouchableOpacity>
           {this.state.parkingLotsOpen &&
             this.state.parkingLots.map((lot, index) => {
-              if (lot !== this.currentLot) {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      if (!this.loadingLotInfo) {
-                        console.log('SWITCH!');
-                        // set params for multiscreen view
-                        this.props.navigation.setParams({
-                          lotCenterCoordinates: null,
-                          currentParkingLot: lot,
-                        });
-                        // reset state
-                        this.setState({
-                          lotShapes: null,
-                          centerCoordinate: null,
-                          newVehicleSpaces: [],
-                          usedVehicleSpaces: [],
-                          emptySpaces: [],
-                          duplicateSpaces: [],
-                          loanerSpaces: [],
-                          leaseSpaces: [],
-                          wholesaleSpaces: [],
-                          soldSpaces: [],
-                          serviceHoldSpaces: [],
-                          salesHoldSpaces: [],
-                          driveEventSpaces: [],
-                          fuelEventSpaces: [],
-                          noteEventSpaces: [],
-                          parkingShapes: {},
-                          spaceVehicleMap: {},
-                          spaceId: null,
-                          vehicles: [],
-                          vehicleId: 0,
-                          parkingLotsOpen: false,
-                        });
-                        return this._loadLotView(lot);
-                      }
-                    }}
-                    style={styles.floatingActionButton}>
-                    <Text
-                      style={{
-                        color: '#FFF',
-                        fontSize: 28,
-                        fontWeight: 'bold',
-                      }}>
-                      {lot.initials}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    if (!this.loadingLotInfo && lot !== this.currentLot) {
+                      console.log('SWITCH!');
+                      // set params for multiscreen view
+                      this.props.navigation.setParams({
+                        lotCenterCoordinates: null,
+                        currentParkingLot: lot,
+                      });
+                      // reset state
+                      this.setState({
+                        lotShapes: null,
+                        centerCoordinate: null,
+                        newVehicleSpaces: [],
+                        usedVehicleSpaces: [],
+                        emptySpaces: [],
+                        duplicateSpaces: [],
+                        loanerSpaces: [],
+                        leaseSpaces: [],
+                        wholesaleSpaces: [],
+                        soldSpaces: [],
+                        serviceHoldSpaces: [],
+                        salesHoldSpaces: [],
+                        driveEventSpaces: [],
+                        fuelEventSpaces: [],
+                        noteEventSpaces: [],
+                        parkingShapes: {},
+                        spaceVehicleMap: {},
+                        spaceId: null,
+                        vehicles: [],
+                        vehicleId: 0,
+                        parkingLotsOpen: false,
+                      });
+                      return this._loadLotView(lot);
+                    } else if (
+                      !this.loadingLotInfo &&
+                      lot === this.currentLot
+                    ) {
+                      this.setState({ parkingLotsOpen: false });
+                    }
+                  }}
+                  style={[
+                    styles.floatingActionButton,
+                    lot === this.currentLot && { backgroundColor: '#444' },
+                  ]}>
+                  <Text
+                    style={{
+                      color: '#FFF',
+                      fontSize: 28,
+                      fontWeight: 'bold',
+                    }}>
+                    {lot.initials}
+                  </Text>
+                </TouchableOpacity>
+              );
             })}
         </View>
       );

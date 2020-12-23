@@ -72,7 +72,7 @@ export default class FuelScreen extends React.Component {
       let payload = LotActionHelper.structureTagPayload(
         GlobalVariables.BEGIN_FUELING,
         { vehicleId: this.vehicle.id, spaceId: this.details.spaceId },
-        'starting to fuel',
+        'Starting fuel',
       );
       LotActionHelper.registerTagAction(payload)
         .then(responseJson => {

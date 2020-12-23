@@ -83,7 +83,6 @@ export default class HistoryScreen extends React.Component {
             position = index;
           }
         });
-        console.log('History Results: ');
         this.setState({
           events: responseJson.events[position],
           loading: false,

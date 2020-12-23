@@ -34,7 +34,7 @@ export default class ChargeBtn extends Component {
     let payload = LotActionHelper.structureTagPayload(
       GlobalVariables.BEGIN_CHARGING,
       { vehicleId: this.state.vehicle.id, spaceId: this.state.spaceId },
-      'starting test drive',
+      'Starting charge',
     );
     LotActionHelper.registerTagAction(payload)
       .then(responseJson => {
@@ -48,7 +48,7 @@ export default class ChargeBtn extends Component {
       })
       .catch(err => {
         console.log(
-          '\nCAUGHT ERROR IN START DRIVING ACTION: \n',
+          '\nCAUGHT ERROR IN START CHARGING ACTION: \n',
           err,
           err.name,
         );
