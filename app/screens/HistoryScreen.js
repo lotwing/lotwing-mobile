@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
@@ -117,8 +118,8 @@ export default class HistoryScreen extends React.Component {
         <ScrollView style={{ flex: 1 }}>
           <View style={{ paddingTop: 14, paddingBottom: 14 }}>
             {this.state.events.map(event => {
-              const { id, summary } = event.data.attributes;
-              console.log(id, summary);
+              const { id, summary, event_type } = event.data.attributes;
+              console.log(id, summary, event_type);
               const time = summary.substring(
                 summary.indexOf('<strong>') + 9,
                 summary.indexOf('</strong>'),
@@ -129,11 +130,43 @@ export default class HistoryScreen extends React.Component {
               );
               console.log('Time: ', time);
               return (
-                <View key={id} style={{ paddingTop: 5, paddingBottom: 5 }}>
-                  <Text style={[textStyles.subtitle, { fontWeight: 'bold' }]}>
-                    {time}
-                  </Text>
-                  <Text style={textStyles.subtitle}>{description}</Text>
+                <View
+                  key={id}
+                  style={{
+                    paddingTop: 5,
+                    paddingBottom: 5,
+                    flexDirection: 'row',
+                  }}>
+                  {event_type === GlobalVariables.BEGIN_FUELING && (
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: 7,
+                      }}>
+                      <View
+                        style={{
+                          width: 28,
+                          height: 28,
+                          backgroundColor: '#419738',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 5,
+                        }}>
+                        <Image
+                          source={require('../../assets/images/fuel-white.png')}
+                          style={{ width: 16, height: 16 }}
+                          resizeMode={'contain'}
+                        />
+                      </View>
+                    </View>
+                  )}
+                  <View>
+                    <Text style={[textStyles.subtitle, { fontWeight: 'bold' }]}>
+                      {time}
+                    </Text>
+                    <Text style={textStyles.subtitle}>{description}</Text>
+                  </View>
                 </View>
               );
             })}
@@ -172,10 +205,10 @@ export default class HistoryScreen extends React.Component {
               {this.state.vehicle.year} {this.state.vehicle.make}{' '}
               {this.state.vehicle.model}
             </Text>
-            <Text style={textStyles.subtitle}>
+            <Text style={[textStyles.subtitle, { fontSize: 20 }]}>
               Stock Number: {this.state.vehicle.stock_number}
             </Text>
-            <Text style={textStyles.subtitle}>
+            <Text style={[textStyles.subtitle, { fontSize: 20 }]}>
               VIN: {this.state.vehicle.vin}
             </Text>
           </View>

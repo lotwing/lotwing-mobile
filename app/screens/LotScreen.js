@@ -784,7 +784,11 @@ class LotView extends React.Component {
       newSpaceData,
       'Moved vehicle to stall ' + new_stall,
     );
-    this.setState({ vehicleId: vehicleId });
+    this.setState({
+      vehicleId: vehicleId,
+      populatingStall: true,
+      populatingStallComplete: false,
+    });
     console.log('vehicle id: ', vehicleId, ' == ', this.state.vehicleId);
     console.log('old space id: ', this.state.spaceId);
     console.log('new space id: ', new_stall);
@@ -803,6 +807,10 @@ class LotView extends React.Component {
         return response.json();
       })
       .then(responseJson => {
+        this.setState({
+          populatingStall: true,
+          populatingStallComplete: true,
+        });
         if (
           responseJson.message &&
           responseJson.message === GlobalVariables.AUTHORISATION_FAILED
@@ -815,7 +823,11 @@ class LotView extends React.Component {
       })
       .catch(err => {
         console.log('\nCAUGHT ERROR: \n', err, err.name);
-        this.setState({ feedbackText: 'Error in tagging vehicle' });
+        this.setState({
+          feedbackText: 'Error in tagging vehicle',
+          populatingStall: false,
+          populatingStallComplete: false,
+        });
         //TODO(adwoa): make save button clickable again
         return err;
       });
@@ -987,7 +999,10 @@ class LotView extends React.Component {
           });
         }
       } else {
-        this.setState({ feedbackText: 'Vehicle ID missing' });
+        this.setState({
+          feedbackText: 'Vehicle ID missing',
+          populatingStall: false,
+        });
       }
     }
   }

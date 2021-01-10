@@ -474,17 +474,32 @@ export default class TagModalView extends React.Component {
           this.props.navigation.navigate('Auth');
         }
         console.log('RETURNED FROM UPDATE_VEHICLE', responseJson);
-        this.props.setVehicleId(responseJson.id);
-        this.setState({
-          vehicle: responseJson,
-          createView: false,
-          vehicleType: null,
-          reopenOnDismiss: true,
-        });
-        if (this.props.spaceId === null) {
-          this.showChooseSpaceView();
+        if (responseJson.id) {
+          this.props.setVehicleId(responseJson.id);
+          this.setState({
+            vehicle: responseJson,
+            createView: false,
+            vehicleType: null,
+            reopenOnDismiss: true,
+          });
+          if (this.props.spaceId === null) {
+            this.showChooseSpaceView();
+          } else {
+            this.confirmSpaceData();
+          }
         } else {
-          this.confirmSpaceData();
+          Alert.alert(
+            `Create vehicle ${sku} failed`,
+            `${responseJson.message}`,
+            [
+              {
+                text: 'OK',
+                style: 'cancel',
+              },
+            ],
+            { cancelable: true },
+          );
+          this.dismissModal();
         }
         //this.loadVehicleData(this.props.spaceId)
         //this.setState({ loading: false });
