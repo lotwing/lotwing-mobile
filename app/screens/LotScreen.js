@@ -1064,7 +1064,8 @@ class LotView extends React.Component {
           this.state.leaseRtInput2 +
           this.state.leaseRtInput3 +
           this.state.leaseRtInput4 +
-          this.state.leaseRtInput5;
+          this.state.leaseRtInput5 +
+          'LRT';
       }
       this.setState({
         sku: this.skuEntered,
@@ -1397,7 +1398,8 @@ class LotView extends React.Component {
       this.state.leaseRtInput2 +
       this.state.leaseRtInput3 +
       this.state.leaseRtInput4 +
-      this.state.leaseRtInput5;
+      this.state.leaseRtInput5 +
+      'LRT';
     this.setState({
       skuInputEntered: tempSku,
       skuCollectorVisible: tempSku !== '',
@@ -1470,6 +1472,11 @@ class LotView extends React.Component {
                       maxLength={1}
                       selectTextOnFocus={true}
                       value={this.state.leaseRtInput1}
+                      keyboardType={
+                        Platform.OS === 'ios'
+                          ? 'numbers-and-punctuation'
+                          : 'default'
+                      }
                     />
                   </View>
                   <View
@@ -1497,6 +1504,11 @@ class LotView extends React.Component {
                           this.state.leaseRtInput2 === '' &&
                           this.refs._lrI1.focus();
                       }}
+                      keyboardType={
+                        Platform.OS === 'ios'
+                          ? 'numbers-and-punctuation'
+                          : 'default'
+                      }
                     />
                   </View>
                   <View
@@ -1524,6 +1536,11 @@ class LotView extends React.Component {
                           this.state.leaseRtInput3 === '' &&
                           this.refs._lrI2.focus();
                       }}
+                      keyboardType={
+                        Platform.OS === 'ios'
+                          ? 'numbers-and-punctuation'
+                          : 'default'
+                      }
                     />
                   </View>
                   <View
@@ -1551,6 +1568,11 @@ class LotView extends React.Component {
                           this.state.leaseRtInput4 === '' &&
                           this.refs._lrI3.focus();
                       }}
+                      keyboardType={
+                        Platform.OS === 'ios'
+                          ? 'numbers-and-punctuation'
+                          : 'default'
+                      }
                     />
                   </View>
                   <View
@@ -1573,7 +1595,21 @@ class LotView extends React.Component {
                           this.state.leaseRtInput5 === '' &&
                           this.refs._lrI4.focus();
                       }}
+                      keyboardType={
+                        Platform.OS === 'ios'
+                          ? 'numbers-and-punctuation'
+                          : 'default'
+                      }
                     />
+                  </View>
+                  <View
+                    style={{
+                      marginLeft: 10,
+                      height: 30,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text>L R T</Text>
                   </View>
                 </View>
               ) : (
