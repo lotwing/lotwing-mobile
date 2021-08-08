@@ -1,7 +1,7 @@
-import { AppRegistry, Platform } from 'react-native';
+import { AppRegistry } from 'react-native';
 import App from './App';
 import '@babel/polyfill';
 
-console.disableYellowBox = true;
+//console.disableYellowBox = true;
 
 AppRegistry.registerComponent('com.lotwing', () => App);

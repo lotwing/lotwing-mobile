@@ -14,7 +14,7 @@ import ErrorBoundary from './app/components/ErrorBoundary';
 import AppNavigator from './app/navigation/AppNavigator';
 import Mapbox from '@react-native-mapbox-gl/maps';
 
-import { getStatusBarHeight } from 'react-native-iphone-x-helper'
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 Mapbox.setAccessToken(GlobalVariables.MAPBOX_ACCESSTOKEN);
 
@@ -31,7 +31,7 @@ export default class App extends React.Component {
         //   onError={this._handleLoadingError}
         //   onFinish={this._handleFinishLoading}
         // />
-        <View></View>
+        <View />
       );
     }
     return (
