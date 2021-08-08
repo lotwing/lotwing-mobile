@@ -74,10 +74,8 @@ export default class TagModalView extends React.Component {
       confirmText: 'CONFIRM STALL',
     };
   }
-  componentWillMount() {
-    //console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType)
+  componentDidMount() {
     if (this.props.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
-      //console.log('CALL LOAD VEHICLE from MOUNT')
       this.loadVehicleData(this.props);
     } else {
       this.setState({
@@ -861,7 +859,7 @@ export default class TagModalView extends React.Component {
                     style={[
                       { padding: 10, paddingLeft: 14, paddingRight: 14 },
                       keylocation.name ===
-                        this.state.vehicle.key_board_location_name && {
+                      this.state.vehicle.key_board_location_name && {
                         backgroundColor: '#727272',
                       },
                     ]}>
@@ -967,51 +965,89 @@ export default class TagModalView extends React.Component {
             </View>
           </View>
           <View style={styles.tagButtonContainer}>
-            <ButtonWithImageAndLabel
-              text={'Test Drive'}
-              source={require('../../assets/images/car-white.png')}
-              onPress={() => {
-                this.launchPage('drive');
-              }}
-              active={
-                this.state.drive.event_id !== null &&
-                this.state.drive.event_id !== undefined
-              }
-            />
+            {this.state.charge.started_at !== null ? (
+              <View style={{ flex: 3 }}>
+                <View
+                  style={{
+                    backgroundColor: '#FF9933',
+                    flexDirection: 'row',
+                    padding: 4,
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    borderWidth: 3,
+                    borderColor: '#000',
+                    borderRadius: 10,
+                    alignItems: 'center',
+                  }}>
+                  <Ionicons
+                    type="ionicon"
+                    name={'md-alert'}
+                    size={25}
+                    style={{ color: '#000', marginRight: 10 }}
+                  />
+                  <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+                    VEHICLE ON CHARGE
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={[styles.tagButtonContainer, { flex: 3 }]}>
+                <ButtonWithImageAndLabel
+                  text={'Test Drive'}
+                  source={require('../../assets/images/car-white.png')}
+                  onPress={() => {
+                    this.launchPage('drive');
+                  }}
+                  active={
+                    this.state.drive.event_id !== null &&
+                    this.state.drive.event_id !== undefined
+                  }
+                />
 
-            <ButtonWithImageAndLabel
-              text={'Fuel Vehicle'}
-              source={require('../../assets/images/fuel-white.png')}
-              onPress={() => {
-                this.launchPage('fuel');
-              }}
-              active={
-                this.state.fuel.event_id !== null &&
-                this.state.fuel.event_id !== undefined
-              }
-            />
+                <ButtonWithImageAndLabel
+                  text={'Fuel Vehicle'}
+                  source={require('../../assets/images/fuel-white.png')}
+                  onPress={() => {
+                    this.launchPage('fuel');
+                  }}
+                  active={
+                    this.state.fuel.event_id !== null &&
+                    this.state.fuel.event_id !== undefined
+                  }
+                />
 
-            {/*
-            <ButtonWithImageAndLabel
-              text={'Camera'}
-              source={require('../../assets/images/camera-white.png')}
-              onPress={() => {this.launchPage('camera')}}/>
-            */}
+                {/*
+                <ButtonWithImageAndLabel
+                  text={'Camera'}
+                  source={require('../../assets/images/camera-white.png')}
+                  onPress={() => {this.launchPage('camera')}}/>
+                */}
 
-            <ButtonWithImageAndLabel
-              text={'Note'}
-              source={require('../../assets/images/note-white.png')}
-              onPress={() => {
-                this.launchPage('note');
-              }}
-            />
-            <ChargeBtn
-              event={this.state.charge}
-              vehicle={this.state.vehicle}
-              spaceId={this.props.spaceId}
-            />
+                <ButtonWithImageAndLabel
+                  text={'Note'}
+                  source={require('../../assets/images/note-white.png')}
+                  onPress={() => {
+                    this.launchPage('note');
+                  }}
+                />
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <ChargeBtn
+                event={this.state.charge}
+                vehicle={this.state.vehicle}
+                spaceId={this.props.spaceId}
+              />
+            </View>
           </View>
 
+          {this.state.charge.started_at !== null && (
+            <View style={{ paddingTop: 0, paddingBottom: 15 }}>
+              <Text style={{ color: '#FFFFFF' }}>
+                Must end charge before any other actions can be applied.
+              </Text>
+            </View>
+          )}
           <View style={pageStyles.rightButtonContainer}>
             <TouchableOpacity
               style={[
@@ -1565,7 +1601,7 @@ export default class TagModalView extends React.Component {
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <Text style={[styles.stallHeader, { marginRight: 10 }]}>
                     {this.state.vehicle !== null &&
-                    this.state.vehicle.stock_number
+                      this.state.vehicle.stock_number
                       ? this.state.vehicle.stock_number
                       : '   - -'}
                   </Text>
@@ -1700,7 +1736,7 @@ export default class TagModalView extends React.Component {
                 <Text style={styles.stallHeader}>
                   {' '}
                   {this.state.vehicle !== null &&
-                  this.state.vehicle.stock_number
+                    this.state.vehicle.stock_number
                     ? this.state.vehicle.stock_number
                     : '   - -'}{' '}
                 </Text>

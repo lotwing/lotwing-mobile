@@ -66,7 +66,7 @@ export default class TagModalView extends React.Component {
       cameraReady: true,
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     console.log('COMPONENT WILL MOUNT Modal Type: ', this.props.modalType);
     if (this.props.modalType !== GlobalVariables.CREATE_MODAL_TYPE) {
       console.log('CALL LOAD VEHICLE from MOUNT');

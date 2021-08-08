@@ -18,14 +18,17 @@ import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 class VMScreen extends Component {
   state = { loading: true, vehicles_data: [], type: 'is_new' };
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadVehicleData();
     //this.setState({loading: false})
   }
-  componentWillReceiveProps(nextProps) {
-    const { refresh } = nextProps.navigation.state.params;
-    if (refresh) {
-      this.loadVehicleData();
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.navigation.state.params !== prevProps.navigation.state.params
+    ) {
+      if (this.props.navigation.state.params.refresh === true) {
+        this.loadVehicleData();
+      }
     }
   }
   loadVehicleData() {
@@ -176,9 +179,8 @@ class VMScreen extends Component {
             {models.map(model => {
               return (
                 <View style={{ paddingBottom: 5 }}>
-                  <Text style={t}>{`${model} (${
-                    vehicles.filter(vehicle => vehicle.model === model).length
-                  })`}</Text>
+                  <Text style={t}>{`${model} (${vehicles.filter(vehicle => vehicle.model === model).length
+                    })`}</Text>
                 </View>
               );
             })}

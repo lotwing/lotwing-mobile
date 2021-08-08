@@ -157,86 +157,88 @@ class LotView extends React.Component {
       onPress: () => this.refresh(),
     });
   }
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps, prevState) {
     console.log('Component will receive props');
-    if (nextProps.navigation.state.params.findingOnMap === true) {
-      // if the navigation 'findingOnMap' param is true (from History screen)
-      const { space_coords, findingOnMap } = nextProps.navigation.state.params;
-      console.log('Finding on map Event. COORDS: ', space_coords);
-      let centerCoordinate = this._calculateCenter(
-        space_coords.geometry.coordinates[0],
-      );
-      console.log('set modal state true');
-      this.setState({
-        findingOnMap: findingOnMap,
-        modalVisible: true,
-        centerCoordinate: centerCoordinate,
-        zoomLevel: 18.5,
-        clickedStall: space_coords,
-      });
-    } else if (
-      nextProps.navigation.state.params.currentParkingLot !== this.currentLot
-    ) {
-      console.log('parking lot changed');
-    } else if (nextProps.navigation.state.params) {
-      if (
-        nextProps.navigation.state.params.extras &&
-        nextProps.navigation.state.params.extras !== {}
-      ) {
-        // If the navigation contains an "extras" param (End fuelling or test drive)
-        const { extras } = nextProps.navigation.state.params;
-        console.log('extras', extras);
+    const thisParams = this.props.navigation.state.params;
+    const prevParams = prevProps.navigation.state.params;
+    if (thisParams !== prevParams) {
+      if (thisParams.findingOnMap === true) {
+        // if the navigation 'findingOnMap' param is true (from History screen)
+        const {
+          space_coords,
+          findingOnMap,
+        } = this.props.navigation.state.params;
+        console.log('Finding on map Event. COORDS: ', space_coords);
+        let centerCoordinate = this._calculateCenter(
+          space_coords.geometry.coordinates[0],
+        );
+        console.log('set modal state true');
+        this.setState({
+          findingOnMap: findingOnMap,
+          modalVisible: true,
+          centerCoordinate: centerCoordinate,
+          zoomLevel: 18.5,
+          clickedStall: space_coords,
+        });
+      } else if (thisParams.currentParkingLot !== this.currentLot) {
+        console.log('parking lot changed');
+      } else if (this.props.navigation.state.params) {
+        if (thisParams.extras && thisParams.extras !== {}) {
+          // If the navigation contains an "extras" param (End fuelling or test drive)
+          const { extras } = this.props.navigation.state.params;
+          console.log('extras', extras);
 
-        if (extras.endPackage) {
-          //EVENT NEEDS TO BE ENDED
-          const { endPackage, eventId, vehicleId } = extras;
-          console.log('EVENT NEEDS TO BE ENDED');
-          this.setVehicleHighlight(null);
-          this.setState({
-            postLoadAction: 'chooseEmptySpace',
-            modalVisible: false,
-            eventEnding: {
-              endPackage: endPackage,
-              eventId: eventId,
-            },
-            vehicleId: vehicleId,
-          });
-        } else if (extras.updateLocation && extras.updateLocation === true) {
-          this.setVehicleHighlight(null);
-          this.setState({
-            postLoadAction: 'chooseEmptySpace',
-            modalVisible: false,
-          });
-        } else if (extras.showModalonExit && extras.showModalonExit === true) {
-          console.log('set modal state true');
-          this.setState({
-            findingOnMap: false,
-            modalType: GlobalVariables.BASIC_MODAL_TYPE,
-            modalVisible: true,
-          });
+          if (extras.endPackage) {
+            //EVENT NEEDS TO BE ENDED
+            const { endPackage, eventId, vehicleId } = extras;
+            console.log('EVENT NEEDS TO BE ENDED');
+            this.setVehicleHighlight(null);
+            this.setState({
+              postLoadAction: 'chooseEmptySpace',
+              modalVisible: false,
+              eventEnding: {
+                endPackage: endPackage,
+                eventId: eventId,
+              },
+              vehicleId: vehicleId,
+            });
+          } else if (extras.updateLocation && extras.updateLocation === true) {
+            this.setVehicleHighlight(null);
+            this.setState({
+              postLoadAction: 'chooseEmptySpace',
+              modalVisible: false,
+            });
+          } else if (
+            extras.showModalonExit &&
+            extras.showModalonExit === true
+          ) {
+            console.log('set modal state true');
+            this.setState({
+              findingOnMap: false,
+              modalType: GlobalVariables.BASIC_MODAL_TYPE,
+              modalVisible: true,
+            });
+          } else {
+            this.setVehicleHighlight(null);
+            this.setState({
+              findingOnMap: false,
+              modalType: GlobalVariables.BASIC_MODAL_TYPE,
+              modalVisible: false,
+            });
+            return this._loadLotView(this.currentLot);
+          }
         } else {
-          this.setVehicleHighlight(null);
-          this.setState({
-            findingOnMap: false,
-            modalType: GlobalVariables.BASIC_MODAL_TYPE,
-            modalVisible: false,
-          });
-          return this._loadLotView(this.currentLot);
+          console.log('set modal state true');
+          this.setState({ findingOnMap: false, modalVisible: true });
         }
       } else {
         console.log('set modal state true');
         this.setState({ findingOnMap: false, modalVisible: true });
       }
-    } else {
-      console.log('set modal state true');
-      this.setState({ findingOnMap: false, modalVisible: true });
-    }
-    if (
-      nextProps.navigation.state.params &&
-      nextProps.navigation.state.params.refresh
-    ) {
-      console.log('REFRESHING LOT');
-      return this._loadLotView(this.currentLot);
+      if (thisParams && thisParams.refresh) {
+        console.log('REFRESHING LOT');
+        return this._loadLotView(this.currentLot);
+      }
     }
   }
   refresh() {
@@ -330,9 +332,9 @@ class LotView extends React.Component {
       );
       return fetch(
         GlobalVariables.BASE_ROUTE +
-          Route.FULL_LOT +
-          '?parking_lot_name=' +
-          currentLot.name,
+        Route.FULL_LOT +
+        '?parking_lot_name=' +
+        currentLot.name,
         {
           method: 'GET',
           headers: {
@@ -384,9 +386,9 @@ class LotView extends React.Component {
 
     return fetch(
       GlobalVariables.BASE_ROUTE +
-        Route.PARKING_SPACE_METADATA +
-        '?parking_lot_name=' +
-        this.currentLot.name,
+      Route.PARKING_SPACE_METADATA +
+      '?parking_lot_name=' +
+      this.currentLot.name,
       {
         method: 'GET',
         headers: {
@@ -2482,13 +2484,13 @@ class LotView extends React.Component {
                   if (this.state.userLocation !== null) {
                     if (
                       Number(location.coords.latitude).toFixed(5) !==
-                        Number(this.state.userLocation.coords.latitude).toFixed(
-                          5,
-                        ) ||
+                      Number(this.state.userLocation.coords.latitude).toFixed(
+                        5,
+                      ) ||
                       Number(location.coords.longitude).toFixed(5) !==
-                        Number(
-                          this.state.userLocation.coords.longitude,
-                        ).toFixed(5)
+                      Number(
+                        this.state.userLocation.coords.longitude,
+                      ).toFixed(5)
                     ) {
                       console.log('Update user location Lot View');
                       this.setState({ userLocation: location });

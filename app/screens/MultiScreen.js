@@ -105,8 +105,12 @@ class LotView extends React.Component {
       },
     });
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.navigation.state.params.resetValues === true) {
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      this.props.navigation.state.params.resetValues !==
+      prevProps.navigation.state.params.resetValues &&
+      this.props.navigation.state.params.resetValues === true
+    ) {
       this.setState({ newVehicleSpaces: [], usedVehicleSpaces: [] });
     }
   }
@@ -120,9 +124,9 @@ class LotView extends React.Component {
     );
     return fetch(
       GlobalVariables.BASE_ROUTE +
-        Route.FULL_LOT +
-        '?parking_lot_name=' +
-        this.state.currentParkingLot.name,
+      Route.FULL_LOT +
+      '?parking_lot_name=' +
+      this.state.currentParkingLot.name,
       {
         method: 'GET',
         headers: {
@@ -175,9 +179,9 @@ class LotView extends React.Component {
     var lotview = this;
     return fetch(
       GlobalVariables.BASE_ROUTE +
-        Route.PARKING_SPACE_METADATA +
-        '?parking_lot_name=' +
-        this.state.currentParkingLot.name,
+      Route.PARKING_SPACE_METADATA +
+      '?parking_lot_name=' +
+      this.state.currentParkingLot.name,
       {
         method: 'GET',
         headers: {
@@ -1172,9 +1176,9 @@ class LotView extends React.Component {
                       5,
                     ) ||
                     Number(location.coords.longitude).toFixed(5) !==
-                      Number(this.state.userLocation.coords.longitude).toFixed(
-                        5,
-                      ))
+                    Number(this.state.userLocation.coords.longitude).toFixed(
+                      5,
+                    ))
                 ) {
                   console.log('Update User Location Multi');
                   this.setState({ userLocation: location });

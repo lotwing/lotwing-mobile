@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  AsyncStorage,
-  Image,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
+import { Image, Text, TouchableOpacity, View, Alert } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
@@ -190,9 +180,8 @@ export default class DriveScreen extends React.Component {
       d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`;
     const seconds =
       d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`;
-    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${
-      months[d.getUTCMonth()]
-    } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
+    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]
+      } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
   }
 
   setDriveTime = timeDisplayed => {
@@ -325,13 +314,22 @@ export default class DriveScreen extends React.Component {
             <TouchableOpacity
               style={[
                 buttonStyles.activeSecondaryModalButton,
-                { width: '90%', paddingTop: 15, paddingBottom: 15 },
+                {
+                  width: '90%',
+                  paddingTop: 15,
+                  paddingBottom: 15,
+                  backgroundColor: '#90C055',
+                  borderColor: '#90C055',
+                },
               ]}
               onPress={() => this.startDrivingAction()}>
               <Text
                 style={[
                   buttonStyles.activeSecondaryTextColor,
-                  { fontWeight: '300', fontSize: 20 },
+                  {
+                    fontWeight: '300',
+                    fontSize: 20,
+                  },
                 ]}>
                 START TEST DRIVE
               </Text>

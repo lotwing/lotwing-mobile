@@ -30,7 +30,7 @@ export default class HistoryScreen extends React.Component {
       space_coords: [],
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     console.log('History Mounted');
     this.props.navigation.setParams({ extras: { showModalonExit: true } });
     if (this.props.navigation.state.params) {
@@ -43,12 +43,18 @@ export default class HistoryScreen extends React.Component {
       this.fetchHistory(space_id);
     }
   }
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     console.log('History Receive Props');
-    if (nextProps.navigation.state.params) {
-      const { space_id, vehicle, position } = nextProps.navigation.state.params;
-      this.setState({ space_id, vehicle, position });
-      this.fetchHistory(space_id);
+    if (this.props.navigation !== prevProps.navigation) {
+      if (this.props.navigation.state.params) {
+        const {
+          space_id,
+          vehicle,
+          position,
+        } = this.props.navigation.state.params;
+        this.setState({ space_id, vehicle, position });
+        this.fetchHistory(space_id);
+      }
     }
   }
 

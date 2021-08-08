@@ -51,18 +51,18 @@ export default class NoteScreen extends React.Component {
       //photos: []
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     console.log('History Mounted');
     this.props.navigation.setParams({ extras: { showModalonExit: true } });
   }
   /*
-	componentDidMount() {
+  componentDidMount() {
     FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'LotWing').catch(e => {
       console.log(e, 'Directory exists');
     });
-	}
+  }
 
-	async askCameraPermissions() {
+  async askCameraPermissions() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({ hasCameraPermission: status === 'granted' });
   }
@@ -72,9 +72,9 @@ export default class NoteScreen extends React.Component {
       this.camera.takePictureAsync({ base64: true, onPictureSaved: this.onPictureSaved });
     }
     console.log('Photo taken')
-	};
+  };
 
-	onPictureSaved = async photo => {
+  onPictureSaved = async photo => {
     await FileSystem.moveAsync({
       from: photo.uri,
       to: `${FileSystem.documentDirectory}LotWing/${Date.now()}.jpg`,
@@ -83,17 +83,17 @@ export default class NoteScreen extends React.Component {
     this.addPhoto(photo)
     //console.log(photo.base64);
     //this.setState({ newPhotos: true });
-	}
+  }
 
-	addPhoto(object) {
-		const tempPhotos = []
-		this.state.photos.forEach((photo) => {
-			tempPhotos.push(photo)
-		})
-		tempPhotos.push(object)
-		this.setState({ photos: tempPhotos })
-	}
-	*/
+  addPhoto(object) {
+    const tempPhotos = []
+    this.state.photos.forEach((photo) => {
+      tempPhotos.push(photo)
+    })
+    tempPhotos.push(object)
+    this.setState({ photos: tempPhotos })
+  }
+  */
 
   showSaveTagViews() {
     this.setState({ isNoteActionVisible: false });
@@ -296,40 +296,40 @@ export default class NoteScreen extends React.Component {
   render() {
     //console.log('Camera Open: ', this.state.cameraOpen, 'Camera has Permissions: ', this.state.hasCameraPermission)
     /*
-		if (this.state.cameraOpen) {
-			if (this.state.hasCameraPermission === null) {
-				this.askCameraPermissions();
-				return <View />
-			} else {
-				console.log('should show camera')
-				return (
-					<View style={{ flex: 1 }}>
-						<Camera style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }} type={this.state.type} ref={ref => this.camera = ref }>
-							<View style={{ width:40, height: 40, justifyContent: 'center', alignItems: 'center', margin: 20  }}>
-								<TouchableOpacity
-				          onPress={()=> this.setState({ cameraOpen: false})}
-				          style={{ flex: 1 }}
-				        >
-				        	<View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20 }}>
-				           <Text style={{ color: '#FFF', fontSize: 30, fontWeight: 'bold', lineHeight: 40 }}>×</Text>
-				          </View>
-								</TouchableOpacity>
-							</View>
-							<View style={{ width: Dimensions.get('window').width, height: 60, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
-								<TouchableOpacity
-				          onPress={this.takePicture}
-				          style={{ flex: 1 }}
-				        >
-				        	<View style={{ width: 60, height: 60, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
-				          <Ionicons type='ionicon' name={ 'ios-radio-button-on'} size={40} style={{ color: '#FFF' }} />
-				          </View>
-								</TouchableOpacity>
-							</View>
-						</Camera>
-					</View>
-				)
-			}
-		}*/
+    if (this.state.cameraOpen) {
+      if (this.state.hasCameraPermission === null) {
+        this.askCameraPermissions();
+        return <View />
+      } else {
+        console.log('should show camera')
+        return (
+          <View style={{ flex: 1 }}>
+            <Camera style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between' }} type={this.state.type} ref={ref => this.camera = ref }>
+              <View style={{ width:40, height: 40, justifyContent: 'center', alignItems: 'center', margin: 20  }}>
+                <TouchableOpacity
+                  onPress={()=> this.setState({ cameraOpen: false})}
+                  style={{ flex: 1 }}
+                >
+                  <View style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20 }}>
+                   <Text style={{ color: '#FFF', fontSize: 30, fontWeight: 'bold', lineHeight: 40 }}>×</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={{ width: Dimensions.get('window').width, height: 60, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+                <TouchableOpacity
+                  onPress={this.takePicture}
+                  style={{ flex: 1 }}
+                >
+                  <View style={{ width: 60, height: 60, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+                  <Ionicons type='ionicon' name={ 'ios-radio-button-on'} size={40} style={{ color: '#FFF' }} />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </Camera>
+          </View>
+        )
+      }
+    }*/
     return (
       <KeyboardAvoidingView
         style={[
