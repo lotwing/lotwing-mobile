@@ -73,6 +73,7 @@ export default class ChargeBtn extends Component {
         chargeActive: true,
         btnActive: true,
       });
+      this.props.setChargeState(true);
     });
   }
 
@@ -95,6 +96,7 @@ export default class ChargeBtn extends Component {
     )
       .then(result => {
         this.setState({ chargeActive: false, btnActive: true });
+        this.props.setChargeState(false);
       })
       .catch(err => {
         console.log('Event stop failed: ', err);
@@ -137,9 +139,8 @@ export default class ChargeBtn extends Component {
       d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`;
     const seconds =
       d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`;
-    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${
-      months[d.getUTCMonth()]
-    } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
+    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]
+      } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
   }
 
   showText() {
@@ -162,35 +163,35 @@ export default class ChargeBtn extends Component {
           if (this.state.btnActive) {
             this.state.chargeActive
               ? Alert.alert(
-                  'End Charge Session?',
-                  'Select Yes if ending charge.',
-                  [
-                    {
-                      text: 'Cancel',
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'Yes',
-                      onPress: () => this.stopCharge(),
-                    },
-                  ],
-                  { cancelable: true },
-                )
+                'End Charge Session?',
+                'Select Yes if ending charge.',
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Yes',
+                    onPress: () => this.stopCharge(),
+                  },
+                ],
+                { cancelable: true },
+              )
               : Alert.alert(
-                  'Is vehicle in right stall?',
-                  'If not correct stall perform CHANGE STALL first',
-                  [
-                    {
-                      text: 'No',
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'Yes',
-                      onPress: () => this.startCharge(),
-                    },
-                  ],
-                  { cancelable: true },
-                );
+                'Is vehicle in right stall?',
+                'If not correct stall perform CHANGE STALL first',
+                [
+                  {
+                    text: 'No',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Yes',
+                    onPress: () => this.startCharge(),
+                  },
+                ],
+                { cancelable: true },
+              );
           }
         }}
         style={{ width: 80, height: 50 }}>

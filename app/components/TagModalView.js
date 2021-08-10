@@ -47,6 +47,7 @@ export default class TagModalView extends React.Component {
     this.dismissModal = this.dismissModal.bind(this);
     this.tapOutsideModal = this.tapOutsideModal.bind(this);
     this.confirmSpaceData = this.confirmSpaceData.bind(this);
+    this.setChargeState = this.setChargeState.bind(this);
     this.newStallNumber = '- -';
     this.newStockNumber = '- -';
 
@@ -72,6 +73,7 @@ export default class TagModalView extends React.Component {
       cameraReady: false,
       confirmActive: true,
       confirmText: 'CONFIRM STALL',
+      charging: false,
     };
   }
   componentDidMount() {
@@ -198,6 +200,7 @@ export default class TagModalView extends React.Component {
               drive: drive,
               fuel: fuel,
               charge: charge,
+              charging: charge.started_at !== null,
             });
             this.props.setVehicleId(
               sortedVehicles[this.state.arrayPosition].id,
@@ -440,6 +443,9 @@ export default class TagModalView extends React.Component {
         console.log('\nCAUGHT ERROR IN ODOMETER UPDATE: \n', err, err.name);
         return err;
       });
+  }
+  setChargeState(state) {
+    this.setState({ charging: state });
   }
   createVehicle(sku, type) {
     console.log('Location:', this.props.spaceId);
@@ -965,7 +971,7 @@ export default class TagModalView extends React.Component {
             </View>
           </View>
           <View style={styles.tagButtonContainer}>
-            {this.state.charge.started_at !== null ? (
+            {this.state.charging ? (
               <View style={{ flex: 3 }}>
                 <View
                   style={{
@@ -1037,11 +1043,12 @@ export default class TagModalView extends React.Component {
                 event={this.state.charge}
                 vehicle={this.state.vehicle}
                 spaceId={this.props.spaceId}
+                setChargeState={this.setChargeState}
               />
             </View>
           </View>
 
-          {this.state.charge.started_at !== null && (
+          {this.state.charging && (
             <View style={{ paddingTop: 0, paddingBottom: 15 }}>
               <Text style={{ color: '#FFFFFF' }}>
                 Must end charge before any other actions can be applied.
@@ -1061,16 +1068,17 @@ export default class TagModalView extends React.Component {
                 ODO UPDATE
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={buttonStyles.activeSecondaryModalButton}
-              onPress={() => {
-                this.showChooseSpaceView();
-              }}>
-              <Text style={buttonStyles.activeSecondaryTextColor}>
-                CHANGE STALL
-              </Text>
-            </TouchableOpacity>
+            {!this.state.charging && (
+              <TouchableOpacity
+                style={buttonStyles.activeSecondaryModalButton}
+                onPress={() => {
+                  this.showChooseSpaceView();
+                }}>
+                <Text style={buttonStyles.activeSecondaryTextColor}>
+                  CHANGE STALL
+                </Text>
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               style={[
