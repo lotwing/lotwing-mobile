@@ -865,7 +865,7 @@ export default class TagModalView extends React.Component {
                     style={[
                       { padding: 10, paddingLeft: 14, paddingRight: 14 },
                       keylocation.name ===
-                      this.state.vehicle.key_board_location_name && {
+                        this.state.vehicle.key_board_location_name && {
                         backgroundColor: '#727272',
                       },
                     ]}>
@@ -1609,7 +1609,7 @@ export default class TagModalView extends React.Component {
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <Text style={[styles.stallHeader, { marginRight: 10 }]}>
                     {this.state.vehicle !== null &&
-                      this.state.vehicle.stock_number
+                    this.state.vehicle.stock_number
                       ? this.state.vehicle.stock_number
                       : '   - -'}
                   </Text>
@@ -1744,7 +1744,7 @@ export default class TagModalView extends React.Component {
                 <Text style={styles.stallHeader}>
                   {' '}
                   {this.state.vehicle !== null &&
-                    this.state.vehicle.stock_number
+                  this.state.vehicle.stock_number
                     ? this.state.vehicle.stock_number
                     : '   - -'}{' '}
                 </Text>

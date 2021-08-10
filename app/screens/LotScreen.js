@@ -332,9 +332,9 @@ class LotView extends React.Component {
       );
       return fetch(
         GlobalVariables.BASE_ROUTE +
-        Route.FULL_LOT +
-        '?parking_lot_name=' +
-        currentLot.name,
+          Route.FULL_LOT +
+          '?parking_lot_name=' +
+          currentLot.name,
         {
           method: 'GET',
           headers: {
@@ -386,9 +386,9 @@ class LotView extends React.Component {
 
     return fetch(
       GlobalVariables.BASE_ROUTE +
-      Route.PARKING_SPACE_METADATA +
-      '?parking_lot_name=' +
-      this.currentLot.name,
+        Route.PARKING_SPACE_METADATA +
+        '?parking_lot_name=' +
+        this.currentLot.name,
       {
         method: 'GET',
         headers: {
@@ -2484,13 +2484,13 @@ class LotView extends React.Component {
                   if (this.state.userLocation !== null) {
                     if (
                       Number(location.coords.latitude).toFixed(5) !==
-                      Number(this.state.userLocation.coords.latitude).toFixed(
-                        5,
-                      ) ||
+                        Number(this.state.userLocation.coords.latitude).toFixed(
+                          5,
+                        ) ||
                       Number(location.coords.longitude).toFixed(5) !==
-                      Number(
-                        this.state.userLocation.coords.longitude,
-                      ).toFixed(5)
+                        Number(
+                          this.state.userLocation.coords.longitude,
+                        ).toFixed(5)
                     ) {
                       console.log('Update user location Lot View');
                       this.setState({ userLocation: location });
