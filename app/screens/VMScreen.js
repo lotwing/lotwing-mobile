@@ -179,8 +179,9 @@ class VMScreen extends Component {
             {models.map(model => {
               return (
                 <View style={{ paddingBottom: 5 }}>
-                  <Text style={t}>{`${model} (${vehicles.filter(vehicle => vehicle.model === model).length
-                    })`}</Text>
+                  <Text style={t}>{`${model} (${
+                    vehicles.filter(vehicle => vehicle.model === model).length
+                  })`}</Text>
                 </View>
               );
             })}

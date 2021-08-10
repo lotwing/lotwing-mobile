@@ -180,8 +180,9 @@ export default class DriveScreen extends React.Component {
       d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`;
     const seconds =
       d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`;
-    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]
-      } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
+    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${
+      months[d.getUTCMonth()]
+    } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
   }
 
   setDriveTime = timeDisplayed => {

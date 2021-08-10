@@ -123,7 +123,7 @@ class SalesScreen extends Component {
     return (
       string &&
       string
-        .replace(/\b(\w)/g, function (match, capture) {
+        .replace(/\b(\w)/g, function(match, capture) {
           return capture.toUpperCase();
         })
         .replace(/\s+/g, ' ')
@@ -168,8 +168,9 @@ class SalesScreen extends Component {
       d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : `${d.getUTCMinutes()}`;
     const seconds =
       d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : `${d.getUTCSeconds()}`;
-    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${months[d.getUTCMonth()]
-      } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
+    return `${days[d.getUTCDay()]}, ${d.getUTCDate()} ${
+      months[d.getUTCMonth()]
+    } ${d.getUTCFullYear()} ${hours}:${minutes}:${seconds} +0000`;
   }
 
   render() {
