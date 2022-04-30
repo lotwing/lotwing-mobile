@@ -54,3 +54,6 @@ Execute the following command from within the <i>/lotwing-mobile</i> folder:
 3. When it finishes, the .apk is available in `android/app/build/outputs/apk/release/app-release.apk`
 4. Upload it to the google play console
 5. To publish a public release, proceed in the google play store (beta release -> promote to public)
+
+
+Android bug: Add folder structure lotwing-mobile/android/app/build/intermediates/external_file_lib_dex_archives/debug/out
