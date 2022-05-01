@@ -30,6 +30,7 @@ import textStyles from '../constants/TextStyles';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+Ionicons.loadFont();
 /**
  *
  * Lot shapes include:
@@ -700,7 +701,6 @@ export default class TagModalView extends React.Component {
         modalTitle = 'Lease Return';
       }
     }
-
     if (this.state.loading) {
       return (
         <KeyboardAvoidingView
@@ -739,7 +739,12 @@ export default class TagModalView extends React.Component {
     }
     if (this.state.barcodeOpen) {
       return (
-        <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#FFF',
+            marginTop: getStatusBarHeight(true),
+          }}>
           <View
             style={{
               flex: 0,

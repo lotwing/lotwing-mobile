@@ -1,18 +1,7 @@
 import React from 'react';
-import {
-  AsyncStorage,
-  Image,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
+import { Image, Text, TouchableOpacity, View, Alert } from 'react-native';
 
 import GlobalVariables from '../constants/GlobalVariables';
-import Route from '../constants/Routes';
 
 import Timer from '../components/Timer';
 

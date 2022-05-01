@@ -1,5 +1,4 @@
 PODS:
-  - "@react-native-mapbox-gl-mapbox-static (5.9.0)"
   - boost (1.76.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.67.0)
@@ -221,20 +220,20 @@ PODS:
     - React-Core
   - react-native-camera/RN (3.40.0):
     - React-Core
-  - react-native-mapbox-gl (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+  - react-native-mapbox-gl (8.5.0):
+    - Mapbox-iOS-SDK (~> 5.9.0)
     - React
-    - react-native-mapbox-gl/DynamicLibrary (= 8.0.0)
-    - react-native-mapbox-gl/StaticLibraryFixer (= 8.0.0)
-  - react-native-mapbox-gl/DynamicLibrary (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+    - React-Core
+    - react-native-mapbox-gl/DynamicLibrary (= 8.5.0)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.5.0)
+  - react-native-mapbox-gl/DynamicLibrary (8.5.0):
+    - Mapbox-iOS-SDK (~> 5.9.0)
     - React
-  - react-native-mapbox-gl/StaticLibraryFixer (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+    - React-Core
+  - react-native-mapbox-gl/StaticLibraryFixer (8.5.0):
+    - Mapbox-iOS-SDK (~> 5.9.0)
     - React
+    - React-Core
   - react-native-netinfo (8.3.0):
     - React-Core
   - React-perflogger (0.67.0)
@@ -314,8 +313,8 @@ PODS:
     - React-Core
   - RNScreens (1.0.0-alpha.23):
     - React
-  - RNVectorIcons (7.1.0):
-    - React
+  - RNVectorIcons (9.1.0):
+    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -364,7 +363,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - "@react-native-mapbox-gl-mapbox-static"
     - fmt
     - Mapbox-iOS-SDK
     - MapboxMobileEvents
@@ -452,7 +450,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  "@react-native-mapbox-gl-mapbox-static": 83c0e0ba33597bb694735ffb136d3d96780af37d
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   FBLazyVector: dce905f90eacf2e62ffbc2a4bbda8ea630aabd8a
@@ -474,7 +471,7 @@ SPEC CHECKSUMS:
   React-jsinspector: c9d1ddf4b1efbcf90323e3581ccff200cf4de346
   React-logger: 5d42caeaf0c31a9b29efb33e10e7f7031f958bfd
   react-native-camera: 35854c4f764a4a6cf61c1c3525888b92f0fe4b31
-  react-native-mapbox-gl: 77b87a1dd2d7b41b6b77018c0f3bed5f8ee55c81
+  react-native-mapbox-gl: 955d2c064b56ef058b9cc0fbbf6cf743b05c928e
   react-native-netinfo: 3671b091c4843fda5e153612866ef4024b8f5d62
   React-perflogger: 9454d63e7027e0830fa3e527628558160684f5dd
   React-RCTActionSheet: 240d798e2f5bd1ba2e85503a00fd390f560e6827
@@ -494,9 +491,9 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad
   RNScreens: f28b48b8345f2f5f39ed6195518291515032a788
-  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
+  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
   Yoga: 3f5bfc54ce164fcd5b5d7f9f4232182d6298dd56
 
-PODFILE CHECKSUM: 6089e418eb8f19a07abbdd74ee11eb1aa5121d36
+PODFILE CHECKSUM: 04a84dab836240af5d075ab94e590d84c38e95cf
 
 COCOAPODS: 1.11.3

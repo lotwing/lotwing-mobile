@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Alert,
-  AsyncStorage,
   Button,
   Platform,
   Image,
@@ -13,6 +12,7 @@ import {
   View,
   KeyboardAvoidingView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import buttonStyles from '../constants/ButtonStyles';
 

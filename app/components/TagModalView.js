@@ -35,6 +35,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import LotActionHelper from '../helpers/LotActionHelper';
 
+Ionicons.loadFont();
 /**
  *
  * Lot shapes include:
@@ -1513,7 +1514,12 @@ export default class TagModalView extends React.Component {
     if (this.state.barcodeOpen) {
       return (
         <View
-          style={{ flex: 1, backgroundColor: '#FFF', position: 'relative' }}>
+          style={{
+            flex: 1,
+            backgroundColor: '#FFF',
+            position: 'relative',
+            marginTop: getStatusBarHeight(true),
+          }}>
           <View
             style={{
               flex: 0,
@@ -1521,6 +1527,7 @@ export default class TagModalView extends React.Component {
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: 10,
+              elevation: 20,
             }}>
             <Text style={{ fontWeight: 'bold' }}>Scan Barcode</Text>
           </View>

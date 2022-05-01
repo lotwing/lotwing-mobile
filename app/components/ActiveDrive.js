@@ -11,6 +11,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
 
+Ionicons.loadFont();
+
 export default class ActiveDrive extends Component {
   state = { loading: true, open: false, results: [] };
   UNSAFE_componentWillMount() {

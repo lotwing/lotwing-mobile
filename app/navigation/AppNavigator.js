@@ -3,7 +3,7 @@ import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
-import { Image, TouchableOpacity, Text, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Tabs from './Tabs';
 import GlobalVariables from '../constants/GlobalVariables';
@@ -20,6 +20,7 @@ import HistoryScreen from '../screens/HistoryScreen';
 
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
+Ionicons.loadFont();
 class NavigationMenu extends React.Component {
   render() {
     const { navigation } = this.props;

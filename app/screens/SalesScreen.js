@@ -7,14 +7,13 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  AsyncStorage,
 } from 'react-native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 import ActiveDrive from '../components/ActiveDrive';
 import GlobalVariables from '../constants/GlobalVariables';
 import Route from '../constants/Routes';
-import * as pkg from '../../package.json';
+//import * as pkg from '../../package.json';
 
 class SalesScreen extends Component {
   state = {

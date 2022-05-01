@@ -1,11 +1,8 @@
 import React from 'react';
-import { AsyncStorage, View, Text } from 'react-native';
+import { View, Text } from 'react-native';
 
 import buttonStyles from '../constants/ButtonStyles';
-import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
-
-import LotActionHelper from '../helpers/LotActionHelper';
 
 export default class Timer extends React.Component {
   constructor(props) {

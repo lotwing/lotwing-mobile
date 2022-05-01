@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  AsyncStorage,
   Image,
   Keyboard,
   Platform,
@@ -15,6 +14,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RNCamera } from 'react-native-camera';
 import BarcodeMask from 'react-native-barcode-mask';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -44,6 +44,7 @@ import ActiveDrive from '../components/ActiveDrive';
 import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
+Ionicons.loadFont();
 /**
  *
  * Lot shapes include:

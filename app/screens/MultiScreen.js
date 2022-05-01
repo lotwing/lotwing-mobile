@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  AsyncStorage,
   Keyboard,
   StatusBar,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
@@ -29,6 +29,7 @@ import LotActionHelper from '../helpers/LotActionHelper';
 
 import Mapbox from '@react-native-mapbox-gl/maps';
 
+Ionicons.loadFont();
 /**
  *
  * Lot shapes include:

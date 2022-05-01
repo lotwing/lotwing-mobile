@@ -1,17 +1,13 @@
 import React from 'react';
 import {
-  AsyncStorage,
   Image,
   Platform,
-  StatusBar,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
   View,
-  ScrollView,
   Dimensions,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -28,6 +24,7 @@ import pageStyles from '../constants/PageStyles';
 import textStyles from '../constants/TextStyles';
 
 import LotActionHelper from '../helpers/LotActionHelper';
+Ionicons.loadFont();
 
 export default class NoteScreen extends React.Component {
   constructor(props) {
