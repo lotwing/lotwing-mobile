@@ -74,7 +74,7 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     entryFile: "index.js",
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true,  // clean and rebuild if changing
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -102,7 +102,7 @@ def getPassword(String currentUser, String keyChain) {
       stdout.toString().trim()
 }
 
-def pass = getPassword("lotwing", MYAPP_RELEASE_KEY_NAME)
+def pass = "3Gfjd55J'R/MUtmM7XK2EN~>"
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
@@ -141,8 +141,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         vectorDrawables.useSupportLibrary true
-        versionCode 22
-        versionName "1.1.33"
+        versionCode 28
+        versionName "1.1.43"
         multiDexEnabled true // Requires changes to MainApplication.java
     }
     splits {
